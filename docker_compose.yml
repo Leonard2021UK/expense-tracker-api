@@ -1,0 +1,35 @@
+version: '3'
+
+volumes:
+  api_mysql_data:
+    driver: local
+services:
+  api_mysql:
+    image: mysql:5.7
+    volumes:
+      - api_mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: api
+      MYSQL_USER: api
+      MYSQL_PASSWORD: apipassword
+    ports:
+      - 33307:3306
+
+#version: '3'
+#
+#volumes:
+#  budget_mysql_data:
+#    driver: local
+#services:
+#  ba_mysql:
+#    image: mysql:5.7
+#    volumes:
+#      - budget_mysql_data:/var/lib/mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: budget_mysql_data
+#      MYSQL_USER: admin
+#      MYSQL_PASSWORD: password
+#    ports:
+#      - 33307:3608
