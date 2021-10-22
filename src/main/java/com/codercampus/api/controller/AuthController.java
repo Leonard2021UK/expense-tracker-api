@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.codercampus.api.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,8 +38,7 @@ import com.codercampus.api.security.UserDetailsImpl;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    AuthenticationService authenticationService;
 
     @Autowired
     UserRepository userRepository;
@@ -53,16 +52,21 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
+    public AuthController(AuthenticationService authenticationService){
+        this.authenticationService = authenticationService;
+    }
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        Authentication authentication = this.authenticationService.authenticateUser(loginRequest);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        this.authenticationService.setAuthenticationInSecurityContext(authentication);
+
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());

@@ -19,6 +19,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
+/**
+ * This filter executes once per request and validates the provided JWT token
+ */
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtils jwtUtils;
@@ -28,16 +31,29 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
+    /**
+     * Same contract as for doFilter, but guaranteed to be just invoked once per request within a single request thread.
+     * @param request Defines an object to provide client request information to a servlet
+     * @param response Defines an object to assist the servlet in sending a response to the client.
+     * @param filterChain A FilterChain is an object provided by the servlet container to the developer giving a view into the invocation chain of a filtered request for a resource.
+     *                    Filters use the FilterChain to invoke the next filter in the chain, or if the calling filter is the last filter in the chain, to invoke the resource at the end of the chain.
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+             // Get Jason Web Token out of the request header
             String jwt = parseJwt(request);
+
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+
+                // When the provided JWT  is valid create a new Authenticate objet
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);

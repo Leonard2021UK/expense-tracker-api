@@ -37,6 +37,11 @@ public class JwtUtils {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
+    /**
+     *
+     * @param authToken JWT token parsed from the request header
+     * @return {{boolean}} boolean value whether the JWT is valid or not
+     */
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
