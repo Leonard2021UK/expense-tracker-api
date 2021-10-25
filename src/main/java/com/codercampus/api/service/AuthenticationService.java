@@ -18,19 +18,19 @@ public class AuthenticationService {
 
     /**
      *
-     * @param request
+     * @param loginRequest - login request body
      * @return an {Authentication} populated by the authenticated user details
      */
-    public Authentication authenticateUser(LoginRequest request){
+    public Authentication authenticateUser(LoginRequest loginRequest){
         // UsernamePasswordAuthenticationToken is a type of Authentication object which is passed to the
         // authentication manager to authenticate th user. UsernamePasswordAuthenticationToken uses userDetail, userdetailService and passwordEncoder
         // to retrieve and authenticate the user.
-       return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
+       return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
     }
 
     /**
      * Sets authenticated user into the security context
-     * @param authentication
+     * @param authentication - authenticated user
      */
     public void setAuthenticationInSecurityContext(Authentication authentication){
         SecurityContextHolder.getContext().setAuthentication(authentication);

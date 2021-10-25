@@ -11,65 +11,76 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.codercampus.api.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.stereotype.Component;
+
 
 public class UserDetailsImpl implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private final User user;
 
-    private String username;
-
-    private String email;
-
-    @JsonIgnore
-    private String password;
-
-    private Collection<? extends GrantedAuthority> authorities;
-
-    public UserDetailsImpl(Long id, String username, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.authorities = authorities;
+    public UserDetailsImpl (User user){
+        this.user = user;
     }
 
-    public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
+//    private Long id;
+//
+//    private String username;
+//
+//    private String email;
+//
+//    @JsonIgnore
+//    private String password;
 
-        return new UserDetailsImpl(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPassword(),
-                authorities);
-    }
+//    private Collection<? extends GrantedAuthority> authorities;
+
+//    public UserDetailsImpl(Long id, String username, String email, String password,
+//                           Collection<? extends GrantedAuthority> authorities) {
+//        this.id = id;
+//        this.username = username;
+//        this.email = email;
+//        this.password = password;
+//        this.authorities = authorities;
+//    }
+
+//    public static UserDetailsImpl build(User user) {
+//        List<GrantedAuthority> authorities = user.getRoles().stream()
+//                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+//                .collect(Collectors.toList());
+
+//        return new UserDetailsImpl(
+//                user.getId(),
+//                user.getUsername(),
+//                user.getEmail(),
+//                user.getPassword(),
+//                authorities);
+//        return new UserDetailsImpl(user);
+//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
     }
 
     public Long getId() {
-        return id;
+        return this.user.getId();
     }
 
     public String getEmail() {
-        return email;
+        return this.user.getEmail();
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return this.user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return this.user.getUsername();
     }
 
     @Override
@@ -99,6 +110,6 @@ public class UserDetailsImpl implements UserDetails {
         if (o == null || getClass() != o.getClass())
             return false;
         UserDetailsImpl user = (UserDetailsImpl) o;
-        return Objects.equals(id, user.id);
+        return Objects.equals(this.user.getId(), user.getId());
     }
 }

@@ -54,6 +54,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 // When the provided JWT  is valid create a new Authenticate objet
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
+                // WebAuthenticationDetails is an implementation of AuthenticationDetailsSource which builds the details object
+                // from an HttpServletRequest object.
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);

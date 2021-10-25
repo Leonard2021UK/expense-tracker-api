@@ -24,33 +24,53 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         // jsr250Enabled = true,
         prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
 
+    private final UserDetailsServiceImpl userDetailsService;
+
+    private final AuthEntryPointJwt unauthorizedHandler;
+
+    public WebSecurityConfig(AuthEntryPointJwt unauthorizedHandler,UserDetailsServiceImpl userDetailsService){
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+    }
+
+    /**
+     *  Creates a filter which is called at every request exactly once
+     * @return OncePerRequestFilter type filter
+     */
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-
-
+    /**
+     *  Creates authenticationManagerBuilder bean and sets UserDetailsService and PasswordEncoder
+     * @param authenticationManagerBuilder Creates an instance of AuthenticationManager
+     * @throws Exception
+     */
     @Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
-
     }
 
+    /**
+     *  Creates AuthenticationManager manager type bean
+     * @return AuthenticationManager instance
+     * @throws Exception
+     */
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
+    /**
+     *  Creates BcryptPasswordEncoder type password encoder type bean
+     * @return BcryptPasswordEncoder instance
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -63,6 +83,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/test/**").permitAll()
+//                .antMatchers("/signup").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

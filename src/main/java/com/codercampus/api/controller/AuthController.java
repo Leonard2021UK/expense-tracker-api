@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.codercampus.api.service.AuthenticationService;
+import com.codercampus.api.service.RoleService;
+import com.codercampus.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,20 +42,26 @@ public class AuthController {
 
     AuthenticationService authenticationService;
 
-    @Autowired
-    UserRepository userRepository;
+    UserService userService;
 
-    @Autowired
-    RoleRepository roleRepository;
+    RoleService roleService;
 
-    @Autowired
     PasswordEncoder encoder;
 
-    @Autowired
     JwtUtils jwtUtils;
 
-    public AuthController(AuthenticationService authenticationService){
+    public AuthController(
+        AuthenticationService authenticationService,
+        UserService userService,
+        RoleService roleService,
+        PasswordEncoder encoder,
+        JwtUtils jwtUtils
+    ){
         this.authenticationService = authenticationService;
+        this.userService = userService;
+        this.roleService = roleService;
+        this.encoder = encoder;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/signin")
@@ -73,64 +81,84 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
+        return ResponseEntity.ok(
+                new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                roles));
+                roles)
+        );
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+
+        // Check if username already exists
+        if (this.userService.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Username is already taken!"));
         }
 
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        // Check if email already exists
+        if (this.userService.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
         // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
+        User user = new User(
+                signUpRequest.getUsername(),
                 signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
+                this.encoder.encode(signUpRequest.getPassword())
+        );
 
+        // Roles present in the request as String
         Set<String> strRoles = signUpRequest.getRole();
+
+        // Roles converted from String to Role
         Set<Role> roles = new HashSet<>();
 
+        // If role was not specified in the request set ROLE_USER as the role of the new user.
         if (strRoles == null) {
-            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+
+            Role userRole = this.roleService.findByName(ERole.ROLE_USER)
+                    // TODO Handle runtime exception
                     .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
             roles.add(userRole);
+
         } else {
+            // converts String role names to Role entity
             strRoles.forEach(role -> {
                 switch (role) {
                     case "admin":
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                        Role adminRole = this.roleService.findByName(ERole.ROLE_ADMIN)
+                                // TODO Handle runtime exception
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
 
                         break;
                     case "mod":
-                        Role modRole = roleRepository.findByName(ERole.ROLE_PAID_USER)
+                        Role modRole = this.roleService.findByName(ERole.ROLE_PAID_USER)
+                                // TODO Handle runtime exception
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
 
                         break;
                     default:
-                        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                        Role userRole = this.roleService.findByName(ERole.ROLE_USER)
+                                // TODO Handle runtime exception
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(userRole);
                 }
             });
         }
 
+        // Creates the relationship between the new user and its role, then saves the user
         user.setRoles(roles);
-        userRepository.save(user);
+        this.userService.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }

@@ -12,6 +12,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+/**
+ * The AuthenticationEntryPoint is used to request credentials from the client. For example, it
+ * might redirect to a log in page or send a WWW-Authenticate header.
+ */
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
