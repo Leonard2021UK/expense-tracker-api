@@ -1,10 +1,13 @@
 package com.codercampus.api.payload.request;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.validation.constraints.NotBlank;
 
 public class LoginRequest {
     @NotBlank
+    @JsonProperty("email")
     private String username;
 
     @NotBlank

@@ -1,10 +1,15 @@
 package com.codercampus.api.payload.response;
 
-public class MessageResponse {
+import java.util.UUID;
+
+public class ErrorResponse {
+
+    private UUID errorUniqueID;
     private String message;
 
 
-    public MessageResponse(String message) {
+    public ErrorResponse(String message) {
+        this.errorUniqueID = UUID.randomUUID();
         this.message = message;
     }
 
