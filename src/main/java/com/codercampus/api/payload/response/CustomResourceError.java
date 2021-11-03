@@ -6,14 +6,16 @@ import java.util.UUID;
 public class CustomResourceError {
     private final UUID errorUniqueID;
     private final LocalDateTime dateTime;
-
-    public CustomResourceError() {
-        this.errorUniqueID = UUID.randomUUID();
-        this.dateTime = LocalDateTime.now();
-    }
-
     private String message;
     private String errorTypeId;
+    private Exception exception;
+
+    public CustomResourceError(Exception exception) {
+        this.errorUniqueID = UUID.randomUUID();
+        this.dateTime = LocalDateTime.now();
+        this.exception = exception;
+    }
+
 
     public String getMessage() {
         return message;
@@ -30,4 +32,13 @@ public class CustomResourceError {
     public void setErrorTypeId(String errorTypeId) {
         this.errorTypeId = errorTypeId;
     }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
+    }
+
 }
