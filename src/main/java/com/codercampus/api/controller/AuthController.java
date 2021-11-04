@@ -83,20 +83,13 @@ public class AuthController {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location","localhost:3000/admin");
-        return ResponseEntity.status(302).headers(headers).body(new JwtResponse(jwt,
+        return ResponseEntity.ok(
+                new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                roles));
-//        return ResponseEntity.ok(
-//                new JwtResponse(jwt,
-//                userDetails.getId(),
-//                userDetails.getUsername(),
-//                userDetails.getEmail(),
-//                roles)
-//        );
+                roles)
+        );
     }
 
     @PostMapping("/register")
