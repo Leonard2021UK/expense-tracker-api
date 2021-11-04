@@ -12,6 +12,8 @@ import com.codercampus.api.service.AuthenticationService;
 import com.codercampus.api.service.RoleService;
 import com.codercampus.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -64,7 +66,8 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
     }
 
-    @PostMapping("/signin")
+    @CrossOrigin("{http://localhost:3000}")
+    @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = this.authenticationService.authenticateUser(loginRequest);
@@ -80,17 +83,23 @@ public class AuthController {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-
-        return ResponseEntity.ok(
-                new JwtResponse(jwt,
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location","localhost:3000/admin");
+        return ResponseEntity.status(302).headers(headers).body(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                roles)
-        );
+                roles));
+//        return ResponseEntity.ok(
+//                new JwtResponse(jwt,
+//                userDetails.getId(),
+//                userDetails.getUsername(),
+//                userDetails.getEmail(),
+//                roles)
+//        );
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
         // Check if username already exists
