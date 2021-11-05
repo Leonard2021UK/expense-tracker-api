@@ -2,6 +2,9 @@ package com.codercampus.api.payload.request;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * Extracts the refresh token from the request
+ */
 public class RefreshTokenRequest {
     @NotBlank
     private String refreshToken;

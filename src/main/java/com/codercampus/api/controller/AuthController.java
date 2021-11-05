@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.codercampus.api.exception.RefreshTokenException;
@@ -19,16 +21,13 @@ import com.codercampus.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.codercampus.api.model.ERole;
 import com.codercampus.api.model.Role;
@@ -77,7 +76,7 @@ public class AuthController {
 
     @CrossOrigin("{http://localhost:3000}")
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         Authentication authentication = this.authenticationService.authenticateUser(loginRequest);
 
@@ -93,23 +92,24 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
+        // generates new refresh token
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
+        final Cookie cookie = new Cookie("refreshToken", refreshToken.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(10000);
+        response.addCookie(cookie);
 
-        //        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Location","localhost:3000/admin");
-//        return ResponseEntity.status(200).body(new JwtResponse(jwt,
-//                userDetails.getId(),
-//                userDetails.getUsername(),
-//                userDetails.getEmail(),
-//                roles));
-        return ResponseEntity.ok(
-                new JwtResponse(jwt,
-                refreshToken,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles)
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(
+                    new JwtResponse(
+                        jwt,
+                        refreshToken,
+                        userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles
+                    )
         );
     }
 
@@ -186,18 +186,34 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    @PostMapping("/refresh_token")
-    public ResponseEntity<?> getRefreshToke(@Valid @RequestBody RefreshTokenRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+//    @PostMapping("/refresh_token")
+//    public ResponseEntity<?> getRefreshToke(@Valid @RequestBody RefreshTokenRequest request) {
+//        String requestRefreshToken = request.getRefreshToken();
+//
+//        return this.refreshTokenService.findByToken(requestRefreshToken)
+//                .map(this.refreshTokenService::verifyExpiration)
+//                .map(RefreshToken::getUser)
+//                .map(user -> {
+//                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+//                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
+//                })
+//                .orElseThrow(() -> new RefreshTokenException(requestRefreshToken,
+//                        "Refresh token is not in database!"));
+//    }
 
-        return this.refreshTokenService.findByToken(requestRefreshToken)
+    @PostMapping("/refresh_token")
+    public ResponseEntity<?> getRefreshToken(@CookieValue("refresh") String refreshToken) {
+
+        System.out.println(refreshToken);
+
+        return this.refreshTokenService.findByToken(refreshToken)
                 .map(this.refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
-                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
+                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
                 })
-                .orElseThrow(() -> new RefreshTokenException(requestRefreshToken,
+                .orElseThrow(() -> new RefreshTokenException(refreshToken,
                         "Refresh token is not in database!"));
     }
 }
