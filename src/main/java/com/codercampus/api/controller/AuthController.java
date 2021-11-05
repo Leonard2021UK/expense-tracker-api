@@ -8,7 +8,12 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.codercampus.api.exception.RefreshTokenException;
+import com.codercampus.api.model.RefreshToken;
+import com.codercampus.api.payload.request.RefreshTokenRequest;
+import com.codercampus.api.payload.response.RefreshTokenResponse;
 import com.codercampus.api.service.AuthenticationService;
+import com.codercampus.api.service.RefreshTokenService;
 import com.codercampus.api.service.RoleService;
 import com.codercampus.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +49,8 @@ public class AuthController {
 
     AuthenticationService authenticationService;
 
+    RefreshTokenService refreshTokenService;
+
     UserService userService;
 
     RoleService roleService;
@@ -57,13 +64,15 @@ public class AuthController {
         UserService userService,
         RoleService roleService,
         PasswordEncoder encoder,
-        JwtUtils jwtUtils
+        JwtUtils jwtUtils,
+        RefreshTokenService refreshTokenService
     ){
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.roleService = roleService;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @CrossOrigin("{http://localhost:3000}")
@@ -83,20 +92,25 @@ public class AuthController {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location","localhost:3000/admin");
-        return ResponseEntity.status(302).headers(headers).body(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
-//        return ResponseEntity.ok(
-//                new JwtResponse(jwt,
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
+
+        //        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Location","localhost:3000/admin");
+//        return ResponseEntity.status(200).body(new JwtResponse(jwt,
 //                userDetails.getId(),
 //                userDetails.getUsername(),
 //                userDetails.getEmail(),
-//                roles)
-//        );
+//                roles));
+        return ResponseEntity.ok(
+                new JwtResponse(jwt,
+                refreshToken,
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getEmail(),
+                roles)
+        );
     }
 
     @PostMapping("/register")
@@ -170,5 +184,20 @@ public class AuthController {
         this.userService.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    @PostMapping("/refresh_token")
+    public ResponseEntity<?> getRefreshToke(@Valid @RequestBody RefreshTokenRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return this.refreshTokenService.findByToken(requestRefreshToken)
+                .map(this.refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
+                })
+                .orElseThrow(() -> new RefreshTokenException(requestRefreshToken,
+                        "Refresh token is not in database!"));
     }
 }
