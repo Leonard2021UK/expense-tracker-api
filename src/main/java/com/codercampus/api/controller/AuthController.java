@@ -7,25 +7,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.codercampus.api.exception.RefreshTokenException;
 import com.codercampus.api.model.RefreshToken;
-import com.codercampus.api.payload.request.RefreshTokenRequest;
-import com.codercampus.api.payload.response.RefreshTokenResponse;
 import com.codercampus.api.service.AuthenticationService;
 import com.codercampus.api.service.RefreshTokenService;
 import com.codercampus.api.service.RoleService;
 import com.codercampus.api.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,12 +30,15 @@ import com.codercampus.api.payload.request.LoginRequest;
 import com.codercampus.api.payload.request.SignupRequest;
 import com.codercampus.api.payload.response.JwtResponse;
 import com.codercampus.api.payload.response.MessageResponse;
-import com.codercampus.api.repository.RoleRepository;
-import com.codercampus.api.repository.UserRepository;
 import com.codercampus.api.security.jwt.JwtUtils;
 import com.codercampus.api.security.UserDetailsImpl;
-
-@CrossOrigin(origins = "*", maxAge = 3600)
+//
+//@CrossOrigin(
+//        origins = "http://127.0.0.1:3000",
+//        allowCredentials = "true",
+//        exposedHeaders = "Set-Cookie",
+//        allowedHeaders = {"Accept","Content-Type"},
+//        maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -74,7 +71,6 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
-    @CrossOrigin("{http://localhost:3000}")
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
@@ -97,6 +93,8 @@ public class AuthController {
 
         final Cookie cookie = new Cookie("refreshToken", refreshToken.getToken());
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
         cookie.setMaxAge(10000);
         response.addCookie(cookie);
 
@@ -202,18 +200,18 @@ public class AuthController {
 //    }
 
     @PostMapping("/refresh_token")
-    public ResponseEntity<?> getRefreshToken(@CookieValue("refresh") String refreshToken) {
+    public ResponseEntity<?> getRefreshToken( HttpServletRequest request) {
 
-        System.out.println(refreshToken);
-
-        return this.refreshTokenService.findByToken(refreshToken)
-                .map(this.refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
-                    return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
-                })
-                .orElseThrow(() -> new RefreshTokenException(refreshToken,
-                        "Refresh token is not in database!"));
+      request.getHeaderNames().asIterator().forEachRemaining(System.out::println);
+        return ResponseEntity.ok().build();
+//        return this.refreshTokenService.findByToken(refreshToken)
+//                .map(this.refreshTokenService::verifyExpiration)
+//                .map(RefreshToken::getUser)
+//                .map(user -> {
+//                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
+//                    return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
+//                })
+//                .orElseThrow(() -> new RefreshTokenException(refreshToken,
+//                        "Refresh token is not in database!"));
     }
 }
