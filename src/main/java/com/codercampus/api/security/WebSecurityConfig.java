@@ -100,7 +100,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 configuration.setAllowCredentials(true);
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
-                configuration.setExposedHeaders(List.of("Set-Cookie"));
+//                configuration.setExposedHeaders(List.of("Set-Cookie"));
                 return configuration;
             };
             c.configurationSource(src);

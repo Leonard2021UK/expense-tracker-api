@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.codercampus.api.exception.RefreshTokenException;
 import com.codercampus.api.model.RefreshToken;
+import com.codercampus.api.payload.response.RefreshTokenResponse;
 import com.codercampus.api.service.AuthenticationService;
 import com.codercampus.api.service.RefreshTokenService;
 import com.codercampus.api.service.RoleService;
@@ -200,18 +202,16 @@ public class AuthController {
 //    }
 
     @PostMapping("/refresh_token")
-    public ResponseEntity<?> getRefreshToken( HttpServletRequest request) {
+    public ResponseEntity<?> getRefreshToken(@CookieValue("refreshToken") String refreshToken) {
 
-      request.getHeaderNames().asIterator().forEachRemaining(System.out::println);
-        return ResponseEntity.ok().build();
-//        return this.refreshTokenService.findByToken(refreshToken)
-//                .map(this.refreshTokenService::verifyExpiration)
-//                .map(RefreshToken::getUser)
-//                .map(user -> {
-//                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
-//                    return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
-//                })
-//                .orElseThrow(() -> new RefreshTokenException(refreshToken,
-//                        "Refresh token is not in database!"));
+        return this.refreshTokenService.findByToken(refreshToken)
+                .map(this.refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
+                })
+                .orElseThrow(() -> new RefreshTokenException(refreshToken,
+                        "Refresh token is not in database!"));
     }
 }
