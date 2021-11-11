@@ -11,15 +11,15 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
-@Table(	name = "expenseTracker")
+@Table(	name = "expense_tracker")
 @Getter
 @Setter
 @ToString
@@ -32,8 +32,31 @@ public class ExpenseTracker {
     private String name;
 
     @ManyToOne
+    @NotNull
     private MainCategory mainCategory;
 
+
+
+    @ManyToOne
+    private User user;
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @OneToMany(mappedBy = "expenseTracker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<Expense> expenses = new HashSet<>();
+
+    public void addExpense(Expense expense){
+        expenses.add(expense);
+        expense.setExpenseTracker( this );
+    }
+
+    public void removeExpense(Expense expense){
+        expenses.remove(expense);
+        expense.setExpenseTracker( null );
+    }
 
     private String createdBy;
     private String updatedBy;

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(	name = "expenseAddress")
+@Table(	name = "expense_address")
 @Getter
 @Setter
 @ToString

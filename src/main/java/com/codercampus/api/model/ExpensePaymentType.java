@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(	name = "expensePaymentType")
+@Table(	name = "expense_payment_type")
 @Getter
 @Setter
 @ToString

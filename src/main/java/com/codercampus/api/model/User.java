@@ -41,7 +41,19 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User() {
+    public User() {}
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExpenseTracker> expenseTrackers = new HashSet<>();
+
+    public void addExpenseTracker(ExpenseTracker expenseTracker){
+        expenseTrackers.add(expenseTracker);
+        expenseTracker.setUser(this);
+    }
+
+    public void removeExpenseTracker(ExpenseTracker expenseTracker){
+        expenseTrackers.remove(expenseTracker);
+        expenseTracker.setUser(null);
     }
 
     public User(String username, String email, String password) {

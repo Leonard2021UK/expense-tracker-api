@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(	name = "itemCategory")
+@Table(	name = "item_category")
 @Getter
 @Setter
 @ToString

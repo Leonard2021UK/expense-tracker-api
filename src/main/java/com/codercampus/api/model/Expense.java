@@ -11,12 +11,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(	name = "expense")
@@ -44,6 +43,11 @@ public class Expense {
     private String updatedBy;
 
     @ManyToOne
+    private ExpenseTracker expenseTracker;
+
+
+
+    @ManyToOne
     private ExpensePaymentType expensePaymentType;
 
     @ManyToOne
@@ -51,6 +55,21 @@ public class Expense {
 
     @ManyToOne
     private ExpenseType expenseType;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ToString.Exclude
+    private Set<Item> items = new HashSet<>();
+
+    public void addItem(Item item){
+        items.add(item);
+        item.getExpense().add(this);
+    }
+
+    public void removeItem(Item item){
+        items.remove(item);
+        item.getExpense().remove(this);
+    }
+
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -67,7 +86,7 @@ public class Expense {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        return id != null && Objects.equals(name, item.name);
     }
 
     @Override

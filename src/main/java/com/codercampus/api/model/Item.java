@@ -8,12 +8,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(	name = "item")
@@ -29,11 +28,17 @@ public class Item {
     private String createdBy;
     private String updatedBy;
 
+    String name;
+
     @ManyToOne
     UnitType unitType;
 
     @ManyToOne
     ItemCategory itemCategory;
+
+    @ManyToMany(mappedBy = "items")
+    @ToString.Exclude
+    private Set<Expense> expense = new HashSet<>();
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -50,7 +55,8 @@ public class Item {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        return  Objects.equals(name, item.name) &&
+                Objects.equals(itemCategory.name, item.itemCategory.name);
     }
 
     @Override

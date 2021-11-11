@@ -12,13 +12,15 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(	name = "mainCategory")
+@Table(	name = "main_category")
 @Getter
 @Setter
 @ToString
@@ -26,8 +28,11 @@ import java.util.Set;
 public class MainCategory {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    @Size(min = 3,max = 100)
+    @NotNull
     String name;
 
     @OneToMany(mappedBy = "mainCategory",cascade = CascadeType.ALL, orphanRemoval = true)
@@ -43,7 +48,6 @@ public class MainCategory {
         expenseTrackers.remove( expenseTracker );
         expenseTracker.setMainCategory( null );
     }
-
 
     private String createdBy;
     private String updatedBy;
@@ -63,7 +67,7 @@ public class MainCategory {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        return id != null && Objects.equals(name, item.name);
     }
 
     @Override
