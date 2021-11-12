@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public  class ErrorCollection<T> {
+
+    private String message;
     List<T> errors = new ArrayList<>();
 
     public ErrorCollection() {}
@@ -18,5 +20,13 @@ public  class ErrorCollection<T> {
 
     public void setErrors(List<T> errors) {
         this.errors = errors;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

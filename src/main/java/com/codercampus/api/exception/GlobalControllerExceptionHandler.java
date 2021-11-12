@@ -3,6 +3,7 @@ package com.codercampus.api.exception;
 import com.codercampus.api.model.error.Error;
 import com.codercampus.api.model.error.ErrorCollection;
 import com.codercampus.api.model.error.Violation;
+import com.codercampus.api.model.error.ennum.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -146,7 +147,7 @@ public class GlobalControllerExceptionHandler {
 
         ErrorCollection<Violation> errorResponse = new ErrorCollection<>();
         for(ConstraintViolation<?> violation:ex.getConstraintViolations()){
-            errorResponse.getErrors().add(new Violation(violation.getPropertyPath().toString(),violation.getMessage()));
+            errorResponse.getErrors().add(new Violation(violation.getRootBeanClass().getName(), ErrorType.INVALID_DATA.name(),violation.getPropertyPath().toString(),violation.getMessage()));
         }
 
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
@@ -165,7 +166,7 @@ public class GlobalControllerExceptionHandler {
                                                                               WebRequest request) {
         ErrorCollection<Violation> errorResponse = new ErrorCollection<>();
         for (FieldError error:ex.getBindingResult().getFieldErrors()){
-            errorResponse.getErrors().add(new Violation(error.getField(),error.getDefaultMessage()));
+            errorResponse.getErrors().add(new Violation(ex.getClass().getSimpleName(), ErrorType.INVALID_DATA.name(),error.getField(),error.getDefaultMessage()));
         }
 
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
@@ -183,7 +184,9 @@ public class GlobalControllerExceptionHandler {
                                                                                   HttpHeaders headers, HttpStatus status,
                                                                               WebRequest request) {
         List<Error> errors = Collections.singletonList(new Error(ex.getMessage()));
-        return handleExceptionInternal(ex, new ErrorCollection<>(errors), headers, status, request);
+        ErrorCollection<?> errorC = new ErrorCollection<>(errors);
+        errorC.setMessage(ex.getClass().getName());
+        return handleExceptionInternal(ex, errorC, headers, status, request);
     }
 
     /**
