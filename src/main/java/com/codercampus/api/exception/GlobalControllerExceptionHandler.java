@@ -1,5 +1,6 @@
 package com.codercampus.api.exception;
 
+import com.codercampus.api.model.error.Error;
 import com.codercampus.api.model.error.ErrorCollection;
 import com.codercampus.api.model.error.Violation;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.util.WebUtils;
 
 import org.springframework.http.HttpHeaders;
@@ -32,9 +34,12 @@ public class GlobalControllerExceptionHandler {
      * @param request The current request
      */
     @ExceptionHandler({
-            CategoryNotFoundException.class,
+            CategoryNotFoundByNameException.class,
+            CategoryNotCreatedException.class,
             ConstraintViolationException.class,
-            MethodArgumentNotValidException.class
+            MethodArgumentNotValidException.class,
+            MethodArgumentTypeMismatchException.class,
+            NumberFormatException.class
     })
     public final ResponseEntity<ErrorCollection<?>> handleException(Exception ex, WebRequest request) {
 
@@ -48,9 +53,9 @@ public class GlobalControllerExceptionHandler {
 
             return handleCategoryNotCreated(categoryNCE, headers, status, request);
 
-        } else if (ex instanceof CategoryNotFoundException) {
+        } else if (ex instanceof CategoryNotFoundByNameException) {
             HttpStatus status = HttpStatus.NOT_FOUND;
-            CategoryNotFoundException categoryNFE = (CategoryNotFoundException) ex;
+            CategoryNotFoundByNameException categoryNFE = (CategoryNotFoundByNameException) ex;
 
             return handleCategoryNotFound(categoryNFE, headers, status, request);
 
@@ -66,7 +71,22 @@ public class GlobalControllerExceptionHandler {
 
             return handleMethodArgumentNotValid(methodANVE, headers, status, request);
 
-        }else {
+        }else if (ex instanceof MethodArgumentTypeMismatchException) {
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            MethodArgumentTypeMismatchException methodATME = (MethodArgumentTypeMismatchException) ex;
+
+            return handleMethodArgumentTypeMismatch(methodATME, headers, status, request);
+
+        }else if (ex instanceof NumberFormatException) {
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            NumberFormatException numberFE = (NumberFormatException) ex;
+
+            return handleNumberFormat(numberFE, headers, status, request);
+
+        }
+
+
+        else {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Unknown exception type: " + ex.getClass().getName());
             }
@@ -103,7 +123,7 @@ public class GlobalControllerExceptionHandler {
      * @param status The selected response status
      * @return a {@code ResponseEntity} instance
      */
-    protected ResponseEntity<ErrorCollection<?>> handleCategoryNotFound(CategoryNotFoundException ex,
+    protected ResponseEntity<ErrorCollection<?>> handleCategoryNotFound(CategoryNotFoundByNameException ex,
                                                                         HttpHeaders headers, HttpStatus status,
                                                                         WebRequest request) {
 
@@ -150,6 +170,38 @@ public class GlobalControllerExceptionHandler {
 
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
+
+    /**
+     * Customize the response for MethodArgumentTypeMismatchException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorCollection<?>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                                                  HttpHeaders headers, HttpStatus status,
+                                                                              WebRequest request) {
+        List<Error> errors = Collections.singletonList(new Error(ex.getMessage()));
+        return handleExceptionInternal(ex, new ErrorCollection<>(errors), headers, status, request);
+    }
+
+    /**
+     * Customize the response for NumberFormatException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorCollection<?>> handleNumberFormat(NumberFormatException ex,
+                                                                                  HttpHeaders headers, HttpStatus status,
+                                                                                  WebRequest request) {
+        List<Error> errors = Collections.singletonList(new Error(ex.getMessage()));
+        return handleExceptionInternal(ex, new ErrorCollection<>(errors), headers, status, request);
+    }
+
+
 
     /**
      * A single place to customize the response body of all Exception types.

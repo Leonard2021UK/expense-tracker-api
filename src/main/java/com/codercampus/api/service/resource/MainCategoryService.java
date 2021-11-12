@@ -17,5 +17,10 @@ public class MainCategoryService {
 
     public Optional<MainCategory> createMainCategory(MainCategory mainCategory){
         return Optional.of(this.mainCategoryRepo.save(mainCategory));
-    };
+    }
+
+    public Optional<MainCategory> findById(Long id){
+        return this.mainCategoryRepo.findById(id);
+    }
+
 }
