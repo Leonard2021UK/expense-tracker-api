@@ -1,16 +1,13 @@
 package com.codercampus.api.model.error;
 
-import com.codercampus.api.model.error.ennum.ErrorType;
+import com.codercampus.api.model.error.ennum.EErrorType;
 
 import java.util.UUID;
 
 public class Error {
     private final UUID errorUniqueID;
-    protected String source;
     protected String message;
-
-
-    protected ErrorType type;
+    protected EErrorType type;
 
 
     public Error(){
@@ -26,23 +23,15 @@ public class Error {
         return message;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
     public void setMessage(String message) {
         this.message = message;
     }
 
-    public ErrorType getType() {
+    public EErrorType getType() {
         return type;
     }
 
-    public void setType(ErrorType type) {
+    public void setType(EErrorType type) {
         this.type = type;
     }
 

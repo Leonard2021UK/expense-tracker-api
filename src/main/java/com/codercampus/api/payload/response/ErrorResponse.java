@@ -1,16 +1,25 @@
 package com.codercampus.api.payload.response;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ErrorResponse {
+public  class ErrorResponse<T> {
 
-    private UUID errorUniqueID;
     private String message;
+    List<T> errors = new ArrayList<>();
 
+    public ErrorResponse() {}
 
-    public ErrorResponse(String message) {
-        this.errorUniqueID = UUID.randomUUID();
-        this.message = message;
+    public ErrorResponse(List<T> errors){
+        this.errors = errors;
+    }
+
+    public List<T> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<T> errors) {
+        this.errors = errors;
     }
 
     public String getMessage() {

@@ -9,7 +9,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -25,6 +27,7 @@ import java.util.Set;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@DynamicUpdate
 public class MainCategory {
 
     @Id
@@ -52,9 +55,11 @@ public class MainCategory {
     private String createdBy;
     private String updatedBy;
 
+
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

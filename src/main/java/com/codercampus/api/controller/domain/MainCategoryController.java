@@ -1,22 +1,24 @@
 package com.codercampus.api.controller.domain;
 
-import com.codercampus.api.exception.CategoryNotCreatedException;
-import com.codercampus.api.exception.CategoryNotFoundByIdException;
-import com.codercampus.api.exception.CategoryNotFoundByNameException;
+import com.codercampus.api.exception.CustomException;
+import com.codercampus.api.exception.ResourceNotCreatedException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
+import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
+import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.resource.MainCategoryService;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Digits;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/main-category")
@@ -24,36 +26,84 @@ import java.util.Optional;
 public class MainCategoryController {
 
     private final MainCategoryService mainCategoryService;
+    private final MainCategoryMapper mainCategoryMapper;
 
-    public MainCategoryController(MainCategoryService mainCategoryService) {
+    public MainCategoryController(
+            MainCategoryService mainCategoryService,
+            MainCategoryMapper mainCategoryMapper
+    ) {
         this.mainCategoryService = mainCategoryService;
+        this.mainCategoryMapper = mainCategoryMapper;
     }
 
     @PostMapping
-    public ResponseEntity<MainCategory> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws CategoryNotCreatedException {
+    public ResponseEntity<MainCategoryResponseDto> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
 
         SecurityContext context = SecurityContextHolder.getContext();
         UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
         mainCategoryRequest.setCreatedBy(userDetails.getUsername());
-        MainCategory mainCategory = this.mainCategoryService.createMainCategory(mainCategoryRequest)
-                .orElseThrow(() -> CategoryNotCreatedException.createWith(mainCategoryRequest.getName()));
+        mainCategoryRequest.setUpdatedBy(userDetails.getUsername());
 
-        return new ResponseEntity<>(mainCategory, HttpStatus.CREATED);
+        ResourceNotCreatedException resourceNFException = ResourceNotCreatedException
+                .createWith(String.format("Main category with name (%s),has not been created!",mainCategoryRequest.getName()));
+
+        MainCategory mainCategory = this.mainCategoryService.save(mainCategoryRequest)
+                .orElseThrow(() -> resourceNFException);
+
+        return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MainCategory> findById(@PathVariable("id") Long id) throws CategoryNotFoundByIdException,NumberFormatException {
+    public ResponseEntity<MainCategoryResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
+                .createWith(String.format("The requested id (%d) has not been found!",id));
+        resourceNFException.setId(id);
 
-//               Long categoryId =  Long.valueOf(id);
-               MainCategory mainCategory = this.mainCategoryService.findById(id).orElseThrow(() -> CategoryNotFoundByIdException.createWith(id));
+        MainCategory mainCategory = this.mainCategoryService.findById(id).orElseThrow(() -> resourceNFException);
 
-               return new ResponseEntity<>(mainCategory, HttpStatus.CREATED);
+        return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.CREATED);
     }
 
-//    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-//        return new ResponseEntity<>("not valid due to validation error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-//    }
+    @GetMapping
+    public ResponseEntity<List<MainCategoryResponseDto>> getAllMainCategory() {
 
+        List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
+
+        return new ResponseEntity<>(mainCategoryCollection
+                .stream()
+                .map(mainCategoryMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable("id") Long id) throws CustomException {
+
+        try{
+            this.mainCategoryService.deleteById(id);
+        }catch (EmptyResultDataAccessException ex){
+            ResourceNotFoundException resourceNFException =  ResourceNotFoundException
+                    .createWith(String.format("The requested id (%d) has not been found!",id));
+            resourceNFException.setId(id);
+            throw resourceNFException;
+        }
+
+        //TODO successful feedback
+        return new ResponseEntity<>("id", HttpStatus.OK);
+    }
+
+    @PatchMapping
+    public ResponseEntity<MainCategoryResponseDto> updateMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
+        mainCategoryRequest.setUpdatedBy(userDetails.getUsername());
+
+        ResourceNotCreatedException resourceNFException = ResourceNotCreatedException
+                .createWith(String.format("Main category with name (%s),was not updated!",mainCategoryRequest.getName()));
+
+        MainCategory mainCategory = this.mainCategoryService.updateMainCategory(mainCategoryRequest)
+                .orElseThrow(() -> resourceNFException);
+
+        return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.OK);
+    }
 }

@@ -1,11 +1,14 @@
 package com.codercampus.api.exception;
 
 import com.codercampus.api.model.error.Error;
-import com.codercampus.api.model.error.ErrorCollection;
+import com.codercampus.api.payload.response.ErrorResponse;
 import com.codercampus.api.model.error.Violation;
-import com.codercampus.api.model.error.ennum.ErrorType;
+import com.codercampus.api.model.error.ennum.EErrorType;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -22,6 +25,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
@@ -35,32 +39,22 @@ public class GlobalControllerExceptionHandler {
      * @param request The current request
      */
     @ExceptionHandler({
-            CategoryNotFoundByNameException.class,
-            CategoryNotCreatedException.class,
             ConstraintViolationException.class,
             MethodArgumentNotValidException.class,
             MethodArgumentTypeMismatchException.class,
-            NumberFormatException.class
+            NumberFormatException.class,
+            EmptyResultDataAccessException.class,
+            NoSuchElementException.class,
+            ResourceNotFoundException.class,
+            ResourceNotUpdatedException.class
     })
-    public final ResponseEntity<ErrorCollection<?>> handleException(Exception ex, WebRequest request) {
+    public final ResponseEntity<ErrorResponse<?>> handleException(Exception ex, WebRequest request) {
 
         HttpHeaders headers = new HttpHeaders();
 
         LOGGER.error("Handling " + ex.getClass().getSimpleName() + " due to " + ex.getMessage());
 
-        if (ex instanceof CategoryNotCreatedException) {
-            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-            CategoryNotCreatedException categoryNCE = (CategoryNotCreatedException) ex;
-
-            return handleCategoryNotCreated(categoryNCE, headers, status, request);
-
-        } else if (ex instanceof CategoryNotFoundByNameException) {
-            HttpStatus status = HttpStatus.NOT_FOUND;
-            CategoryNotFoundByNameException categoryNFE = (CategoryNotFoundByNameException) ex;
-
-            return handleCategoryNotFound(categoryNFE, headers, status, request);
-
-        }else if (ex instanceof ConstraintViolationException) {
+        if (ex instanceof ConstraintViolationException) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             ConstraintViolationException constraintVE = (ConstraintViolationException) ex;
 
@@ -84,9 +78,19 @@ public class GlobalControllerExceptionHandler {
 
             return handleNumberFormat(numberFE, headers, status, request);
 
+        }else if (ex instanceof ResourceNotFoundException) {
+            HttpStatus status = HttpStatus.NOT_FOUND;
+            ResourceNotFoundException resourceNFE = (ResourceNotFoundException) ex;
+
+            return handleResourceNotFound(resourceNFE, headers, status, request);
+
+        }else if (ex instanceof ResourceNotUpdatedException) {
+            HttpStatus status = HttpStatus.NOT_MODIFIED;
+            ResourceNotUpdatedException resourceNUE = (ResourceNotUpdatedException) ex;
+
+            return handleResourceNotUpdated(resourceNUE, headers, status, request);
+
         }
-
-
         else {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Unknown exception type: " + ex.getClass().getName());
@@ -97,96 +101,77 @@ public class GlobalControllerExceptionHandler {
         }
     }
 
-    /**
-     * Customize the response for CategoryNotCreated
-     *
-     * @param ex The exception
-     * @param headers The headers to be written to the response
-     * @param status The selected response status
-     * @return a {@code ResponseEntity} instance
-     */
-    protected ResponseEntity<ErrorCollection<?>> handleCategoryNotCreated(CategoryNotCreatedException ex,
-                                                                          HttpHeaders headers, HttpStatus status,
-                                                                          WebRequest request) {
-
-        List<String> errors = Collections.singletonList(ex.getMessage());
-
-
-
-        return handleExceptionInternal(ex, new ErrorCollection<>(errors), headers, status, request);
-    }
-
-    /**
-     * Customize the response for CategoryNotFound.
-     *
-     * @param ex The exception
-     * @param headers The headers to be written to the response
-     * @param status The selected response status
-     * @return a {@code ResponseEntity} instance
-     */
-    protected ResponseEntity<ErrorCollection<?>> handleCategoryNotFound(CategoryNotFoundByNameException ex,
-                                                                        HttpHeaders headers, HttpStatus status,
-                                                                        WebRequest request) {
-
-        List<String> errors = Collections.singletonList(ex.getMessage());
-
-        return handleExceptionInternal(ex, new ErrorCollection<>(errors), headers, status, request);
-    }
 
     /**
      * Customize the response for ConstraintViolationException
-     *
+     * This method handles invalid form field data when using request parameter annotations
+     * eg.:@RequestParam("param") @Min(5) int param
      * @param ex The exception
      * @param headers The headers to be written to the response
      * @param status The selected response status
      * @return a {@code ResponseEntity} instance
      */
-    protected ResponseEntity<ErrorCollection<?>> handleConstraintViolation(ConstraintViolationException ex,
-                                                                           HttpHeaders headers, HttpStatus status,
-                                                                           WebRequest request) {
+    protected ResponseEntity<ErrorResponse<?>> handleConstraintViolation(ConstraintViolationException ex,
+                                                                         HttpHeaders headers, HttpStatus status,
+                                                                         WebRequest request) {
 
-        ErrorCollection<Violation> errorResponse = new ErrorCollection<>();
+
+
+        ErrorResponse<Violation> errorResponse = new ErrorResponse<>();
         for(ConstraintViolation<?> violation:ex.getConstraintViolations()){
-            errorResponse.getErrors().add(new Violation(violation.getRootBeanClass().getName(), ErrorType.INVALID_DATA.name(),violation.getPropertyPath().toString(),violation.getMessage()));
-        }
+            Violation customViolation = new Violation(violation.getPropertyPath().toString(),violation.getMessage());
+            customViolation.setType(EErrorType.INVALID_DATA);
+            errorResponse.getErrors().add(customViolation);        }
 
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
     /**
      * Customize the response for MethodArgumentNotValidException
-     *
+     * This method handles invalid form field data
      * @param ex The exception
      * @param headers The headers to be written to the response
      * @param status The selected response status
      * @return a {@code ResponseEntity} instance
      */
-    protected ResponseEntity<ErrorCollection<?>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                              HttpHeaders headers, HttpStatus status,
-                                                                              WebRequest request) {
-        ErrorCollection<Violation> errorResponse = new ErrorCollection<>();
+    protected ResponseEntity<ErrorResponse<?>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                            HttpHeaders headers, HttpStatus status,
+                                                                         WebRequest request) {
+        ErrorResponse<Violation> errorResponse = new ErrorResponse<>();
         for (FieldError error:ex.getBindingResult().getFieldErrors()){
-            errorResponse.getErrors().add(new Violation(ex.getClass().getSimpleName(), ErrorType.INVALID_DATA.name(),error.getField(),error.getDefaultMessage()));
+            Violation violation = new Violation(error.getField(),error.getDefaultMessage());
+            violation.setType(EErrorType.INVALID_DATA);
+            errorResponse.getErrors().add(violation);
         }
+
+        errorResponse.setMessage("Invalid field constraints");
 
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
     /**
      * Customize the response for MethodArgumentTypeMismatchException
-     *
+     * This method handles invalid request param conversion
+     * eg.: id cannot be converted to numeric value ("58gtg" to Long)
      * @param ex The exception
      * @param headers The headers to be written to the response
      * @param status The selected response status
      * @return a {@code ResponseEntity} instance
      */
-    protected ResponseEntity<ErrorCollection<?>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
-                                                                                  HttpHeaders headers, HttpStatus status,
-                                                                              WebRequest request) {
-        List<Error> errors = Collections.singletonList(new Error(ex.getMessage()));
-        ErrorCollection<?> errorC = new ErrorCollection<>(errors);
-        errorC.setMessage(ex.getClass().getName());
-        return handleExceptionInternal(ex, errorC, headers, status, request);
+    protected ResponseEntity<ErrorResponse<?>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                                                HttpHeaders headers, HttpStatus status,
+                                                                                WebRequest request) {
+        Error error = new Error(getDetailedMessage(ex));
+
+        error.setType(EErrorType.INVALID_RESOURCE_ID);
+
+        List<Error> errors = Collections.singletonList(error);
+
+        ErrorResponse<?> errorResponse = new ErrorResponse<>(errors);
+
+        errorResponse.setMessage("The requested resource ID is invalid");
+
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
     /**
@@ -197,12 +182,60 @@ public class GlobalControllerExceptionHandler {
      * @param status The selected response status
      * @return a {@code ResponseEntity} instance
      */
-    protected ResponseEntity<ErrorCollection<?>> handleNumberFormat(NumberFormatException ex,
-                                                                                  HttpHeaders headers, HttpStatus status,
-                                                                                  WebRequest request) {
+    protected ResponseEntity<ErrorResponse<?>> handleNumberFormat(NumberFormatException ex,
+                                                                  HttpHeaders headers, HttpStatus status,
+                                                                  WebRequest request) {
         List<Error> errors = Collections.singletonList(new Error(ex.getMessage()));
-        return handleExceptionInternal(ex, new ErrorCollection<>(errors), headers, status, request);
+        return handleExceptionInternal(ex, new ErrorResponse<>(errors), headers, status, request);
     }
+
+
+    /**
+     * Customize the response for NumberFormatException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorResponse<?>>handleResourceNotFound(ResourceNotFoundException ex,
+                                                                   HttpHeaders headers, HttpStatus status,
+                                                                   WebRequest request) {
+        Error error = new Error(ex.getMessage());
+        error.setType(EErrorType.RESOURCE_NOT_FOUND);
+        List<Error> errors = Collections.singletonList(error);
+
+        ErrorResponse<?> errorResponse = new ErrorResponse<>(errors);
+
+        errorResponse.setMessage(ex.getMessage());
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);
+    }
+
+
+    /**
+     * Customize the response for NumberFormatException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorResponse<?>>handleResourceNotUpdated(ResourceNotUpdatedException ex,
+                                                                     HttpHeaders headers, HttpStatus status,
+                                                                     WebRequest request) {
+        Error error = new Error(ex.getMessage());
+        error.setType(EErrorType.RESOURCE_NOT_UPDATED);
+        List<Error> errors = Collections.singletonList(error);
+
+        ErrorResponse<?> errorResponse = new ErrorResponse<>(errors);
+
+        errorResponse.setMessage(ex.getMessage());
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);
+    }
+
+
+
+
 
 
 
@@ -219,13 +252,27 @@ public class GlobalControllerExceptionHandler {
      * @param status The response status
      * @param request The current request
      */
-    protected ResponseEntity<ErrorCollection<?>> handleExceptionInternal(Exception ex, ErrorCollection<?> body,
-                                                                         HttpHeaders headers, HttpStatus status,
-                                                                         WebRequest request) {
+    protected ResponseEntity<ErrorResponse<?>> handleExceptionInternal(Exception ex, ErrorResponse<?> body,
+                                                                       HttpHeaders headers, HttpStatus status,
+                                                                       WebRequest request) {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
         }
 
         return new ResponseEntity<>(body, headers, status);
+    }
+
+    protected String getDetailedMessage(Exception ex){
+
+        final String message = ex.getMessage();
+        if (message == null) {
+            return "";
+        }
+        final int tailIndex = StringUtils.indexOf(message, "; nested exception is");
+        if (tailIndex == -1) {
+            return message;
+        }
+        return StringUtils.left(message, tailIndex);
+
     }
 }
