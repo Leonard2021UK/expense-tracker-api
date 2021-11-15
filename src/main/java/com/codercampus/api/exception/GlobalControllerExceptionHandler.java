@@ -1,9 +1,10 @@
 package com.codercampus.api.exception;
 
 import com.codercampus.api.model.error.Error;
+import com.codercampus.api.model.error.ennum.EErrorType;
 import com.codercampus.api.payload.response.ErrorResponse;
 import com.codercampus.api.model.error.Violation;
-import com.codercampus.api.model.error.ennum.EErrorType;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

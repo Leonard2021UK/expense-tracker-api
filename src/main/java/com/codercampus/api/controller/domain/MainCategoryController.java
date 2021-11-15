@@ -4,15 +4,18 @@ import com.codercampus.api.exception.CustomException;
 import com.codercampus.api.exception.ResourceNotCreatedException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
+import com.codercampus.api.model.User;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.security.UserDetailsImpl;
+import com.codercampus.api.service.UserService;
 import com.codercampus.api.service.resource.MainCategoryService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,13 +28,16 @@ import java.util.stream.Collectors;
 @Validated
 public class MainCategoryController {
 
+    private final UserService userService;
     private final MainCategoryService mainCategoryService;
     private final MainCategoryMapper mainCategoryMapper;
 
     public MainCategoryController(
+            UserService userService,
             MainCategoryService mainCategoryService,
             MainCategoryMapper mainCategoryMapper
     ) {
+        this.userService = userService;
         this.mainCategoryService = mainCategoryService;
         this.mainCategoryMapper = mainCategoryMapper;
     }
@@ -39,10 +45,16 @@ public class MainCategoryController {
     @PostMapping
     public ResponseEntity<MainCategoryResponseDto> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
+        // read currently logged in user into UserService
+        this.userService.setSecurityContext();
+
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+
+        mainCategoryRequest.setUser(userDetails.getUser());
         mainCategoryRequest.setCreatedBy(userDetails.getUsername());
         mainCategoryRequest.setUpdatedBy(userDetails.getUsername());
+
+        userDetails.getUser().addMainCategory(mainCategoryRequest);
 
         ResourceNotCreatedException resourceNFException = ResourceNotCreatedException
                 .createWith(String.format("Main category with name (%s),has not been created!",mainCategoryRequest.getName()));
@@ -94,8 +106,10 @@ public class MainCategoryController {
     @PatchMapping
     public ResponseEntity<MainCategoryResponseDto> updateMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
+        // read currently logged in user into UserService
+        this.userService.setSecurityContext();
+
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
         mainCategoryRequest.setUpdatedBy(userDetails.getUsername());
 
         ResourceNotCreatedException resourceNFException = ResourceNotCreatedException

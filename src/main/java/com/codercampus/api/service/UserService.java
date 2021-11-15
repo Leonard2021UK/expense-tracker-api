@@ -2,11 +2,14 @@ package com.codercampus.api.service;
 
 import com.codercampus.api.model.User;
 import com.codercampus.api.repository.UserRepository;
+import com.codercampus.api.security.UserDetailsImpl;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-
+    private SecurityContext context;
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository){
@@ -23,6 +26,14 @@ public class UserService {
 
     public void save(User user){
         this.userRepository.save(user);
+    }
+
+    public UserDetailsImpl getUserDetails (){
+        return  (UserDetailsImpl)context.getAuthentication().getPrincipal();
+    }
+
+    public void setSecurityContext(){
+        this.context = SecurityContextHolder.getContext();
     }
 
 }

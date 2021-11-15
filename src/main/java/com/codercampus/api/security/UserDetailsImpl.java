@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.codercampus.api.model.User;
 
 
-
+@Getter
+@Setter
 public class UserDetailsImpl implements UserDetails {
 
     private static final long serialVersionUID = 1L;
