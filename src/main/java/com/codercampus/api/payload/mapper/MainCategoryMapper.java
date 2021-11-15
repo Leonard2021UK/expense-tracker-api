@@ -4,11 +4,14 @@ import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.payload.request.requestdto.MainCategoryRequestDto;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = {UserMapper.class})
 public interface MainCategoryMapper {
     MainCategoryMapper INSTANCE = Mappers.getMapper(MainCategoryMapper.class);
+
+    @Mapping(source = "user.id", target = "id")
     MainCategoryResponseDto toResponseDto(MainCategory mainCategory);
     MainCategory toRequestDto(MainCategoryRequestDto mainCategoryRequestDto);
 }

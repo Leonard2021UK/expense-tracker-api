@@ -1,13 +1,12 @@
 package com.codercampus.api.payload.response.responsedto;
 
+import com.codercampus.api.model.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,6 +14,9 @@ import java.time.LocalDateTime;
 public class MainCategoryResponseDto {
     Long id;
     String name;
+
+    private User user;
+
     private String createdBy;
     private String updatedBy;
 

@@ -69,6 +69,7 @@ public class User {
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     Set<MainCategory> mainCategories = new HashSet<>();
 
     public void addMainCategory(MainCategory mainCategory) {

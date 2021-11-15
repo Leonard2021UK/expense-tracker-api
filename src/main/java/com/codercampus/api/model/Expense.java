@@ -84,13 +84,15 @@ public class Expense {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != null && Objects.equals(name, item.name);
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Expense expense = (Expense) o;
+
+        return name.equals(expense.name);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return name.hashCode();
     }
 }

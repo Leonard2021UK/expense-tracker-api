@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,7 +14,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -34,8 +32,6 @@ public class ExpenseTracker {
     @ManyToOne
     @NotNull
     private MainCategory mainCategory;
-
-
 
     @ManyToOne
     private User user;
@@ -74,13 +70,15 @@ public class ExpenseTracker {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ExpenseTracker that = (ExpenseTracker) o;
+
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return name.hashCode();
     }
 }
