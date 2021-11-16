@@ -7,6 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Getter
@@ -15,7 +17,7 @@ public class MainCategoryResponseDto {
     Long id;
     String name;
 
-    private User user;
+    private UserResponseDto user;
 
     private String createdBy;
     private String updatedBy;

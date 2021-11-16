@@ -20,6 +20,10 @@ public class MainCategoryService {
         return Optional.of(this.mainCategoryRepo.save(mainCategory));
     }
 
+    public boolean isExists(String name){
+        return this.mainCategoryRepo.existsByName(name);
+    }
+
     public Optional<MainCategory> findById(Long id){
         return this.mainCategoryRepo.findById(id);
     }

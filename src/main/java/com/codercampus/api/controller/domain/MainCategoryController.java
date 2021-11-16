@@ -45,6 +45,10 @@ public class MainCategoryController {
     @PostMapping
     public ResponseEntity<MainCategoryResponseDto> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
 
+        //TODO proper return for existing record
+        if(this.mainCategoryService.isExists(mainCategoryRequest.getName())){
+            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryRequest), HttpStatus.BAD_REQUEST);
+        }
         // read currently logged in user into UserService
         this.userService.setSecurityContext();
 
@@ -80,7 +84,7 @@ public class MainCategoryController {
     public ResponseEntity<List<MainCategoryResponseDto>> getAllMainCategory() {
 
         List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
-
+        System.out.println("hello");
         return new ResponseEntity<>(mainCategoryCollection
                 .stream()
                 .map(mainCategoryMapper::toResponseDto)

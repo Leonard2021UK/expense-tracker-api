@@ -74,15 +74,16 @@ public class MainCategory {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof MainCategory)) return false;
+//        if (o == null || getClass() != o.getClass()) return false;
 
         MainCategory that = (MainCategory) o;
 
-        return name.equals(that.name);
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return 31;
     }
 }

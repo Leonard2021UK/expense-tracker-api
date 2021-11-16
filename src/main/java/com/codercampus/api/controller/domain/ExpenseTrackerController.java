@@ -5,7 +5,11 @@ import com.codercampus.api.exception.ResourceNotCreatedException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.exception.ResourceNotUpdatedException;
 import com.codercampus.api.model.ExpenseTracker;
+import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
+import com.codercampus.api.payload.mapper.MainCategoryMapper;
+import com.codercampus.api.payload.response.responsedto.ExpenseTrackerResponseDto;
 import com.codercampus.api.security.UserDetailsImpl;
+import com.codercampus.api.service.UserService;
 import com.codercampus.api.service.resource.ExpenseTrackerService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -23,18 +27,34 @@ import java.util.List;
 @Validated
 public class ExpenseTrackerController {
 
-
+    private final UserService userService;
+    private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseTrackerService expenseTrackerService;
 
-    public ExpenseTrackerController(ExpenseTrackerService expenseTrackerService) {
+    public ExpenseTrackerController(
+            UserService userService,
+            ExpenseTrackerService expenseTrackerService,
+            ExpenseTrackerMapper expenseTrackerMapper
+    ) {
+        this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
+        this.expenseTrackerMapper = expenseTrackerMapper;
     }
 
     @PostMapping
-    public ResponseEntity<ExpenseTracker> createExpenseTracker(@Valid @RequestBody ExpenseTracker expenseTrackerRequest) throws ResourceNotCreatedException {
+    public ResponseEntity<ExpenseTrackerResponseDto> createExpenseTracker(@Valid @RequestBody ExpenseTracker expenseTrackerRequest) throws ResourceNotCreatedException {
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
+//        SecurityContext context = SecurityContextHolder.getContext();
+//        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
+//        expenseTrackerRequest.setCreatedBy(userDetails.getUsername());
+//        expenseTrackerRequest.setUpdatedBy(userDetails.getUsername());
+
+        // read currently logged in user into UserService
+        this.userService.setSecurityContext();
+
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+
+        expenseTrackerRequest.setUser(userDetails.getUser());
         expenseTrackerRequest.setCreatedBy(userDetails.getUsername());
         expenseTrackerRequest.setUpdatedBy(userDetails.getUsername());
 
@@ -44,7 +64,7 @@ public class ExpenseTrackerController {
         ExpenseTracker expenseTracker = this.expenseTrackerService.save(expenseTrackerRequest)
                 .orElseThrow(() -> resourceNCException);
 
-        return new ResponseEntity<>(expenseTracker, HttpStatus.CREATED);
+        return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
