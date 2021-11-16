@@ -18,6 +18,7 @@ public class MainCategoryResponseDto {
     String name;
 
     private UserResponseDto user;
+    private ExpenseTrackerResponseDto expenseTracker;
 
     private String createdBy;
     private String updatedBy;
