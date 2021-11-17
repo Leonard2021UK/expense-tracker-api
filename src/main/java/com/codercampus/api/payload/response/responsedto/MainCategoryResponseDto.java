@@ -17,7 +17,7 @@ public class MainCategoryResponseDto {
     Long id;
     String name;
 
-    private UserResponseDto user;
+    private long userId;
     private ExpenseTrackerResponseDto expenseTracker;
 
     private String createdBy;

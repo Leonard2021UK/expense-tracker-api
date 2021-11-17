@@ -1,7 +1,7 @@
 package com.codercampus.api.controller.domain;
 
+import com.codercampus.api.error.GlobalErrorHandler;
 import com.codercampus.api.exception.CustomException;
-import com.codercampus.api.exception.ResourceNotCreatedException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
@@ -10,17 +10,18 @@ import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import com.codercampus.api.service.resource.MainCategoryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,54 +32,89 @@ public class MainCategoryController {
     private final UserService userService;
     private final MainCategoryService mainCategoryService;
     private final MainCategoryMapper mainCategoryMapper;
+    private final GlobalErrorHandler errorHandler;
+    private final ObjectMapper objectMapper;
 
     public MainCategoryController(
             UserService userService,
             MainCategoryService mainCategoryService,
-            MainCategoryMapper mainCategoryMapper
+            MainCategoryMapper mainCategoryMapper,
+            GlobalErrorHandler globalErrorHandler,
+            ObjectMapper objectMapper
     ) {
         this.userService = userService;
         this.mainCategoryService = mainCategoryService;
         this.mainCategoryMapper = mainCategoryMapper;
+        this.errorHandler = globalErrorHandler;
+        this.objectMapper = objectMapper;
     }
 
     @PostMapping
-    public ResponseEntity<MainCategoryResponseDto> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
+    public ResponseEntity<?> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) {
 
-        //TODO proper return for existing record
-        if(this.mainCategoryService.isExists(mainCategoryRequest.getName())){
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryRequest), HttpStatus.BAD_REQUEST);
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.createIfNotExists(mainCategoryRequest);
+
+        // if mainCategory is not present a record with the same name already exists
+        // hence no new record was created
+        if(mainCategoryOpt.isPresent()){
+            return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
         }
-        // read currently logged in user into UserService
-        this.userService.setSecurityContext();
+        return this.errorHandler.handleResourceAlreadyExistError(mainCategoryRequest.getName(),mainCategoryRequest);
 
-        UserDetailsImpl userDetails = this.userService.getUserDetails();
+    }
 
-        mainCategoryRequest.setUser(userDetails.getUser());
-        mainCategoryRequest.setCreatedBy(userDetails.getUsername());
-        mainCategoryRequest.setUpdatedBy(userDetails.getUsername());
+    @PatchMapping
+    public ResponseEntity<?> updateMainCategory(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
-        userDetails.getUser().addMainCategory(mainCategoryRequest);
+       Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
 
-        ResourceNotCreatedException resourceNFException = ResourceNotCreatedException
-                .createWith(String.format("Main category with name (%s),has not been created!",mainCategoryRequest.getName()));
+       MainCategory newMainCategory = this.objectMapper.treeToValue(request,MainCategory.class);
 
-        MainCategory mainCategory = this.mainCategoryService.save(mainCategoryRequest)
-                .orElseThrow(() -> resourceNFException);
+       if(userOpt.isPresent()){
 
-        return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.CREATED);
+           // if the new main category name exist then return a corresponding error
+           if(this.mainCategoryService.isExists(newMainCategory.getName())){
+                return this.errorHandler.handleResourceAlreadyExistError(newMainCategory.getName(),newMainCategory);
+           }
+
+           MainCategory updatedMainCategory = this.mainCategoryService.updateMainCategory(newMainCategory,userOpt.get());
+
+           return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
+       }
+
+        return this.errorHandler.handleResourceNotUpdatedError(newMainCategory.getName(),newMainCategory);
+
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MainCategoryResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
-        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                .createWith(String.format("The requested id (%d) has not been found!",id));
-        resourceNFException.setId(id);
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+//        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
+//                .createWith(String.format("The requested id (%d) has not been found!",id));
+//        resourceNFException.setId(id);
 
-        MainCategory mainCategory = this.mainCategoryService.findById(id).orElseThrow(() -> resourceNFException);
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
 
-        return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.CREATED);
+        if(mainCategoryOpt.isPresent()){
+            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
+        }
+
+        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @GetMapping
     public ResponseEntity<List<MainCategoryResponseDto>> getAllMainCategory() {
@@ -107,21 +143,5 @@ public class MainCategoryController {
         return new ResponseEntity<>("id", HttpStatus.OK);
     }
 
-    @PatchMapping
-    public ResponseEntity<MainCategoryResponseDto> updateMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceNotCreatedException {
 
-        // read currently logged in user into UserService
-        this.userService.setSecurityContext();
-
-        UserDetailsImpl userDetails = this.userService.getUserDetails();
-        mainCategoryRequest.setUpdatedBy(userDetails.getUsername());
-
-        ResourceNotCreatedException resourceNFException = ResourceNotCreatedException
-                .createWith(String.format("Main category with name (%s),was not updated!",mainCategoryRequest.getName()));
-
-        MainCategory mainCategory = this.mainCategoryService.updateMainCategory(mainCategoryRequest)
-                .orElseThrow(() -> resourceNFException);
-
-        return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.OK);
-    }
 }

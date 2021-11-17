@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private SecurityContext context;
@@ -30,6 +32,10 @@ public class UserService {
 
     public UserDetailsImpl getUserDetails (){
         return  (UserDetailsImpl)context.getAuthentication().getPrincipal();
+    }
+
+    public Optional<User> findById(Long id){
+        return this.userRepository.findById(id);
     }
 
     public void setSecurityContext(){

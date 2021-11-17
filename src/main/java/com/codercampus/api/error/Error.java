@@ -8,6 +8,7 @@ public class Error {
     private final UUID errorUniqueID;
     protected String message;
     protected EErrorType type;
+    protected Object body;
 
 
     public Error(){
@@ -39,4 +40,11 @@ public class Error {
         return errorUniqueID;
     }
 
+    public Object getBody() {
+        return body;
+    }
+
+    public void setBody(Object body) {
+        this.body = body;
+    }
 }

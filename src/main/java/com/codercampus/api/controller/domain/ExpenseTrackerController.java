@@ -131,6 +131,7 @@ public class ExpenseTrackerController {
     @PatchMapping
     public ResponseEntity<ExpenseTrackerResponseDto> updateMainCategory(@Valid @RequestBody ExpenseTracker expenseTrackerRequest) throws ResourceNotCreatedException, ResourceNotUpdatedException {
 
+
         SecurityContext context = SecurityContextHolder.getContext();
         UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
         expenseTrackerRequest.setUpdatedBy(userDetails.getUsername());

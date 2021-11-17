@@ -11,6 +11,7 @@ import org.mapstruct.factory.Mappers;
 public interface MainCategoryMapper {
     MainCategoryMapper INSTANCE = Mappers.getMapper(MainCategoryMapper.class);
 
+    @Mapping(source = "user.id", target = "userId")
     MainCategoryResponseDto toResponseDto(MainCategory mainCategory);
     MainCategory toRequestDto(MainCategoryRequestDto mainCategoryRequestDto);
 }
