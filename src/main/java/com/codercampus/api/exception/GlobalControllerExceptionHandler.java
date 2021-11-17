@@ -1,15 +1,14 @@
 package com.codercampus.api.exception;
 
-import com.codercampus.api.model.error.Error;
-import com.codercampus.api.model.error.ennum.EErrorType;
+import com.codercampus.api.error.Error;
+import com.codercampus.api.error.ennum.EErrorType;
 import com.codercampus.api.payload.response.ErrorResponse;
-import com.codercampus.api.model.error.Violation;
+import com.codercampus.api.error.Violation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

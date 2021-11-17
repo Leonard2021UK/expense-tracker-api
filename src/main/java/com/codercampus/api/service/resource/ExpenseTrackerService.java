@@ -18,8 +18,8 @@ public class ExpenseTrackerService {
         this.expenseTrackerRepo = expenseTrackerRepo;
     }
 
-    public Optional<ExpenseTracker> save(ExpenseTracker expenseTracker){
-        return Optional.of(this.expenseTrackerRepo.save(expenseTracker));
+    public ExpenseTracker save(ExpenseTracker expenseTracker){
+        return this.expenseTrackerRepo.save(expenseTracker);
     }
 
     public Optional<ExpenseTracker> findById(Long id){
@@ -34,7 +34,7 @@ public class ExpenseTrackerService {
         this.expenseTrackerRepo.deleteById(id);
     }
 
-    public Optional<ExpenseTracker> updateMainCategory(ExpenseTracker expenseTracker){
+    public ExpenseTracker updateMainCategory(ExpenseTracker expenseTracker){
         return this.save(expenseTracker);
     }
 }

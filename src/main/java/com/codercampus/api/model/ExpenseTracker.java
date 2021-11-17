@@ -1,6 +1,7 @@
 package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
@@ -43,7 +44,6 @@ public class ExpenseTracker {
     }
 
     @OneToMany(mappedBy = "expenseTracker", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
     private Set<Expense> expenses = new HashSet<>();
 
     public void addExpense(Expense expense){
@@ -72,15 +72,18 @@ public class ExpenseTracker {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ExpenseTracker)) return false;
+//        if (o == null || getClass() != o.getClass()) return false;
 
         ExpenseTracker that = (ExpenseTracker) o;
 
-        return name.equals(that.name);
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return 31;
     }
+
+
 }

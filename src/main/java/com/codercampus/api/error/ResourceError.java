@@ -1,4 +1,4 @@
-package com.codercampus.api.model.error;
+package com.codercampus.api.error;
 
 import java.util.List;
 

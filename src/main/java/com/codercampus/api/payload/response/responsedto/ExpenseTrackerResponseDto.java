@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 public class ExpenseTrackerResponseDto {
 
     private Long id;
-    private Long userId;
-    private Long mainCategoryId;
+    private Long user;
+    private Long mainCategory;
     private String name;
 
     private String createdBy;

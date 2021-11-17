@@ -1,6 +1,6 @@
-package com.codercampus.api.model.error;
+package com.codercampus.api.error;
 
-import com.codercampus.api.model.error.ennum.EErrorType;
+import com.codercampus.api.error.ennum.EErrorType;
 
 import java.util.UUID;
 
