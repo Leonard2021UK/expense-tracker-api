@@ -16,15 +16,31 @@ public class MainCategoryService {
     private final UserService userService;
     private final MainCategoryRepo mainCategoryRepo;
 
+
+    /**
+     *
+     * @param userService
+     * @param mainCategoryRepo
+     */
     public MainCategoryService(UserService userService,MainCategoryRepo mainCategoryRepo) {
         this.userService = userService;
         this.mainCategoryRepo = mainCategoryRepo;
     }
 
+    /**
+     *
+     * @param mainCategory
+     * @return
+     */
     public MainCategory save(MainCategory mainCategory){
         return this.mainCategoryRepo.save(mainCategory);
     }
 
+    /**
+     *
+     * @param mainCategory
+     * @return
+     */
     public Optional<MainCategory> createIfNotExists(MainCategory mainCategory){
         if(this.mainCategoryRepo.existsByName(mainCategory.getName())){
             return Optional.empty();
@@ -44,24 +60,59 @@ public class MainCategoryService {
 
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     */
     public boolean isExists(String name){
         return this.mainCategoryRepo.existsByName(name);
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     public Optional<MainCategory> findById(Long id){
         return this.mainCategoryRepo.findById(id);
     }
 
+    /**
+     *
+     * @return
+     */
     public List<MainCategory> findAll(){
         return this.mainCategoryRepo.findAll();
     }
 
-    public void deleteById(Long id){
-        this.mainCategoryRepo.deleteById(id);
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public Optional<MainCategory> deleteById(Long id){
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryRepo.findById(id);
+
+        if(mainCategoryOpt.isPresent()){
+            MainCategory mainCategory = mainCategoryOpt.get();
+
+            mainCategory.getUser().getMainCategories().remove(mainCategory);
+
+            return Optional.of(this.save(mainCategory));
+        }
+        return Optional.empty();
     }
 
+    /**
+     *
+     * @param mainCategory
+     * @param user
+     * @return
+     */
     public MainCategory updateMainCategory(MainCategory mainCategory, User user){
 
+        //TODO examine the way how it could be extracted from UserDetailsImpl
         mainCategory.setUser(user);
 
         // read currently logged in user into UserService

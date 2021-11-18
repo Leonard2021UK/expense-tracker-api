@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MainCategoryRepo extends JpaRepository<MainCategory,Long> {
 
-    public boolean existsByName(String name);
+    boolean existsByName(String name);
 }

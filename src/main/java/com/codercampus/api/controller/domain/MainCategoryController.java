@@ -1,19 +1,16 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandler;
-import com.codercampus.api.exception.CustomException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import com.codercampus.api.payload.mapper.MainCategoryMapper;
-import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import com.codercampus.api.service.resource.MainCategoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +46,46 @@ public class MainCategoryController {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     *
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<List<MainCategoryResponseDto>> getAllMainCategory() {
+
+        List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
+        System.out.println("hello");
+        return new ResponseEntity<>(mainCategoryCollection
+                .stream()
+                .map(mainCategoryMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
+    }
+
+    /**
+     *
+     * @param id
+     * @return
+     * @throws NumberFormatException
+     * @throws ResourceNotFoundException
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
+
+        if(mainCategoryOpt.isPresent()){
+            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
+        }
+
+        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+
+    }
+
+    /**
+     *
+     * @param mainCategoryRequest
+     * @return
+     */
     @PostMapping
     public ResponseEntity<?> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) {
 
@@ -63,6 +100,12 @@ public class MainCategoryController {
 
     }
 
+    /**
+     *
+     * @param request
+     * @return
+     * @throws JsonProcessingException
+     */
     @PatchMapping
     public ResponseEntity<?> updateMainCategory(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
@@ -86,61 +129,21 @@ public class MainCategoryController {
 
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
-//        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-//                .createWith(String.format("The requested id (%d) has not been found!",id));
-//        resourceNFException.setId(id);
-
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
-
-        if(mainCategoryOpt.isPresent()){
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
-        }
-
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @GetMapping
-    public ResponseEntity<List<MainCategoryResponseDto>> getAllMainCategory() {
-
-        List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
-        System.out.println("hello");
-        return new ResponseEntity<>(mainCategoryCollection
-                .stream()
-                .map(mainCategoryMapper::toResponseDto)
-                .collect(Collectors.toList()), HttpStatus.OK);
-    }
-
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable("id") Long id) throws CustomException {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
 
-        try{
-            this.mainCategoryService.deleteById(id);
-        }catch (EmptyResultDataAccessException ex){
-            ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                    .createWith(String.format("The requested id (%d) has not been found!",id));
-            resourceNFException.setId(id);
-            throw resourceNFException;
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.deleteById(id);
+        if(mainCategoryOpt.isPresent()){
+            //TODO successful feedback
+            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
+
         }
-
-        //TODO successful feedback
-        return new ResponseEntity<>("id", HttpStatus.OK);
+        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
     }
 
 

@@ -4,5 +4,5 @@ import com.codercampus.api.model.ExpenseTracker;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExpenseTrackerRepo extends JpaRepository<ExpenseTracker,Long> {
-
+    boolean existsByName(String name);
 }

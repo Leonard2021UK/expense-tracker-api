@@ -1,25 +1,20 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandler;
-import com.codercampus.api.exception.CustomException;
-import com.codercampus.api.exception.ResourceNotCreatedException;
 import com.codercampus.api.exception.ResourceNotFoundException;
-import com.codercampus.api.exception.ResourceNotUpdatedException;
 import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.model.MainCategory;
+import com.codercampus.api.model.User;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
-import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.payload.response.responsedto.ExpenseTrackerResponseDto;
-import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import com.codercampus.api.service.resource.ExpenseTrackerService;
 import com.codercampus.api.service.resource.MainCategoryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.dao.EmptyResultDataAccessException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,57 +33,45 @@ public class ExpenseTrackerController {
     private final ExpenseTrackerService expenseTrackerService;
     private final MainCategoryService mainCategoryService;
     private final GlobalErrorHandler errorHandler;
+    private final ObjectMapper objectMapper;
+
 
     public ExpenseTrackerController(
             UserService userService,
             ExpenseTrackerService expenseTrackerService,
             ExpenseTrackerMapper expenseTrackerMapper,
             MainCategoryService mainCategoryService,
-            GlobalErrorHandler globalErrorHandler
-    ) {
+            GlobalErrorHandler globalErrorHandler,
+            ObjectMapper objectMapper) {
         this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
         this.expenseTrackerMapper = expenseTrackerMapper;
         this.mainCategoryService = mainCategoryService;
         this.errorHandler = globalErrorHandler;
+        this.objectMapper = objectMapper;
     }
 
-    @PostMapping
-    public ResponseEntity<?> createExpenseTracker(@Valid @RequestBody JsonNode expenseTrackerRequest) throws ResourceNotCreatedException {
+    /**
+     *
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<List<ExpenseTrackerResponseDto>>getAllExpenseTrackers() {
 
-//        SecurityContext context = SecurityContextHolder.getContext();
-//        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
-//        expenseTrackerRequest.setCreatedBy(userDetails.getUsername());
-//        expenseTrackerRequest.setUpdatedBy(userDetails.getUsername());
-
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(expenseTrackerRequest.get("mainCategory").asLong());
-
-        if(mainCategoryOpt.isPresent()) {
-
-            // read currently logged-in user into UserService
-            this.userService.setSecurityContext();
-
-            UserDetailsImpl userDetails = this.userService.getUserDetails();
-
-            ExpenseTracker newExpenseTracker = new ExpenseTracker();
-
-            newExpenseTracker.setName(expenseTrackerRequest.get("name").asText());
-            newExpenseTracker.setUser(userDetails.getUser());
-            newExpenseTracker.setMainCategory(mainCategoryOpt.get());
-
-            newExpenseTracker.setCreatedBy(userDetails.getUsername());
-            newExpenseTracker.setUpdatedBy(userDetails.getUsername());
-
-
-            ExpenseTracker expenseTracker = this.expenseTrackerService.save(newExpenseTracker);
-
-
-            return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.CREATED);
-        }
-        String errorMessage = String.format("Main category with name (%s),has not been created!", expenseTrackerRequest.get("name").asText());
-        return this.errorHandler.handleResourceNotCreatedError(errorMessage);
+        List<ExpenseTracker> expenseTrackerCollection = this.expenseTrackerService.findAll();
+        return new ResponseEntity<>(expenseTrackerCollection
+                .stream()
+                .map(expenseTrackerMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     * @throws NumberFormatException
+     * @throws ResourceNotFoundException
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseTrackerResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
 
@@ -102,43 +85,77 @@ public class ExpenseTrackerController {
         return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ExpenseTrackerResponseDto>>getAllExpenseTrackers() {
+    /**
+     *
+     * @param expenseTrackerRequest
+     * @return
+     * @throws JsonProcessingException
+     */
 
-        List<ExpenseTracker> expenseTrackerCollection = this.expenseTrackerService.findAll();
-        return new ResponseEntity<>(expenseTrackerCollection
-                .stream()
-                .map(expenseTrackerMapper::toResponseDto)
-                .collect(Collectors.toList()), HttpStatus.OK);
-    }
+    @PostMapping
+    public ResponseEntity<?> createExpenseTracker(@Valid @RequestBody JsonNode expenseTrackerRequest) throws JsonProcessingException {
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable("id") Long id) throws CustomException {
+        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(expenseTrackerRequest,ExpenseTracker.class);
 
-        try{
-            this.expenseTrackerService.deleteById(id);
-        }catch (EmptyResultDataAccessException ex){
-            ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                    .createWith(String.format("The requested id (%d) has not been found!",id));
-            resourceNFException.setId(id);
-            throw resourceNFException;
+        Long mainCategoryId = expenseTrackerRequest.get("mainCategoryId").asLong();
+
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(mainCategoryId);
+
+        if(mainCategoryOpt.isPresent()) {
+
+            Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.createIfNotExists(expenseTracker,mainCategoryId);
+
+            if(expenseTrackerOpt.isPresent()){
+                return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.CREATED);
+
+            }
+
+            return this.errorHandler.handleResourceAlreadyExistError(expenseTrackerRequest.get("name").asText(),expenseTracker);
         }
-
-        //TODO successful feedback
-        return new ResponseEntity<>("id", HttpStatus.OK);
+        return this.errorHandler.handleResourceNotCreatedError(expenseTrackerRequest.get("name").asText());
     }
 
+    /**
+     *
+     * @param request
+     * @return
+     * @throws JsonProcessingException
+     */
     @PatchMapping
-    public ResponseEntity<ExpenseTrackerResponseDto> updateMainCategory(@Valid @RequestBody ExpenseTracker expenseTrackerRequest) throws ResourceNotCreatedException, ResourceNotUpdatedException {
+    public ResponseEntity<?> updatedExpenseTracker(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
+        Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(request.get("mainCategoryId").asLong());
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        UserDetailsImpl userDetails = (UserDetailsImpl)context.getAuthentication().getPrincipal();
-        expenseTrackerRequest.setUpdatedBy(userDetails.getUsername());
+        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request,ExpenseTracker.class);
 
-        ExpenseTracker expenseTracker = this.expenseTrackerService.updateMainCategory(expenseTrackerRequest);
+        if (userOpt.isPresent() && mainCategoryOpt.isPresent()){
+            if(this.expenseTrackerService.isExists(expenseTracker.getName())){
+                return this.errorHandler.handleResourceAlreadyExistError(expenseTracker.getName(),expenseTracker);
+            }
+            ExpenseTracker updatedExpenseTracker = this.expenseTrackerService.updatedExpenseTracker(expenseTracker,mainCategoryOpt.get(),userOpt.get());
+            return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(updatedExpenseTracker), HttpStatus.OK);
+        }
+        return this.errorHandler.handleResourceNotUpdatedError(expenseTracker.getName(),expenseTracker);
 
-
-        return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.OK);
     }
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.deleteById(id);
+        if(expenseTrackerOpt.isPresent()){
+            //TODO successful feedback
+            return new ResponseEntity<>(expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.OK);
+
+        }
+        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+
+    }
+
 }
