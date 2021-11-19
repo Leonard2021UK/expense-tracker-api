@@ -86,7 +86,7 @@ public class ExpenseService {
     public Optional<Expense> findById(Long id){
         return this.expenseRepo.findById(id);
     }
-//
+
     /**
      *
      * @return
@@ -94,24 +94,23 @@ public class ExpenseService {
     public List<Expense> findAll(){
         return this.expenseRepo.findAll();
     }
-//
-//    /**
-//     *
-//     * @param id
-//     * @return
-//     */
-//    public Optional<ExpenseTracker> deleteById(Long id){
-//
-//        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerRepo.findById(id);
-//
-//        if(expenseTrackerOpt.isPresent()){
-//            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
-//            expenseTracker.getMainCategory().removeExpenseTracker(expenseTracker);
-//            expenseTracker.getUser().removeExpenseTracker(expenseTracker);
-//            return Optional.of(this.expenseTrackerRepo.save(expenseTracker));
-//        }
-//        return Optional.empty();
-//    }
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public Optional<Expense> deleteById(Long id){
+
+        Optional<Expense> expenseOpt = this.expenseRepo.findById(id);
+
+        if(expenseOpt.isPresent()){
+            Expense expense = expenseOpt.get();
+            expense.getExpenseTracker().removeExpense(expense);
+            return Optional.of(this.expenseRepo.save(expense));
+        }
+        return Optional.empty();
+    }
 //
 //    /**
 //     *

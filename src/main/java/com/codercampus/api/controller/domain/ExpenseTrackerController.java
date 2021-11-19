@@ -56,7 +56,7 @@ public class ExpenseTrackerController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<ExpenseTrackerResponseDto>>getAllExpenseTrackers() {
+    public ResponseEntity<List<ExpenseTrackerResponseDto>>getAll() {
 
         List<ExpenseTracker> expenseTrackerCollection = this.expenseTrackerService.findAll();
         return new ResponseEntity<>(expenseTrackerCollection
@@ -82,7 +82,7 @@ public class ExpenseTrackerController {
 
         ExpenseTracker expenseTracker = this.expenseTrackerService.findById(id).orElseThrow(() -> resourceNFException);
 
-        return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.CREATED);
+        return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.OK);
     }
 
     /**

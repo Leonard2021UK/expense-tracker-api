@@ -64,7 +64,7 @@ public class ExpenseController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDto>>getAllExpenses() {
+    public ResponseEntity<List<ExpenseResponseDto>>getAll() {
 
         List<Expense> expenseCollection = this.expenseService.findAll();
         return new ResponseEntity<>(expenseCollection
@@ -90,7 +90,7 @@ public class ExpenseController {
 
         Expense expense = this.expenseService.findById(id).orElseThrow(() -> resourceNFException);
 
-        return new ResponseEntity<>(this.expenseMapper.toResponseDto(expense), HttpStatus.CREATED);
+        return new ResponseEntity<>(this.expenseMapper.toResponseDto(expense), HttpStatus.OK);
     }
 
     /**
@@ -141,22 +141,22 @@ public class ExpenseController {
 //
 //    }
 //
-//    /**
-//     *
-//     * @param id
-//     * @return
-//     */
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
-//
-//        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.deleteById(id);
-//        if(expenseTrackerOpt.isPresent()){
-//            //TODO successful feedback
-//            return new ResponseEntity<>(expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.OK);
-//
-//        }
-//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
-//
-//    }
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+
+        Optional<Expense> expenseOpt = this.expenseService.deleteById(id);
+        if(expenseOpt.isPresent()){
+            //TODO successful feedback
+            return new ResponseEntity<>(expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.OK);
+
+        }
+        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+
+    }
 
 }

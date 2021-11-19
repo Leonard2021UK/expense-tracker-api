@@ -51,7 +51,7 @@ public class MainCategoryController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<MainCategoryResponseDto>> getAllMainCategory() {
+    public ResponseEntity<List<MainCategoryResponseDto>> getAll() {
 
         List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
         System.out.println("hello");
@@ -74,7 +74,7 @@ public class MainCategoryController {
         Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
 
         if(mainCategoryOpt.isPresent()){
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
+            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
         }
 
         return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
