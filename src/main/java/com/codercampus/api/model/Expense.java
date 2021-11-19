@@ -45,30 +45,28 @@ public class Expense {
     @ManyToOne
     private ExpenseTracker expenseTracker;
 
+//    @ManyToOne
+//    private ExpensePaymentType expensePaymentType;
+//
+//    @ManyToOne
+//    private ExpenseAddress expenseAddress;
+//
+//    @ManyToOne
+//    private ExpenseType expenseType;
 
-
-    @ManyToOne
-    private ExpensePaymentType expensePaymentType;
-
-    @ManyToOne
-    private ExpenseAddress expenseAddress;
-
-    @ManyToOne
-    private ExpenseType expenseType;
-
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @ToString.Exclude
-    private Set<Item> items = new HashSet<>();
-
-    public void addItem(Item item){
-        items.add(item);
-        item.getExpense().add(this);
-    }
-
-    public void removeItem(Item item){
-        items.remove(item);
-        item.getExpense().remove(this);
-    }
+//    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+//    @ToString.Exclude
+//    private Set<Item> items = new HashSet<>();
+//
+//    public void addItem(Item item){
+//        items.add(item);
+//        item.getExpense().add(this);
+//    }
+//
+//    public void removeItem(Item item){
+//        items.remove(item);
+//        item.getExpense().remove(this);
+//    }
 
 
     @CreationTimestamp
