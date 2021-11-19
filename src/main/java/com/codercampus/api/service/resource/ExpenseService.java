@@ -78,22 +78,22 @@ public class ExpenseService {
 //        return this.expenseTrackerRepo.existsByName(name);
 //    }
 //
-//    /**
-//     *
-//     * @param id
-//     * @return
-//     */
-//    public Optional<ExpenseTracker> findById(Long id){
-//        return this.expenseTrackerRepo.findById(id);
-//    }
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public Optional<Expense> findById(Long id){
+        return this.expenseRepo.findById(id);
+    }
 //
-//    /**
-//     *
-//     * @return
-//     */
-//    public List<ExpenseTracker> findAll(){
-//        return this.expenseTrackerRepo.findAll();
-//    }
+    /**
+     *
+     * @return
+     */
+    public List<Expense> findAll(){
+        return this.expenseRepo.findAll();
+    }
 //
 //    /**
 //     *

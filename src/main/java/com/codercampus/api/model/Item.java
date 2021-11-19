@@ -36,9 +36,9 @@ public class Item {
     @ManyToOne
     ItemCategory itemCategory;
 
-    @ManyToMany(mappedBy = "items")
-    @ToString.Exclude
-    private Set<Expense> expense = new HashSet<>();
+//    @ManyToMany(mappedBy = "items")
+//    @ToString.Exclude
+//    private Set<Expense> expense = new HashSet<>();
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

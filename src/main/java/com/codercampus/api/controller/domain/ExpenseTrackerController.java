@@ -99,20 +99,15 @@ public class ExpenseTrackerController {
 
         Long mainCategoryId = expenseTrackerRequest.get("mainCategoryId").asLong();
 
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(mainCategoryId);
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.createIfNotExists(expenseTracker,mainCategoryId);
 
-        if(mainCategoryOpt.isPresent()) {
+        if(expenseTrackerOpt.isPresent()){
+            return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.CREATED);
 
-            Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.createIfNotExists(expenseTracker,mainCategoryId);
-
-            if(expenseTrackerOpt.isPresent()){
-                return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.CREATED);
-
-            }
-
-            return this.errorHandler.handleResourceAlreadyExistError(expenseTrackerRequest.get("name").asText(),expenseTracker);
         }
-        return this.errorHandler.handleResourceNotCreatedError(expenseTrackerRequest.get("name").asText());
+
+        return this.errorHandler.handleResourceAlreadyExistError(expenseTrackerRequest.get("name").asText(),expenseTracker);
+
     }
 
     /**

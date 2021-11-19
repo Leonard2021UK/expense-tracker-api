@@ -17,7 +17,7 @@ public class ExpenseResponseDto {
     private Long expenseTrackerId;
     private String name;
     private String email;
-    private String xInfo;
+    private String extraInfo;
     private String mobileNumber;
     private String phoneNumber;
 

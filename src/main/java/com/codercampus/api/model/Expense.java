@@ -26,6 +26,7 @@ import java.util.Set;
 public class Expense {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String name;
@@ -43,6 +44,7 @@ public class Expense {
     private String updatedBy;
 
     @ManyToOne
+    @ToString.Exclude
     private ExpenseTracker expenseTracker;
 
 //    @ManyToOne
