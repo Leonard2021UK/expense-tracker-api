@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
+src/main/resources/application-homedev.properties
+src/main/resources/application-workdev.properties
+
