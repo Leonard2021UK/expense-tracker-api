@@ -10,5 +10,7 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     UserResponseDto toResponseDto(User user);
+
+    User map(Long value);
 }
 

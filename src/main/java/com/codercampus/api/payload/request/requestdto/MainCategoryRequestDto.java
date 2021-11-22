@@ -27,12 +27,10 @@ public class MainCategoryRequestDto {
     Long id;
     String name;
 
-    @ManyToOne
-    User user;
-
-    @OneToMany(mappedBy = "mainCategory",cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    Set<ExpenseTracker> expenseTrackers = new HashSet<>();
+    Long userId;
+//
+//    @ToString.Exclude
+//    Set<Long> expenseTrackers = new HashSet<>();
 
     private String createdBy;
     private String updatedBy;

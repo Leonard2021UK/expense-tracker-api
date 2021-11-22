@@ -13,5 +13,6 @@ public interface ExpenseTrackerMapper {
     @Mapping(source = "mainCategory.id", target = "mainCategory")
     @Mapping(source = "user.id", target = "user")
     ExpenseTrackerResponseDto toResponseDto(ExpenseTracker expenseTracker);
+
 }
 

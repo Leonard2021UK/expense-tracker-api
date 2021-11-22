@@ -4,6 +4,7 @@ import com.codercampus.api.error.GlobalErrorHandler;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
+import com.codercampus.api.payload.request.requestdto.MainCategoryRequestDto;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.service.UserService;
@@ -107,25 +108,26 @@ public class MainCategoryController {
      * @throws JsonProcessingException
      */
     @PatchMapping
-    public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> update(@Valid @RequestBody MainCategoryRequestDto request) throws JsonProcessingException {
 
-       Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
+//       Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
+//
+//       MainCategory newMainCategory = this.objectMapper.treeToValue(request,MainCategory.class);
+//
+//       if(userOpt.isPresent()){
+//
+//           // if the new main category name exist then return a corresponding error
+//           if(this.mainCategoryService.isExists(newMainCategory.getName())){
+//                return this.errorHandler.handleResourceAlreadyExistError(newMainCategory.getName(),newMainCategory);
+//           }
+//
+//           MainCategory updatedMainCategory = this.mainCategoryService.update(newMainCategory,userOpt.get());
+//
+//           return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
+//       }
 
-       MainCategory newMainCategory = this.objectMapper.treeToValue(request,MainCategory.class);
-
-       if(userOpt.isPresent()){
-
-           // if the new main category name exist then return a corresponding error
-           if(this.mainCategoryService.isExists(newMainCategory.getName())){
-                return this.errorHandler.handleResourceAlreadyExistError(newMainCategory.getName(),newMainCategory);
-           }
-
-           MainCategory updatedMainCategory = this.mainCategoryService.update(newMainCategory,userOpt.get());
-
-           return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
-       }
-
-        return this.errorHandler.handleResourceNotUpdatedError(newMainCategory.getName(),newMainCategory);
+//        return this.errorHandler.handleResourceNotUpdatedError(newMainCategory.getName(),newMainCategory);
+        return new ResponseEntity<>(request, HttpStatus.OK);
 
     }
 
