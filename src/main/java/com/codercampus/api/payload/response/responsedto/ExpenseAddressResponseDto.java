@@ -1,5 +1,6 @@
 package com.codercampus.api.payload.response.responsedto;
 
+import com.codercampus.api.model.Expense;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -8,23 +9,23 @@ import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
-public class ExpenseResponseDto {
+public class ExpenseAddressResponseDto {
 
     private Long id;
-    private Long expenseTracker;
-    private Long expenseType;
-    private Long expenseAddress;
-    private Long expensePaymentType;
-    private String name;
-    private String email;
-    private String extraInfo;
-    private String mobileNumber;
-    private String phoneNumber;
+    private String addressLine1;
 
+    private String addressLine2;
 
+    private String postCode;
+
+    private String city;
+
+    private Set<ExpenseResponseDto> expenses;
     private String createdBy;
     private String updatedBy;
 

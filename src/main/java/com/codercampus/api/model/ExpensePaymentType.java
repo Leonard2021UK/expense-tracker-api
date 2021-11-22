@@ -11,11 +11,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(	name = "expense_payment_type")
@@ -27,7 +27,24 @@ public class ExpensePaymentType {
 
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "expensePaymentType",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    Set<Expense> expenses = new HashSet<>();
+
+    public void addExpense(Expense expense) {
+        expenses.add( expense );
+        expense.setExpensePaymentType( this );
+    }
+
+    public void removeExpense(Expense expense) {
+        expenses.remove( expense );
+        expense.setExpensePaymentType( null );
+    }
 
     private String createdBy;
     private String updatedBy;

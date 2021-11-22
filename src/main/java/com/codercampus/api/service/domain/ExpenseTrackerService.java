@@ -1,4 +1,4 @@
-package com.codercampus.api.service.resource;
+package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.model.MainCategory;
@@ -49,17 +49,18 @@ public class ExpenseTrackerService {
 
         if(mainCategoryOpt.isPresent()) {
 
+            MainCategory mainCategory = mainCategoryOpt.get();
+
             // read currently logged-in user into UserService
             this.userService.setSecurityContext();
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
-            expenseTracker.setUser(userDetails.getUser());
-            expenseTracker.setMainCategory(mainCategoryOpt.get());
-
             expenseTracker.setCreatedBy(userDetails.getUsername());
             expenseTracker.setUpdatedBy(userDetails.getUsername());
 
+            mainCategory.addExpenseTracker(expenseTracker);
+            userDetails.getUser().addExpenseTracker(expenseTracker);
 
             return Optional.of(this.save(expenseTracker));
 

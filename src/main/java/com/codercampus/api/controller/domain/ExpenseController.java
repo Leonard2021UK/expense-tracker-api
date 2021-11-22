@@ -4,16 +4,12 @@ import com.codercampus.api.error.GlobalErrorHandler;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseTracker;
-import com.codercampus.api.model.MainCategory;
-import com.codercampus.api.model.User;
 import com.codercampus.api.payload.mapper.ExpenseMapper;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
 import com.codercampus.api.payload.response.responsedto.ExpenseResponseDto;
-import com.codercampus.api.payload.response.responsedto.ExpenseTrackerResponseDto;
 import com.codercampus.api.service.UserService;
-import com.codercampus.api.service.resource.ExpenseService;
-import com.codercampus.api.service.resource.ExpenseTrackerService;
-import com.codercampus.api.service.resource.MainCategoryService;
+import com.codercampus.api.service.domain.ExpenseService;
+import com.codercampus.api.service.domain.ExpenseTrackerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,7 +97,7 @@ public class ExpenseController {
      */
 
     @PostMapping
-    public ResponseEntity<?> createExpenses(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
         Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
@@ -116,31 +112,31 @@ public class ExpenseController {
             return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expense);
     }
 
-//    /**
-//     *
-//     * @param request
-//     * @return
-//     * @throws JsonProcessingException
-//     */
-//    @PatchMapping
-//    public ResponseEntity<?> updatedExpenses(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
-//
-//        Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
-//        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(request.get("mainCategoryId").asLong());
-//
-//        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request,ExpenseTracker.class);
-//
-//        if (userOpt.isPresent() && mainCategoryOpt.isPresent()){
-//            if(this.expenseTrackerService.isExists(expenseTracker.getName())){
-//                return this.errorHandler.handleResourceAlreadyExistError(expenseTracker.getName(),expenseTracker);
-//            }
-//            ExpenseTracker updatedExpenseTracker = this.expenseTrackerService.updatedExpenseTracker(expenseTracker,mainCategoryOpt.get(),userOpt.get());
-//            return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(updatedExpenseTracker), HttpStatus.OK);
-//        }
-//        return this.errorHandler.handleResourceNotUpdatedError(expenseTracker.getName(),expenseTracker);
-//
-//    }
-//
+    /**
+     *
+     * @param request
+     * @return
+     * @throws JsonProcessingException
+     */
+    @PatchMapping
+    public ResponseEntity<?> updatedExpenses(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
+
+        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
+
+        if (expenseTrackerOpt.isPresent()){
+            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+            if(this.expenseService.isExists(expense.getName())){
+                return this.errorHandler.handleResourceAlreadyExistError(expense.getName(),expense);
+            }
+            Expense updatedExpense = this.expenseService.update(expenseTracker,expense);
+            return new ResponseEntity<>(this.expenseMapper.toResponseDto(updatedExpense), HttpStatus.OK);
+        }
+        return this.errorHandler.handleResourceNotUpdatedError(expense.getName(),expense);
+
+    }
+
     /**
      *
      * @param id

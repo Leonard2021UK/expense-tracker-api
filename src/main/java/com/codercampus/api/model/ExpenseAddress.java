@@ -11,11 +11,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(	name = "expense_address")
@@ -26,7 +26,37 @@ import java.util.Objects;
 public class ExpenseAddress {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
+
+    private String addressLine1;
+
+    private String addressLine2;
+
+    private String postCode;
+
+    private String city;
+
+    @OneToMany(
+            mappedBy = "expenseAddress",
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.REFRESH
+            })
+    @ToString.Exclude
+    Set<Expense> expenses = new HashSet<>();
+
+    public void addExpense(Expense expense) {
+        expenses.add( expense );
+        expense.setExpenseAddress( this );
+    }
+
+    public void removeExpense(Expense expense) {
+        expenses.remove( expense );
+        expense.setExpenseAddress( null );
+    }
 
     private String createdBy;
     private String updatedBy;
@@ -44,13 +74,16 @@ public class ExpenseAddress {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        if (!(o instanceof ExpenseAddress)) return false;
+//        if (o == null || getClass() != o.getClass()) return false;
+
+        ExpenseAddress that = (ExpenseAddress) o;
+
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return 31;
     }
 }

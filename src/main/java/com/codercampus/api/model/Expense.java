@@ -47,14 +47,14 @@ public class Expense {
     @ToString.Exclude
     private ExpenseTracker expenseTracker;
 
-//    @ManyToOne
-//    private ExpensePaymentType expensePaymentType;
-//
-//    @ManyToOne
-//    private ExpenseAddress expenseAddress;
-//
-//    @ManyToOne
-//    private ExpenseType expenseType;
+    @ManyToOne
+    private ExpensePaymentType expensePaymentType;
+
+    @ManyToOne
+    private ExpenseAddress expenseAddress;
+
+    @ManyToOne
+    private ExpenseType expenseType;
 
 //    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 //    @ToString.Exclude
@@ -84,15 +84,16 @@ public class Expense {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Expense)) return false;
+//        if (o == null || getClass() != o.getClass()) return false;
 
-        Expense expense = (Expense) o;
+        Expense that = (Expense) o;
 
-        return name.equals(expense.name);
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return 31;
     }
 }

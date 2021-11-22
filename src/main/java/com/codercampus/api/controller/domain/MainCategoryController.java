@@ -7,7 +7,7 @@ import com.codercampus.api.model.User;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.service.UserService;
-import com.codercampus.api.service.resource.MainCategoryService;
+import com.codercampus.api.service.domain.MainCategoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,7 +87,7 @@ public class MainCategoryController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<?> createMainCategory(@Valid @RequestBody MainCategory mainCategoryRequest) {
+    public ResponseEntity<?> create(@Valid @RequestBody MainCategory mainCategoryRequest) {
 
         Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.createIfNotExists(mainCategoryRequest);
 
@@ -107,7 +107,7 @@ public class MainCategoryController {
      * @throws JsonProcessingException
      */
     @PatchMapping
-    public ResponseEntity<?> updateMainCategory(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
        Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
 
@@ -120,7 +120,7 @@ public class MainCategoryController {
                 return this.errorHandler.handleResourceAlreadyExistError(newMainCategory.getName(),newMainCategory);
            }
 
-           MainCategory updatedMainCategory = this.mainCategoryService.updateMainCategory(newMainCategory,userOpt.get());
+           MainCategory updatedMainCategory = this.mainCategoryService.update(newMainCategory,userOpt.get());
 
            return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
        }

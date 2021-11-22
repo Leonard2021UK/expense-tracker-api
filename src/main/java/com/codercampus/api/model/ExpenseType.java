@@ -30,19 +30,19 @@ public class ExpenseType {
 
     private String name;
 
-//    @OneToMany(mappedBy = "expenseType",cascade = CascadeType.ALL, orphanRemoval = true)
-//    @ToString.Exclude
-//    Set<Expense> expenses = new HashSet<>();
-//
-//    public void addExpense(Expense expense) {
-//        expenses.add( expense );
-//        expense.setExpenseType( this );
-//    }
-//
-//    public void removeExpense(Expense expense) {
-//        expenses.remove( expense );
-//        expense.setExpenseType( null );
-//    }
+    @OneToMany(mappedBy = "expenseType",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    Set<Expense> expenses = new HashSet<>();
+
+    public void addExpense(Expense expense) {
+        expenses.add( expense );
+        expense.setExpenseType( this );
+    }
+
+    public void removeExpense(Expense expense) {
+        expenses.remove( expense );
+        expense.setExpenseType( null );
+    }
 
     private String createdBy;
     private String updatedBy;

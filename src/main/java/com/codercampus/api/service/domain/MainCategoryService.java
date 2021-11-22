@@ -1,4 +1,4 @@
-package com.codercampus.api.service.resource;
+package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
@@ -45,12 +45,11 @@ public class MainCategoryService {
         if(this.mainCategoryRepo.existsByName(mainCategory.getName())){
             return Optional.empty();
         }else{
-            // read currently logged in user into UserService
+            // read currently logged-in user into UserService
             this.userService.setSecurityContext();
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
-            mainCategory.setUser(userDetails.getUser());
             mainCategory.setCreatedBy(userDetails.getUsername());
             mainCategory.setUpdatedBy(userDetails.getUsername());
 
@@ -110,7 +109,7 @@ public class MainCategoryService {
      * @param user
      * @return
      */
-    public MainCategory updateMainCategory(MainCategory mainCategory, User user){
+    public MainCategory update(MainCategory mainCategory, User user){
 
         //TODO examine the way how it could be extracted from UserDetailsImpl
         mainCategory.setUser(user);

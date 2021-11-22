@@ -11,20 +11,10 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class ExpenseResponseDto {
+public class ExpensePaymentTypeResponseDto {
 
     private Long id;
-    private Long expenseTracker;
-    private Long expenseType;
-    private Long expenseAddress;
-    private Long expensePaymentType;
     private String name;
-    private String email;
-    private String extraInfo;
-    private String mobileNumber;
-    private String phoneNumber;
-
-
     private String createdBy;
     private String updatedBy;
 

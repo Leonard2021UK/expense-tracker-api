@@ -84,4 +84,6 @@ public class User {
         mainCategories.remove( mainCategory );
         mainCategory.setUser( null );
     }
+
+
 }

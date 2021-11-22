@@ -1,11 +1,8 @@
-package com.codercampus.api.service.resource;
+package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseTracker;
-import com.codercampus.api.model.MainCategory;
-import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.ExpenseRepo;
-import com.codercampus.api.repository.resource.ExpenseTrackerRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import org.springframework.stereotype.Service;
@@ -51,16 +48,18 @@ public class ExpenseService {
 
         if(expenseTrackerOpt.isPresent()) {
 
+            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+
             // read currently logged-in user into UserService
             this.userService.setSecurityContext();
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
-            expense.setExpenseTracker(expenseTrackerOpt.get());
+            expenseTracker.addExpense(expense);
+            expense.setExpenseTracker(expenseTracker);
 
             expense.setCreatedBy(userDetails.getUsername());
             expense.setUpdatedBy(userDetails.getUsername());
-
 
             return Optional.of(this.save(expense));
 
@@ -69,15 +68,15 @@ public class ExpenseService {
 
     }
 
-//    /**
-//     *
-//     * @param name
-//     * @return
-//     */
-//    public boolean isExists(String name){
-//        return this.expenseTrackerRepo.existsByName(name);
-//    }
-//
+    /**
+     *
+     * @param name
+     * @return
+     */
+    public boolean isExists(String name){
+        return this.expenseRepo.existsByName(name);
+    }
+
     /**
      *
      * @param id
@@ -111,20 +110,18 @@ public class ExpenseService {
         }
         return Optional.empty();
     }
-//
-//    /**
-//     *
-//     * @param expenseTracker
-//     * @param mainCategory
-//     * @param user
-//     * @return
-//     */
-//    public ExpenseTracker updatedExpenseTracker(ExpenseTracker expenseTracker, MainCategory mainCategory, User user ){
-//
-//        expenseTracker.setUser(user);
-//        expenseTracker.setMainCategory(mainCategory);
-//        expenseTracker.setUpdatedBy(user.getUsername());
-//
-//        return this.save(expenseTracker);
-//    }
+
+    /**
+     *
+     * @param expenseTracker
+     * @param mainCategory
+     * @param user
+     * @return
+     */
+    public Expense update(ExpenseTracker expenseTracker, Expense expense ){
+
+        expense.setExpenseTracker(expenseTracker);
+
+        return this.save(expense);
+    }
 }
