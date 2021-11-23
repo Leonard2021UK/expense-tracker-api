@@ -8,10 +8,13 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring",uses = {UserMapper.class,MainCategoryMapper.class})
 public interface ExpenseTrackerMapper {
+
     ExpenseTrackerMapper INSTANCE = Mappers.getMapper(ExpenseTrackerMapper.class);
 
     @Mapping(source = "mainCategory.id", target = "mainCategory")
     @Mapping(source = "user.id", target = "user")
     ExpenseTrackerResponseDto toResponseDto(ExpenseTracker expenseTracker);
+
+
 }
 

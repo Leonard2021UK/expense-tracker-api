@@ -10,6 +10,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,8 +19,7 @@ public class MainCategoryResponseDto {
     Long id;
     String name;
 
-    private long userId;
-    private ExpenseTrackerResponseDto expenseTracker;
+    private Set<ExpenseTrackerResponseDto> expenseTrackers;
 
     private String createdBy;
     private String updatedBy;

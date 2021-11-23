@@ -23,28 +23,30 @@ import java.util.Set;
 
 @Getter
 @Setter
+@ToString
 public class MainCategoryRequestDto {
+
     Long id;
+
     String name;
 
-    @ManyToOne
-    User user;
+    Long userId;
 
-    @OneToMany(mappedBy = "mainCategory",cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    Set<ExpenseTracker> expenseTrackers = new HashSet<>();
+//    @OneToMany(mappedBy = "mainCategory",cascade = CascadeType.ALL, orphanRemoval = true)
+//    @ToString.Exclude
+//    Set<ExpenseTracker> expenseTrackers = new HashSet<>();
 
     private String createdBy;
     private String updatedBy;
 
-    @CreationTimestamp
+//    @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using =LocalDateTimeSerializer.class)
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+//    @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using =LocalDateTimeSerializer.class)

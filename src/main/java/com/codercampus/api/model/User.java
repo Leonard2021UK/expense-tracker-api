@@ -51,7 +51,6 @@ public class User {
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-
     private Set<ExpenseTracker> expenseTrackers = new HashSet<>();
 
     public void addExpenseTracker(ExpenseTracker expenseTracker){

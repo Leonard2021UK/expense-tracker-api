@@ -4,6 +4,8 @@ import com.codercampus.api.error.GlobalErrorHandler;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
+import com.codercampus.api.payload.mapper.CycleAvoidingMappingContext;
+import com.codercampus.api.payload.request.requestdto.MainCategoryRequestDto;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import com.codercampus.api.payload.mapper.MainCategoryMapper;
 import com.codercampus.api.service.UserService;
@@ -28,20 +30,17 @@ public class MainCategoryController {
 
     private final UserService userService;
     private final MainCategoryService mainCategoryService;
-    private final MainCategoryMapper mainCategoryMapper;
     private final GlobalErrorHandler errorHandler;
     private final ObjectMapper objectMapper;
 
     public MainCategoryController(
             UserService userService,
             MainCategoryService mainCategoryService,
-            MainCategoryMapper mainCategoryMapper,
             GlobalErrorHandler globalErrorHandler,
             ObjectMapper objectMapper
     ) {
         this.userService = userService;
         this.mainCategoryService = mainCategoryService;
-        this.mainCategoryMapper = mainCategoryMapper;
         this.errorHandler = globalErrorHandler;
         this.objectMapper = objectMapper;
     }
@@ -54,10 +53,9 @@ public class MainCategoryController {
     public ResponseEntity<List<MainCategoryResponseDto>> getAll() {
 
         List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
-        System.out.println("hello");
         return new ResponseEntity<>(mainCategoryCollection
                 .stream()
-                .map(mainCategoryMapper::toResponseDto)
+                .map(MainCategoryMapper.INSTANCE::toResponseDto)
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
 
@@ -74,7 +72,7 @@ public class MainCategoryController {
         Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
 
         if(mainCategoryOpt.isPresent()){
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
+            return new ResponseEntity<>(MainCategoryMapper.INSTANCE.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
         }
 
         return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
@@ -94,7 +92,7 @@ public class MainCategoryController {
         // if mainCategory is not present a record with the same name already exists
         // hence no new record was created
         if(mainCategoryOpt.isPresent()){
-            return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
+            return new ResponseEntity<>(MainCategoryMapper.INSTANCE.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
         }
         return this.errorHandler.handleResourceAlreadyExistError(mainCategoryRequest.getName(),mainCategoryRequest);
 
@@ -112,7 +110,7 @@ public class MainCategoryController {
        Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
 
        MainCategory newMainCategory = this.objectMapper.treeToValue(request,MainCategory.class);
-
+        System.out.println(request);
        if(userOpt.isPresent()){
 
            // if the new main category name exist then return a corresponding error
@@ -122,8 +120,9 @@ public class MainCategoryController {
 
            MainCategory updatedMainCategory = this.mainCategoryService.update(newMainCategory,userOpt.get());
 
-           return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
+           return new ResponseEntity<>(MainCategoryMapper.INSTANCE.toResponseDto(updatedMainCategory), HttpStatus.OK);
        }
+//           return new ResponseEntity<>(this.mainCategoryMapper.fromMainCategoryRequestDto(request,new CycleAvoidingMappingContext()), HttpStatus.OK);
 
         return this.errorHandler.handleResourceNotUpdatedError(newMainCategory.getName(),newMainCategory);
 
@@ -140,7 +139,7 @@ public class MainCategoryController {
         Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.deleteById(id);
         if(mainCategoryOpt.isPresent()){
             //TODO successful feedback
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
+            return new ResponseEntity<>(MainCategoryMapper.INSTANCE.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
 
         }
         return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
