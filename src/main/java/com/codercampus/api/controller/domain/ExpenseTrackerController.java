@@ -93,7 +93,7 @@ public class ExpenseTrackerController {
      */
 
     @PostMapping
-    public ResponseEntity<?> createExpenseTracker(@Valid @RequestBody JsonNode expenseTrackerRequest) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody JsonNode expenseTrackerRequest) throws JsonProcessingException {
 
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(expenseTrackerRequest,ExpenseTracker.class);
 
@@ -117,18 +117,19 @@ public class ExpenseTrackerController {
      * @throws JsonProcessingException
      */
     @PatchMapping
-    public ResponseEntity<?> updatedExpenseTracker(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
-        Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(request.get("mainCategoryId").asLong());
+        User user = this.userService.getUserDetails().getUser();
+
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(request.get("mainCategory").asLong());
 
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request,ExpenseTracker.class);
 
-        if (userOpt.isPresent() && mainCategoryOpt.isPresent()){
+        if ( mainCategoryOpt.isPresent()){
             if(this.expenseTrackerService.isExists(expenseTracker.getName())){
                 return this.errorHandler.handleResourceAlreadyExistError(expenseTracker.getName(),expenseTracker);
             }
-            ExpenseTracker updatedExpenseTracker = this.expenseTrackerService.updatedExpenseTracker(expenseTracker,mainCategoryOpt.get(),userOpt.get());
+            ExpenseTracker updatedExpenseTracker = this.expenseTrackerService.updatedExpenseTracker(expenseTracker,mainCategoryOpt.get(),user);
             return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(updatedExpenseTracker), HttpStatus.OK);
         }
         return this.errorHandler.handleResourceNotUpdatedError(expenseTracker.getName(),expenseTracker);

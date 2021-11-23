@@ -51,9 +51,6 @@ public class ExpenseTrackerService {
 
             MainCategory mainCategory = mainCategoryOpt.get();
 
-            // read currently logged-in user into UserService
-            this.userService.setSecurityContext();
-
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
             expenseTracker.setCreatedBy(userDetails.getUsername());

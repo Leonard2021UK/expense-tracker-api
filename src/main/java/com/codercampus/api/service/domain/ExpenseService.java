@@ -50,9 +50,6 @@ public class ExpenseService {
 
             ExpenseTracker expenseTracker = expenseTrackerOpt.get();
 
-            // read currently logged-in user into UserService
-            this.userService.setSecurityContext();
-
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
             expenseTracker.addExpense(expense);

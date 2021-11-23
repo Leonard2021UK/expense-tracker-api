@@ -110,24 +110,21 @@ public class MainCategoryController {
     @PatchMapping
     public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
-       Optional<User> userOpt = this.userService.findById(request.get("userId").asLong());
+        User user = this.userService.getUserDetails().getUser();
 
-       MainCategory newMainCategory = this.objectMapper.treeToValue(request,MainCategory.class);
-        System.out.println(request);
-       if(userOpt.isPresent()){
+        MainCategory newMainCategory = this.objectMapper.treeToValue(request,MainCategory.class);
 
-           // if the new main category name exist then return a corresponding error
-           if(this.mainCategoryService.isExists(newMainCategory.getName())){
-                return this.errorHandler.handleResourceAlreadyExistError(newMainCategory.getName(),newMainCategory);
-           }
+        // if the new main category name exist then return a corresponding error
+        if(this.mainCategoryService.isExists(newMainCategory.getName())){
+             return this.errorHandler.handleResourceAlreadyExistError(newMainCategory.getName(),newMainCategory);
+        }
 
-           MainCategory updatedMainCategory = this.mainCategoryService.update(newMainCategory,userOpt.get());
+        MainCategory updatedMainCategory = this.mainCategoryService.update(newMainCategory,user);
 
-           return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
-       }
+        return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(updatedMainCategory), HttpStatus.OK);
 //           return new ResponseEntity<>(this.mainCategoryMapper.fromMainCategoryRequestDto(request,new CycleAvoidingMappingContext()), HttpStatus.OK);
 
-        return this.errorHandler.handleResourceNotUpdatedError(newMainCategory.getName(),newMainCategory);
+//        return this.errorHandler.handleResourceNotUpdatedError(newMainCategory.getName(),newMainCategory);
 
     }
 

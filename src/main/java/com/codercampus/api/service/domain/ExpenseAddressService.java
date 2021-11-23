@@ -56,8 +56,7 @@ public class ExpenseAddressService {
 
         if(expenseOpt.isPresent()){
             Expense expense = expenseOpt.get();
-            // read currently logged-in user into UserService
-            this.userService.setSecurityContext();
+
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 

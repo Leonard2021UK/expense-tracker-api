@@ -1,5 +1,6 @@
 package com.codercampus.api.payload.response.responsedto;
 
+import com.codercampus.api.model.Expense;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,6 +21,8 @@ public class ExpenseTrackerResponseDto {
 
     private String createdBy;
     private String updatedBy;
+
+    private Set<ExpenseResponseDto> expenses;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

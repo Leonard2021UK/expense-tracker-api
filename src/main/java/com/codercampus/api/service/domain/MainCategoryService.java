@@ -45,8 +45,6 @@ public class MainCategoryService {
         if(this.mainCategoryRepo.existsByName(mainCategory.getName())){
             return Optional.empty();
         }else{
-            // read currently logged-in user into UserService
-            this.userService.setSecurityContext();
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
@@ -113,9 +111,6 @@ public class MainCategoryService {
 
         //TODO examine the way how it could be extracted from UserDetailsImpl
         mainCategory.setUser(user);
-
-        // read currently logged in user into UserService
-        this.userService.setSecurityContext();
 
         UserDetailsImpl userDetails = this.userService.getUserDetails();
         mainCategory.setUpdatedBy(userDetails.getUsername());

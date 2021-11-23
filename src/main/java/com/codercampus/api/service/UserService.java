@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private SecurityContext context;
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository){
@@ -30,16 +29,18 @@ public class UserService {
         this.userRepository.save(user);
     }
 
+    /**
+     * Returns logged-in user
+     * @return UserDetailsImpl
+     */
     public UserDetailsImpl getUserDetails (){
-        return  (UserDetailsImpl)context.getAuthentication().getPrincipal();
+        return (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     public Optional<User> findById(Long id){
         return this.userRepository.findById(id);
     }
 
-    public void setSecurityContext(){
-        this.context = SecurityContextHolder.getContext();
-    }
+
 
 }
