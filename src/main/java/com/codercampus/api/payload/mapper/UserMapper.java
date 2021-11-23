@@ -11,5 +11,7 @@ public interface UserMapper {
 
     UserResponseDto toResponseDto(User user);
 
+//    @Mapping(source = "")
+//    User map(Long value);
 }
 

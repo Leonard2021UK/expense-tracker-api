@@ -1,13 +1,9 @@
 package com.codercampus.api.payload.mapper;
 
-import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.model.MainCategory;
-import com.codercampus.api.model.User;
 import com.codercampus.api.payload.request.requestdto.MainCategoryRequestDto;
 import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
-import com.codercampus.api.payload.response.responsedto.UserResponseDto;
 import com.codercampus.api.service.UserService;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
