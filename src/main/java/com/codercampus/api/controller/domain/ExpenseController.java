@@ -1,6 +1,6 @@
 package com.codercampus.api.controller.domain;
 
-import com.codercampus.api.error.GlobalErrorHandler;
+import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseTracker;
@@ -33,7 +33,7 @@ public class ExpenseController {
     private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseService expenseService;
     private final ExpenseTrackerService expenseTrackerService;
-    private final GlobalErrorHandler errorHandler;
+    private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
 
 
@@ -42,14 +42,14 @@ public class ExpenseController {
             ExpenseService expenseService,
             ExpenseMapper expenseMapper,
             ExpenseTrackerService expenseTrackerService,
-            GlobalErrorHandler globalErrorHandler,
+            GlobalErrorHandlerService globalErrorHandlerService,
             ObjectMapper objectMapper,
             ExpenseTrackerMapper expenseTrackerMapperMapper
     ) {
         this.userService = userService;
         this.expenseService = expenseService;
         this.expenseMapper = expenseMapper;
-        this.errorHandler = globalErrorHandler;
+        this.errorHandler = globalErrorHandlerService;
         this.objectMapper = objectMapper;
         this.expenseTrackerService = expenseTrackerService;
         this.expenseTrackerMapper = expenseTrackerMapperMapper;

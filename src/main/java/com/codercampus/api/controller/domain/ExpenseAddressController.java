@@ -1,18 +1,13 @@
 package com.codercampus.api.controller.domain;
 
-import com.codercampus.api.error.GlobalErrorHandler;
+import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.exception.ResourceNotFoundException;
-import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseAddress;
-import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.payload.mapper.ExpenseAddressMapper;
-import com.codercampus.api.payload.mapper.ExpenseMapper;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
 import com.codercampus.api.payload.response.responsedto.ExpenseAddressResponseDto;
-import com.codercampus.api.payload.response.responsedto.ExpenseResponseDto;
 import com.codercampus.api.service.UserService;
 import com.codercampus.api.service.domain.ExpenseAddressService;
-import com.codercampus.api.service.domain.ExpenseService;
 import com.codercampus.api.service.domain.ExpenseTrackerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,7 +32,7 @@ public class ExpenseAddressController {
     private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseAddressService expenseAddressService;
     private final ExpenseTrackerService expenseTrackerService;
-    private final GlobalErrorHandler errorHandler;
+    private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
 
 
@@ -46,14 +41,14 @@ public class ExpenseAddressController {
             ExpenseAddressService expenseAddressService,
             ExpenseAddressMapper expenseAddressMapper,
             ExpenseTrackerService expenseTrackerService,
-            GlobalErrorHandler globalErrorHandler,
+            GlobalErrorHandlerService globalErrorHandlerService,
             ObjectMapper objectMapper,
             ExpenseTrackerMapper expenseTrackerMapperMapper
     ) {
         this.userService = userService;
         this.expenseAddressService = expenseAddressService;
         this.expenseAddressMapper = expenseAddressMapper;
-        this.errorHandler = globalErrorHandler;
+        this.errorHandler = globalErrorHandlerService;
         this.objectMapper = objectMapper;
         this.expenseTrackerService = expenseTrackerService;
         this.expenseTrackerMapper = expenseTrackerMapperMapper;

@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class GlobalErrorHandler {
+public class GlobalErrorHandlerService {
 
     /**
      * Handles error response when the requested resource was not created.
