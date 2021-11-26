@@ -4,6 +4,7 @@ import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
 import com.codercampus.api.payload.mapper.MainCategoryMapper;
+import com.codercampus.api.payload.response.responsedto.MainCategoryResponseDto;
 import com.codercampus.api.repository.resource.MainCategoryRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MainCategoryService {
@@ -85,16 +87,25 @@ public class MainCategoryService {
      * @param id
      * @return
      */
-    public Optional<MainCategory> findById(Long id){
-        return this.mainCategoryRepo.findById(id);
+    public ResponseEntity<?> findById(Long id){
+
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryRepo.findById(id);
+        if(mainCategoryOpt.isPresent()){
+            return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
+        }
+
+        return this.errorHandlerService.handleResourceNotFoundError(id.toString(), null);
     }
 
     /**
      *
      * @return
      */
-    public List<MainCategory> findAll(){
-        return this.mainCategoryRepo.findAll();
+    public ResponseEntity<List<MainCategoryResponseDto>> findAll(){
+        return new ResponseEntity<>(this.mainCategoryRepo.findAll()
+                .stream()
+                .map(this.mainCategoryMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     /**

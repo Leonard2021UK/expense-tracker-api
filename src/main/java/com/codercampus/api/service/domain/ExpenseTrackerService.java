@@ -3,13 +3,18 @@ package com.codercampus.api.service.domain;
 import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
+import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
+import com.codercampus.api.payload.response.responsedto.ExpenseTrackerResponseDto;
 import com.codercampus.api.repository.resource.ExpenseTrackerRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseTrackerService {
@@ -17,11 +22,21 @@ public class ExpenseTrackerService {
     private final UserService userService;
     private final MainCategoryService mainCategoryService;
     private final ExpenseTrackerRepo expenseTrackerRepo;
+    private final ExpenseTrackerMapper expenseTrackerMapper;
 
-    public ExpenseTrackerService(UserService userService, MainCategoryService mainCategoryService, ExpenseTrackerRepo expenseTrackerRepo) {
+
+    public ExpenseTrackerService(
+            UserService userService,
+            MainCategoryService mainCategoryService,
+            ExpenseTrackerRepo expenseTrackerRepo,
+            ExpenseTrackerMapper expenseTrackerMapper
+
+            ) {
         this.userService = userService;
         this.mainCategoryService = mainCategoryService;
         this.expenseTrackerRepo = expenseTrackerRepo;
+        this.expenseTrackerMapper = expenseTrackerMapper;
+
     }
 
     /**
@@ -88,9 +103,14 @@ public class ExpenseTrackerService {
      *
      * @return
      */
-    public List<ExpenseTracker> findAll(){
-        return this.expenseTrackerRepo.findAll();
+    public ResponseEntity<List<ExpenseTrackerResponseDto>> findAll(){
+
+        return new ResponseEntity<>(this.expenseTrackerRepo.findAll()
+                .stream()
+                .map(expenseTrackerMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
+
 
     /**
      *

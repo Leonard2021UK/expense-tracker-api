@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 public class ExpenseTrackerController {
 
     private final UserService userService;
-    private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseTrackerService expenseTrackerService;
     private final MainCategoryService mainCategoryService;
     private final GlobalErrorHandlerService errorHandler;
@@ -39,13 +38,12 @@ public class ExpenseTrackerController {
     public ExpenseTrackerController(
             UserService userService,
             ExpenseTrackerService expenseTrackerService,
-            ExpenseTrackerMapper expenseTrackerMapper,
             MainCategoryService mainCategoryService,
             GlobalErrorHandlerService globalErrorHandlerService,
             ObjectMapper objectMapper) {
+
         this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
-        this.expenseTrackerMapper = expenseTrackerMapper;
         this.mainCategoryService = mainCategoryService;
         this.errorHandler = globalErrorHandlerService;
         this.objectMapper = objectMapper;
@@ -58,11 +56,7 @@ public class ExpenseTrackerController {
     @GetMapping
     public ResponseEntity<List<ExpenseTrackerResponseDto>>getAll() {
 
-        List<ExpenseTracker> expenseTrackerCollection = this.expenseTrackerService.findAll();
-        return new ResponseEntity<>(expenseTrackerCollection
-                .stream()
-                .map(expenseTrackerMapper::toResponseDto)
-                .collect(Collectors.toList()), HttpStatus.OK);
+        return this.expenseTrackerService.findAll();
     }
 
     /**

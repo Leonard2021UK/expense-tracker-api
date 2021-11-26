@@ -26,24 +26,15 @@ import java.util.stream.Collectors;
 @Validated
 public class MainCategoryController {
 
-//    private final UserService userService;
     private final MainCategoryService mainCategoryService;
-//    private final GlobalErrorHandlerService errorHandlerService;
     private final ObjectMapper objectMapper;
-//    private final MainCategoryMapper mainCategoryMapper;
 
     public MainCategoryController(
-            UserService userService,
             MainCategoryService mainCategoryService,
-            GlobalErrorHandlerService globalErrorHandlerService,
-            ObjectMapper objectMapper,
-            MainCategoryMapper mainCategoryMapper
+            ObjectMapper objectMapper
     ) {
-        this.userService = userService;
         this.mainCategoryService = mainCategoryService;
-        this.errorHandlerService = globalErrorHandlerService;
         this.objectMapper = objectMapper;
-        this.mainCategoryMapper = mainCategoryMapper;
     }
 
     /**
@@ -51,13 +42,10 @@ public class MainCategoryController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<MainCategoryResponseDto>> getAll() {
+    public ResponseEntity<List<MainCategoryResponseDto>> finAll() {
 
-        List<MainCategory> mainCategoryCollection = this.mainCategoryService.findAll();
-        return new ResponseEntity<>(mainCategoryCollection
-                .stream()
-                .map(this.mainCategoryMapper::toResponseDto)
-                .collect(Collectors.toList()), HttpStatus.OK);
+        return this.mainCategoryService.findAll();
+
     }
 
     /**
@@ -70,13 +58,7 @@ public class MainCategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
 
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
-
-        if(mainCategoryOpt.isPresent()){
-            return new ResponseEntity<>(this.mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
-        }
-
-        return this.errorHandlerService.handleResourceNotFoundError(id.toString(), null);
+        return this.mainCategoryService.findById(id);
 
     }
 
