@@ -11,7 +11,7 @@ public interface ExpenseTrackerMapper {
 
     ExpenseTrackerMapper INSTANCE = Mappers.getMapper(ExpenseTrackerMapper.class);
 
-    @Mapping(source = "mainCategory.id", target = "mainCategory")
+    @Mapping(source = "mainCategory.id", target = "mainCategoryId")
     @Mapping(source = "expenses", target = "expenses")
 
 //    @Mapping(source = "user.id", target = "user")

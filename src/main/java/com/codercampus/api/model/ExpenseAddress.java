@@ -29,6 +29,9 @@ public class ExpenseAddress {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
+    @Column(unique = true)
+    private String name;
+
     private String addressLine1;
 
     private String addressLine2;

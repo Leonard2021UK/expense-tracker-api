@@ -17,6 +17,9 @@ import java.util.Set;
 public class ExpenseAddressResponseDto {
 
     private Long id;
+
+    private String name;
+
     private String addressLine1;
 
     private String addressLine2;

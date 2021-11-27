@@ -16,7 +16,7 @@ import java.util.Set;
 public class ExpenseTrackerResponseDto {
 
     private Long id;
-    private Long mainCategory;
+    private Long mainCategoryId;
     private String name;
 
     private String createdBy;

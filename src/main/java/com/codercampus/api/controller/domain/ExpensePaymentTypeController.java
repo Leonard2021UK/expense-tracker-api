@@ -2,13 +2,12 @@ package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.exception.ResourceNotFoundException;
-import com.codercampus.api.model.Expense;
-import com.codercampus.api.model.ExpenseAddress;
-import com.codercampus.api.payload.mapper.ExpenseAddressMapper;
+import com.codercampus.api.model.ExpensePaymentType;
+import com.codercampus.api.payload.mapper.ExpensePaymentTypeMapper;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
-import com.codercampus.api.payload.response.responsedto.ExpenseAddressResponseDto;
+import com.codercampus.api.payload.response.responsedto.ExpensePaymentTypeResponseDto;
 import com.codercampus.api.service.UserService;
-import com.codercampus.api.service.domain.ExpenseAddressService;
+import com.codercampus.api.service.domain.ExpensePaymentTypeService;
 import com.codercampus.api.service.domain.ExpenseService;
 import com.codercampus.api.service.domain.ExpenseTrackerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,14 +24,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/expense-address")
+@RequestMapping("/api/expense-payment-type")
 @Validated
-public class ExpenseAddressController {
+public class ExpensePaymentTypeController {
 
     private final UserService userService;
-    private final ExpenseAddressMapper expenseAddressMapper;
+    private final ExpensePaymentTypeMapper expensePaymentTypeMapper;
     private final ExpenseTrackerMapper expenseTrackerMapper;
-    private final ExpenseAddressService expenseAddressService;
+    private final ExpensePaymentTypeService expensePaymentTypeService;
     private final ExpenseTrackerService expenseTrackerService;
     private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
@@ -40,10 +39,10 @@ public class ExpenseAddressController {
 
 
 
-    public ExpenseAddressController(
+    public ExpensePaymentTypeController(
             UserService userService,
-            ExpenseAddressService expenseAddressService,
-            ExpenseAddressMapper expenseAddressMapper,
+            ExpensePaymentTypeService expensePaymentTypeService,
+            ExpensePaymentTypeMapper expensePaymentTypeMapper,
             ExpenseTrackerService expenseTrackerService,
             GlobalErrorHandlerService globalErrorHandlerService,
             ObjectMapper objectMapper,
@@ -52,8 +51,8 @@ public class ExpenseAddressController {
 
     ) {
         this.userService = userService;
-        this.expenseAddressService = expenseAddressService;
-        this.expenseAddressMapper = expenseAddressMapper;
+        this.expensePaymentTypeService = expensePaymentTypeService;
+        this.expensePaymentTypeMapper = expensePaymentTypeMapper;
         this.errorHandler = globalErrorHandlerService;
         this.objectMapper = objectMapper;
         this.expenseTrackerService = expenseTrackerService;
@@ -67,12 +66,12 @@ public class ExpenseAddressController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<ExpenseAddressResponseDto>>getAll() {
+    public ResponseEntity<List<ExpensePaymentTypeResponseDto>>getAll() {
 
-        List<ExpenseAddress> expenseAddressCollection = this.expenseAddressService.findAll();
-        return new ResponseEntity<>(expenseAddressCollection
+        List<ExpensePaymentType> expensePaymentTypeCollection = this.expensePaymentTypeService.findAll();
+        return new ResponseEntity<>(expensePaymentTypeCollection
                 .stream()
-                .map(expenseAddressMapper::toResponseDto)
+                .map(expensePaymentTypeMapper::toResponseDto)
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
 
@@ -84,16 +83,16 @@ public class ExpenseAddressController {
      * @throws ResourceNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseAddressResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+    public ResponseEntity<ExpensePaymentTypeResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
 
         ResourceNotFoundException resourceNFException =  ResourceNotFoundException
                 .createWith(String.format("The requested id (%d) has not been found!",id));
 
         resourceNFException.setId(id);
 
-        ExpenseAddress expenseAddress = this.expenseAddressService.findById(id).orElseThrow(() -> resourceNFException);
+        ExpensePaymentType expensePaymentType = this.expensePaymentTypeService.findById(id).orElseThrow(() -> resourceNFException);
 
-        return new ResponseEntity<>(this.expenseAddressMapper.toResponseDto(expenseAddress), HttpStatus.OK);
+        return new ResponseEntity<>(this.expensePaymentTypeMapper.toResponseDto(expensePaymentType), HttpStatus.OK);
     }
 
     /**
@@ -106,7 +105,7 @@ public class ExpenseAddressController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
-        ExpenseAddress expenseAddress = this.objectMapper.treeToValue(request,ExpenseAddress.class);
+        ExpensePaymentType expensePaymentType = this.objectMapper.treeToValue(request,ExpensePaymentType.class);
 //
 //        Long expenseId = request.get("expenseId").asLong();
 
@@ -114,15 +113,15 @@ public class ExpenseAddressController {
 
 //        if(expenseOpt.isPresent()){
 //            Expense expense = expenseOpt.get();
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.createIfNotExists(expenseAddress);
+        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.createIfNotExists(expensePaymentType);
 
-        if(expenseAddressOpt.isPresent()){
-            return new ResponseEntity<>(this.expenseAddressMapper.toResponseDto(expenseAddressOpt.get()), HttpStatus.CREATED);
+        if(expensePaymentTypeOpt.isPresent()){
+            return new ResponseEntity<>(this.expensePaymentTypeMapper.toResponseDto(expensePaymentTypeOpt.get()), HttpStatus.CREATED);
 
         }
 
         //TODO appropriate error
-        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expenseAddress);
+        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expensePaymentType);
     }
 
     /**
@@ -137,19 +136,19 @@ public class ExpenseAddressController {
 //        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
 //        Long expenseTrackerId = request.get("expenseTrackerId")
 //        Long expenseTypeId
-//        Long expenseAddressId": null,
+//        Long expensePaymentTypeId": null,
 //        Long expensePaymentTypeId": null,
 
-        ExpenseAddress expenseAddress = this.objectMapper.treeToValue(request,ExpenseAddress.class);
+        ExpensePaymentType expensePaymentType = this.objectMapper.treeToValue(request,ExpensePaymentType.class);
 
 //        if (expenseTrackerOpt.isPresent()){
 //            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
-//            if(this.expenseAddressService.isExists(expenseAddress.getName())){
+//            if(this.expensePaymentTypeService.isExists(expensePaymentType.getName())){
 //                //TODO error message
-//                return this.errorHandler.handleResourceAlreadyExistError(expenseAddress.getPostCode(),expenseAddress);
+//                return this.errorHandler.handleResourceAlreadyExistError(expensePaymentType.getPostCode(),expensePaymentType);
 //            }
-            ExpenseAddress updatedExpenseAddress = this.expenseAddressService.update(expenseAddress);
-            return new ResponseEntity<>(this.expenseAddressMapper.toResponseDto(updatedExpenseAddress), HttpStatus.OK);
+            ExpensePaymentType updatedExpensePaymentType = this.expensePaymentTypeService.update(expensePaymentType);
+            return new ResponseEntity<>(this.expensePaymentTypeMapper.toResponseDto(updatedExpensePaymentType), HttpStatus.OK);
 //        }
 //        return this.errorHandler.handleResourceNotUpdatedError(expense.getName(),expense);
 
@@ -163,11 +162,11 @@ public class ExpenseAddressController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
 
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.deleteById(id);
-        if(expenseAddressOpt.isPresent()){
+        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.deleteById(id);
+        if(expensePaymentTypeOpt.isPresent()){
 
             //TODO successful feedback
-            return new ResponseEntity<>(expenseAddressMapper.toResponseDto(expenseAddressOpt.get()), HttpStatus.OK);
+            return new ResponseEntity<>(expensePaymentTypeMapper.toResponseDto(expensePaymentTypeOpt.get()), HttpStatus.OK);
 
         }
         return this.errorHandler.handleResourceNotFoundError(id.toString(), null);

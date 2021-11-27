@@ -3,11 +3,13 @@ package com.codercampus.api.controller.domain;
 import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
+import com.codercampus.api.model.ExpenseAddress;
 import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.payload.mapper.ExpenseMapper;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
 import com.codercampus.api.payload.response.responsedto.ExpenseResponseDto;
 import com.codercampus.api.service.UserService;
+import com.codercampus.api.service.domain.ExpenseAddressService;
 import com.codercampus.api.service.domain.ExpenseService;
 import com.codercampus.api.service.domain.ExpenseTrackerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +37,7 @@ public class ExpenseController {
     private final ExpenseTrackerService expenseTrackerService;
     private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
-
+    private final ExpenseAddressService expenseAddressService;
 
     public ExpenseController(
             UserService userService,
@@ -44,8 +46,8 @@ public class ExpenseController {
             ExpenseTrackerService expenseTrackerService,
             GlobalErrorHandlerService globalErrorHandlerService,
             ObjectMapper objectMapper,
-            ExpenseTrackerMapper expenseTrackerMapperMapper
-    ) {
+            ExpenseTrackerMapper expenseTrackerMapperMapper,
+            ExpenseAddressService expenseAddressService) {
         this.userService = userService;
         this.expenseService = expenseService;
         this.expenseMapper = expenseMapper;
@@ -53,6 +55,7 @@ public class ExpenseController {
         this.objectMapper = objectMapper;
         this.expenseTrackerService = expenseTrackerService;
         this.expenseTrackerMapper = expenseTrackerMapperMapper;
+        this.expenseAddressService = expenseAddressService;
     }
 
     /**
@@ -102,14 +105,15 @@ public class ExpenseController {
         Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
         Long expenseTrackerId = request.get("expenseTrackerId").asLong();
+        Long expenseAddressId = request.get("expenseAddressId").asLong();
 
-            Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTrackerId);
+        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTrackerId,expenseAddressId);
 
-            if(expenseOpt.isPresent()){
-                return new ResponseEntity<>(this.expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.CREATED);
+        if(expenseOpt.isPresent()){
+            return new ResponseEntity<>(this.expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.CREATED);
 
-            }
-            return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expense);
+        }
+        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expense);
     }
 
     /**
@@ -119,18 +123,20 @@ public class ExpenseController {
      * @throws JsonProcessingException
      */
     @PatchMapping
-    public ResponseEntity<?> updatedExpenses(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
         Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
+        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
 
         Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
-        if (expenseTrackerOpt.isPresent()){
+        if (expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent()){
             ExpenseTracker expenseTracker = expenseTrackerOpt.get();
-            if(this.expenseService.isExists(expense.getName())){
-                return this.errorHandler.handleResourceAlreadyExistError(expense.getName(),expense);
-            }
-            Expense updatedExpense = this.expenseService.update(expenseTracker,expense);
+            ExpenseAddress expenseAddress = expenseAddressOpt.get();
+//            if(this.expenseService.isExists(expense.getName())){
+//                return this.errorHandler.handleResourceAlreadyExistError(expense.getName(),expense);
+//            }
+            Expense updatedExpense = this.expenseService.update(expense,expenseTracker,expenseAddress);
             return new ResponseEntity<>(this.expenseMapper.toResponseDto(updatedExpense), HttpStatus.OK);
         }
         return this.errorHandler.handleResourceNotUpdatedError(expense.getName(),expense);

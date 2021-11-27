@@ -6,7 +6,7 @@ import com.codercampus.api.payload.response.responsedto.ExpenseTypeResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = {ExpenseMapper.class})
 public interface ExpenseTypeMapper {
     ExpenseTypeMapper INSTANCE = Mappers.getMapper(ExpenseTypeMapper.class);
 

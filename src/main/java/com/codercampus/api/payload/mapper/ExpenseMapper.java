@@ -17,10 +17,10 @@ import java.util.Set;
 public interface ExpenseMapper {
     ExpenseMapper INSTANCE = Mappers.getMapper(ExpenseMapper.class);
 
-    @Mapping(source = "expenseTracker.id", target = "expenseTracker")
-    @Mapping(source = "expenseType.id", target = "expenseType")
-    @Mapping(source = "expenseAddress.id", target = "expenseAddress")
-    @Mapping(source = "expensePaymentType.id", target = "expensePaymentType")
+    @Mapping(source = "expenseTracker.id", target = "expenseTrackerId")
+    @Mapping(source = "expenseType.id", target = "expenseTypeId")
+    @Mapping(source = "expenseAddress.id", target = "expenseAddressId")
+    @Mapping(source = "expensePaymentType.id", target = "expensePaymentTypeId")
     ExpenseResponseDto toResponseDto(Expense expense);
 
     Set<ExpenseResponseDto> expensesToResponseDto(Set<Expense> expenses);

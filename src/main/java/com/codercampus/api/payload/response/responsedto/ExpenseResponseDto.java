@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 public class ExpenseResponseDto {
 
     private Long id;
-    private Long expenseTracker;
-    private Long expenseType;
-    private Long expenseAddress;
-    private Long expensePaymentType;
+    private Long expenseTrackerId;
+    private Long expenseTypeId;
+    private Long expenseAddressId;
+    private Long expensePaymentTypeId;
     private String name;
     private String email;
     private String extraInfo;

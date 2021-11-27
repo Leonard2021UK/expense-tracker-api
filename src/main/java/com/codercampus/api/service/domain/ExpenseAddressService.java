@@ -18,18 +18,15 @@ public class ExpenseAddressService {
     private final UserService userService;
     private final ExpenseTrackerService expenseTrackerService;
     private final ExpenseAddressRepo expenseAddressRepo;
-    private final ExpenseService expenseService;
 
     public ExpenseAddressService(
             UserService userService,
             ExpenseTrackerService expenseTrackerService,
-            ExpenseAddressRepo expenseAddressRepo,
-            ExpenseService expenseService
+            ExpenseAddressRepo expenseAddressRepo
     ) {
         this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
         this.expenseAddressRepo = expenseAddressRepo;
-        this.expenseService = expenseService;
     }
 
     /**
@@ -46,36 +43,27 @@ public class ExpenseAddressService {
      * @param expenseAddress
      * @return
      */
-    public Optional<ExpenseAddress> createIfNotExists(ExpenseAddress expenseAddress, Long expenseId){
+    public Optional<ExpenseAddress> createIfNotExists(ExpenseAddress expenseAddress){
 
-        if(this.expenseAddressRepo.existsByAddressLine1AndPostCode(expenseAddress.getAddressLine1(),expenseAddress.getPostCode())){
+        if(this.expenseAddressRepo.existsByName(expenseAddress.getName())){
             return Optional.empty();
         }
 
-        Optional<Expense> expenseOpt = this.expenseService.findById(expenseId);
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
 
-        if(expenseOpt.isPresent()){
-            Expense expense = expenseOpt.get();
-
-
-            UserDetailsImpl userDetails = this.userService.getUserDetails();
-
-            expenseAddress.setCreatedBy(userDetails.getUsername());
-            expenseAddress.setUpdatedBy(userDetails.getUsername());
-            expenseAddress.addExpense(expense);
-            return Optional.of(this.save(expenseAddress));
-        }
-        return Optional.empty();
-
+        expenseAddress.setCreatedBy(userDetails.getUsername());
+        expenseAddress.setUpdatedBy(userDetails.getUsername());
+//        expenseAddress.addExpense(expense);
+        return Optional.of(this.save(expenseAddress));
     }
 
     /**
      *
-     * @param expenseAddress
+     * @param name
      * @return
      */
-    public boolean isExists(ExpenseAddress expenseAddress){
-        return this.expenseAddressRepo.existsByAddressLine1AndPostCode(expenseAddress.getAddressLine1(),expenseAddress.getPostCode());
+    public boolean isExists(String name){
+        return this.expenseAddressRepo.existsByName(name);
     }
 
     /**

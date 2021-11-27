@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class ExpenseTrackerController {
 
     private final UserService userService;
+    private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseTrackerService expenseTrackerService;
     private final MainCategoryService mainCategoryService;
     private final GlobalErrorHandlerService errorHandler;
@@ -38,14 +39,15 @@ public class ExpenseTrackerController {
     public ExpenseTrackerController(
             UserService userService,
             ExpenseTrackerService expenseTrackerService,
+            ExpenseTrackerMapper expenseTrackerMapper,
             MainCategoryService mainCategoryService,
-            GlobalErrorHandlerService globalErrorHandlerService,
+            GlobalErrorHandlerService globalErrorHandler,
             ObjectMapper objectMapper) {
-
         this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
+        this.expenseTrackerMapper = expenseTrackerMapper;
         this.mainCategoryService = mainCategoryService;
-        this.errorHandler = globalErrorHandlerService;
+        this.errorHandler = globalErrorHandler;
         this.objectMapper = objectMapper;
     }
 
@@ -56,7 +58,11 @@ public class ExpenseTrackerController {
     @GetMapping
     public ResponseEntity<List<ExpenseTrackerResponseDto>>getAll() {
 
-        return this.expenseTrackerService.findAll();
+        List<ExpenseTracker> expenseTrackerCollection = this.expenseTrackerService.findAll();
+        return new ResponseEntity<>(expenseTrackerCollection
+                .stream()
+                .map(expenseTrackerMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     /**
@@ -113,17 +119,15 @@ public class ExpenseTrackerController {
     @PatchMapping
     public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
-        User user = this.userService.getUserDetails().getUser();
-
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(request.get("mainCategory").asLong());
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(request.get("mainCategoryId").asLong());
 
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request,ExpenseTracker.class);
 
-        if ( mainCategoryOpt.isPresent()){
-            if(this.expenseTrackerService.isExists(expenseTracker.getName())){
-                return this.errorHandler.handleResourceAlreadyExistError(expenseTracker.getName(),expenseTracker);
-            }
-            ExpenseTracker updatedExpenseTracker = this.expenseTrackerService.updatedExpenseTracker(expenseTracker,mainCategoryOpt.get(),user);
+        if (mainCategoryOpt.isPresent()){
+//            if(this.expenseTrackerService.isExists(expenseTracker.getName())){
+//                return this.errorHandler.handleResourceAlreadyExistError(expenseTracker.getName(),expenseTracker);
+//            }
+            ExpenseTracker updatedExpenseTracker = this.expenseTrackerService.updatedExpenseTracker(expenseTracker,mainCategoryOpt.get());
             return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(updatedExpenseTracker), HttpStatus.OK);
         }
         return this.errorHandler.handleResourceNotUpdatedError(expenseTracker.getName(),expenseTracker);

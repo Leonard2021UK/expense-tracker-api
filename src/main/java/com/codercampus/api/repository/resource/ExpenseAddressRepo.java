@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExpenseAddressRepo extends JpaRepository<ExpenseAddress,Long> {
 
+    boolean existsByName(String name);
+
     boolean existsByAddressLine1AndPostCode(String addressLine1,String postcode);
 
 }

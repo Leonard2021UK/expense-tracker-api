@@ -26,6 +26,7 @@ import java.util.Set;
 public class ExpenseType {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String name;
