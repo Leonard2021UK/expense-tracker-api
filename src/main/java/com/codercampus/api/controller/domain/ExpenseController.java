@@ -2,16 +2,12 @@ package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.exception.ResourceNotFoundException;
-import com.codercampus.api.model.Expense;
-import com.codercampus.api.model.ExpenseAddress;
-import com.codercampus.api.model.ExpenseTracker;
+import com.codercampus.api.model.*;
 import com.codercampus.api.payload.mapper.ExpenseMapper;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
 import com.codercampus.api.payload.response.responsedto.ExpenseResponseDto;
 import com.codercampus.api.service.UserService;
-import com.codercampus.api.service.domain.ExpenseAddressService;
-import com.codercampus.api.service.domain.ExpenseService;
-import com.codercampus.api.service.domain.ExpenseTrackerService;
+import com.codercampus.api.service.domain.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +35,8 @@ public class ExpenseController {
     private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
     private final ExpenseAddressService expenseAddressService;
+    private final ExpenseTypeService expenseTypeService;
+    private final ExpensePaymentTypeService expensePaymentTypeService;
 
     public ExpenseController(
             UserService userService,
@@ -47,7 +46,10 @@ public class ExpenseController {
             GlobalErrorHandlerService globalErrorHandlerService,
             ObjectMapper objectMapper,
             ExpenseTrackerMapper expenseTrackerMapperMapper,
-            ExpenseAddressService expenseAddressService) {
+            ExpenseAddressService expenseAddressService,
+            ExpenseTypeService expenseTypeService,
+            ExpensePaymentTypeService expensePaymentTypeService
+            ) {
         this.userService = userService;
         this.expenseService = expenseService;
         this.expenseMapper = expenseMapper;
@@ -56,6 +58,8 @@ public class ExpenseController {
         this.expenseTrackerService = expenseTrackerService;
         this.expenseTrackerMapper = expenseTrackerMapperMapper;
         this.expenseAddressService = expenseAddressService;
+        this.expenseTypeService = expenseTypeService;
+        this.expensePaymentTypeService = expensePaymentTypeService;
     }
 
     /**
@@ -77,19 +81,17 @@ public class ExpenseController {
      * @param id
      * @return
      * @throws NumberFormatException
-     * @throws ResourceNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
-        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                .createWith(String.format("The requested id (%d) has not been found!",id));
+        //TODO form appropriate error for every findById
+        Optional<Expense> expenseOpt = this.expenseService.findById(id);
+        if(expenseOpt.isPresent()){
+            return new ResponseEntity<>(this.expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.OK);
+        }
+        return this.errorHandler.handleResourceNotFoundError(id.toString(),null);
 
-        resourceNFException.setId(id);
-
-        Expense expense = this.expenseService.findById(id).orElseThrow(() -> resourceNFException);
-
-        return new ResponseEntity<>(this.expenseMapper.toResponseDto(expense), HttpStatus.OK);
     }
 
     /**
@@ -106,8 +108,9 @@ public class ExpenseController {
 
         Long expenseTrackerId = request.get("expenseTrackerId").asLong();
         Long expenseAddressId = request.get("expenseAddressId").asLong();
-
-        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTrackerId,expenseAddressId);
+        Long expenseTypeId = request.get("expenseTypeId").asLong();
+        Long expensePaymentTypeId = request.get("expensePaymentTypeId").asLong();
+        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTrackerId,expenseAddressId,expenseTypeId,expensePaymentTypeId);
 
         if(expenseOpt.isPresent()){
             return new ResponseEntity<>(this.expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.CREATED);
@@ -127,16 +130,21 @@ public class ExpenseController {
 
         Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
         Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
-
+        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(request.get("expenseTypeId").asLong());
+        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(request.get("expensePaymentTypeId").asLong());
+        //TODO refactor into service
         Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
-        if (expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent()){
+        if (expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent() && expenseTypeOpt.isPresent() && expensePaymentTypeOpt.isPresent()){
             ExpenseTracker expenseTracker = expenseTrackerOpt.get();
             ExpenseAddress expenseAddress = expenseAddressOpt.get();
+            ExpenseType expenseType = expenseTypeOpt.get();
+            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
 //            if(this.expenseService.isExists(expense.getName())){
 //                return this.errorHandler.handleResourceAlreadyExistError(expense.getName(),expense);
 //            }
-            Expense updatedExpense = this.expenseService.update(expense,expenseTracker,expenseAddress);
+            Expense updatedExpense = this.expenseService.update(expense,expenseTracker,expenseAddress,expenseType,expensePaymentType);
+
             return new ResponseEntity<>(this.expenseMapper.toResponseDto(updatedExpense), HttpStatus.OK);
         }
         return this.errorHandler.handleResourceNotUpdatedError(expense.getName(),expense);

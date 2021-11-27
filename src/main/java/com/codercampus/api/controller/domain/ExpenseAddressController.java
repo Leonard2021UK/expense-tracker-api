@@ -81,19 +81,17 @@ public class ExpenseAddressController {
      * @param id
      * @return
      * @throws NumberFormatException
-     * @throws ResourceNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseAddressResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
-        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                .createWith(String.format("The requested id (%d) has not been found!",id));
+        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(id);
 
-        resourceNFException.setId(id);
+        if(expenseAddressOpt.isPresent()){
+            return new ResponseEntity<>(this.expenseAddressMapper.toResponseDto(expenseAddressOpt.get()), HttpStatus.OK);
+        }
+        return this.errorHandler.handleResourceNotFoundError(id.toString(),null);
 
-        ExpenseAddress expenseAddress = this.expenseAddressService.findById(id).orElseThrow(() -> resourceNFException);
-
-        return new ResponseEntity<>(this.expenseAddressMapper.toResponseDto(expenseAddress), HttpStatus.OK);
     }
 
     /**

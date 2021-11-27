@@ -78,19 +78,18 @@ public class ExpenseTypeController {
      * @param id
      * @return
      * @throws NumberFormatException
-     * @throws ResourceNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseTypeResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
-        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                .createWith(String.format("The requested id (%d) has not been found!",id));
 
-        resourceNFException.setId(id);
+        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(id);
 
-        ExpenseType expenseType = this.expenseTypeService.findById(id).orElseThrow(() -> resourceNFException);
+        if (expenseTypeOpt.isPresent()){
+            return new ResponseEntity<>(this.expenseTypeMapper.toResponseDto(expenseTypeOpt.get()), HttpStatus.OK);
+        }
+        return this.errorHandler.handleResourceNotFoundError(id.toString(),null);
 
-        return new ResponseEntity<>(this.expenseTypeMapper.toResponseDto(expenseType), HttpStatus.OK);
     }
 
     /**

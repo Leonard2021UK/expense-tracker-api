@@ -67,10 +67,9 @@ public class MainCategoryController {
      * @param id
      * @return
      * @throws NumberFormatException
-     * @throws ResourceNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
         Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(id);
 

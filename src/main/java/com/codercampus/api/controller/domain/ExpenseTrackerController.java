@@ -70,19 +70,17 @@ public class ExpenseTrackerController {
      * @param id
      * @return
      * @throws NumberFormatException
-     * @throws ResourceNotFoundException
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseTrackerResponseDto> findById(@PathVariable("id") Long id) throws NumberFormatException, ResourceNotFoundException {
+    public ResponseEntity<?> findById(@PathVariable("id") Long id) {
 
-        ResourceNotFoundException resourceNFException =  ResourceNotFoundException
-                .createWith(String.format("The requested id (%d) has not been found!",id));
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(id);
 
-        resourceNFException.setId(id);
+        if(expenseTrackerOpt.isPresent()){
+            return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.OK);
+        }
+        return this.errorHandler.handleResourceNotFoundError(id.toString(),null);
 
-        ExpenseTracker expenseTracker = this.expenseTrackerService.findById(id).orElseThrow(() -> resourceNFException);
-
-        return new ResponseEntity<>(this.expenseTrackerMapper.toResponseDto(expenseTracker), HttpStatus.OK);
     }
 
     /**
