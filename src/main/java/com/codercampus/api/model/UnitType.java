@@ -1,6 +1,7 @@
 package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
@@ -26,12 +27,17 @@ import java.util.Set;
 public class UnitType {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
     String name;
 
+    @ManyToOne
+    User user;
+
     @OneToMany(mappedBy = "unitType",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     Set<Item> items = new HashSet<>();
 
     public void addItem(Item item) {
@@ -39,7 +45,7 @@ public class UnitType {
         item.setUnitType( this );
     }
 
-    public void removeExpenseTracker(Item item) {
+    public void removeItem(Item item) {
         items.remove( item );
         item.setUnitType( null );
     }
@@ -60,15 +66,13 @@ public class UnitType {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UnitType unitType = (UnitType) o;
-
-        return name.equals(unitType.name);
+        return id != null && Objects.equals(id, unitType.id);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return getClass().hashCode();
     }
 }

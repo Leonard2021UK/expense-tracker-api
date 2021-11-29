@@ -1,6 +1,7 @@
 package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.*;
@@ -23,6 +24,7 @@ import java.util.Set;
 public class Item {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
     private String createdBy;
@@ -31,14 +33,18 @@ public class Item {
     String name;
 
     @ManyToOne
+    User user;
+
+    @ManyToOne
     UnitType unitType;
 
     @ManyToOne
     ItemCategory itemCategory;
 
-//    @ManyToMany(mappedBy = "items")
-//    @ToString.Exclude
-//    private Set<Expense> expense = new HashSet<>();
+    @ManyToMany(mappedBy = "items")
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<Expense> expenses = new HashSet<>();
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

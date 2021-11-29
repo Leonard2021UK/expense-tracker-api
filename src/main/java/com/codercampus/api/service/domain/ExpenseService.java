@@ -135,6 +135,9 @@ public class ExpenseService {
         if(expenseOpt.isPresent()){
             Expense expense = expenseOpt.get();
             expense.getExpenseTracker().removeExpense(expense);
+            for(Item item : expense.getItems()){
+                item.getExpenses().remove(expense);
+            }
             return Optional.of(this.expenseRepo.save(expense));
         }
         return Optional.empty();

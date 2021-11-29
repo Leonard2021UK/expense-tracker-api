@@ -1,6 +1,7 @@
 package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
@@ -32,6 +33,9 @@ public class ExpenseAddress {
     @Column(unique = true)
     private String name;
 
+    @ManyToOne
+    User user;
+
     private String addressLine1;
 
     private String addressLine2;
@@ -49,6 +53,7 @@ public class ExpenseAddress {
                     CascadeType.REFRESH
             })
     @ToString.Exclude
+    @JsonIgnore
     Set<Expense> expenses = new HashSet<>();
 
     public void addExpense(Expense expense) {

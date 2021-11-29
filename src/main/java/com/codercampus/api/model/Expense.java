@@ -1,6 +1,7 @@
 package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
@@ -45,6 +46,7 @@ public class Expense {
 
     @ManyToOne
     @ToString.Exclude
+    @JsonIgnore
     private ExpenseTracker expenseTracker;
 
     @ManyToOne
@@ -56,19 +58,24 @@ public class Expense {
     @ManyToOne
     private ExpenseType expenseType;
 
-//    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-//    @ToString.Exclude
-//    private Set<Item> items = new HashSet<>();
-//
-//    public void addItem(Item item){
-//        items.add(item);
-//        item.getExpense().add(this);
-//    }
-//
-//    public void removeItem(Item item){
-//        items.remove(item);
-//        item.getExpense().remove(this);
-//    }
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "expense_item",
+            joinColumns = { @JoinColumn(name = "expense_id") },
+            inverseJoinColumns = { @JoinColumn(name = "item_id") }
+    )
+    @ToString.Exclude
+    private Set<Item> items = new HashSet<>();
+
+    public void addItem(Item item){
+        items.add(item);
+        item.getExpenses().add(this);
+    }
+
+    public void removeItem(Item item){
+        items.remove(item);
+        item.getExpenses().remove(this);
+    }
 
 
     @CreationTimestamp

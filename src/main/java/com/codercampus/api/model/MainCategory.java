@@ -2,6 +2,7 @@ package com.codercampus.api.model;
 
 import com.codercampus.api.security.UserDetailsImpl;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
@@ -44,6 +45,7 @@ public class MainCategory {
 
     @OneToMany(mappedBy = "mainCategory",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     Set<ExpenseTracker> expenseTrackers = new HashSet<>();
 
     public void addExpenseTracker(ExpenseTracker expenseTracker) {

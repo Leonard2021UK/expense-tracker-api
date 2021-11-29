@@ -1,6 +1,7 @@
 package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
@@ -25,15 +26,20 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ItemCategory {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
     String name;
 
+    @ManyToOne
+    User user;
+
     @OneToMany(mappedBy = "itemCategory",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     Set<Item> items = new HashSet<>();
 
-    public void addItemCategory(Item item) {
+    public void addItem(Item item) {
         items.add( item );
         item.setItemCategory( this );
     }
@@ -60,8 +66,8 @@ public class ItemCategory {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        ItemCategory itemCategory = (ItemCategory) o;
+        return id != null && Objects.equals(id, itemCategory.id);
     }
 
     @Override

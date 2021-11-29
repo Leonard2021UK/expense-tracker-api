@@ -7,6 +7,7 @@ import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,18 +88,19 @@ public class ExpenseTypeService {
      * @return
      */
     public Optional<ExpenseType> deleteById(Long id){
+
         Optional<ExpenseType> expenseTypeOpt = this.expenseTypeRepo.findById(id);
 
         if(expenseTypeOpt.isPresent()){
+
             ExpenseType expenseType = expenseTypeOpt.get();
 
-            for(Expense expense : expenseType.getExpenses()){
+            for (Expense expense : expenseType.getExpenses()) {
                 expenseType.removeExpense(expense);
             }
 
             this.expenseTypeRepo.deleteById(id);
 
-            return expenseTypeOpt;
         }
         return expenseTypeOpt;
     }

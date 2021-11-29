@@ -51,6 +51,7 @@ public class User {
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonIgnore
     private Set<ExpenseTracker> expenseTrackers = new HashSet<>();
 
     public void addExpenseTracker(ExpenseTracker expenseTracker){
@@ -79,10 +80,99 @@ public class User {
         mainCategory.setUser( this );
     }
 
-    public void removeExpenseTracker(MainCategory mainCategory) {
+    public void removeMainCategory(MainCategory mainCategory) {
         mainCategories.remove( mainCategory );
         mainCategory.setUser( null );
     }
 
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    Set<ExpenseType> expenseTypes = new HashSet<>();
 
+    public void addExpenseType(ExpenseType expenseType) {
+        expenseTypes.add( expenseType );
+        expenseType.setUser( this );
+    }
+
+    public void removeExpenseType(ExpenseType expenseType) {
+        expenseTypes.remove( expenseType );
+        expenseType.setUser( null );
+    }
+
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    Set<ExpensePaymentType> expensePaymentTypes = new HashSet<>();
+
+    public void addExpensePaymentType(ExpensePaymentType expensePaymentType) {
+        expensePaymentTypes.add( expensePaymentType );
+        expensePaymentType.setUser( this );
+    }
+
+    public void removeExpensePaymentType(ExpensePaymentType expensePaymentType) {
+        expensePaymentTypes.remove( expensePaymentType );
+        expensePaymentType.setUser( null );
+    }
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    Set<ExpenseAddress> expenseAddresses = new HashSet<>();
+
+    public void addExpenseAddress(ExpenseAddress expenseAddress) {
+        expenseAddresses.add( expenseAddress );
+        expenseAddress.setUser( this );
+    }
+
+    public void removeExpenseAddress(ExpenseAddress expenseAddress) {
+        expenseAddresses.remove( expenseAddress );
+        expenseAddress.setUser( null );
+    }
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    Set<Item> items = new HashSet<>();
+
+    public void addItem(Item item) {
+        items.add( item );
+        item.setUser( this );
+    }
+
+    public void removeItem(Item item) {
+        items.remove( item );
+        item.setUser( null );
+    }
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    Set<UnitType> unitTypes = new HashSet<>();
+
+    public void addUnitType(UnitType unitType) {
+        unitTypes.add( unitType );
+        unitType.setUser( this );
+    }
+
+    public void removeUnitType(UnitType unitType) {
+        unitTypes.remove( unitType );
+        unitType.setUser( null );
+    }
+
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    Set<ItemCategory> itemCategories = new HashSet<>();
+
+    public void addItemCategory(ItemCategory itemCategory) {
+        itemCategories.add( itemCategory );
+        itemCategory.setUser( this );
+    }
+
+    public void removeItemCategory(ItemCategory itemCategory) {
+        itemCategories.remove( itemCategory );
+        itemCategory.setUser( null );
+    }
 }

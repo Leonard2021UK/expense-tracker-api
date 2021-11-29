@@ -1,7 +1,5 @@
 package com.codercampus.api.payload.response.responsedto;
 
-import com.codercampus.api.model.Expense;
-import com.codercampus.api.model.Item;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -14,21 +12,11 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class ExpenseResponseDto {
+public class ItemCategoryResponseDto {
+    Long id;
+    String name;
 
-    private Long id;
-    private Long expenseTrackerId;
-    private Long expenseTypeId;
-    private Long expenseAddressId;
-    private Long expensePaymentTypeId;
-    private Set<ItemResponseDto> items;
-
-    private String name;
-    private String email;
-    private String extraInfo;
-    private String mobileNumber;
-    private String phoneNumber;
-
+    private Set<Long> itemIds;
 
     private String createdBy;
     private String updatedBy;
