@@ -35,7 +35,7 @@ public class UnitType {
     @ManyToOne
     User user;
 
-    @OneToMany(mappedBy = "unitType",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "unitType",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH},fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
     Set<Item> items = new HashSet<>();
@@ -48,6 +48,20 @@ public class UnitType {
     public void removeItem(Item item) {
         items.remove( item );
         item.setUnitType( null );
+    }
+
+//    public void dismissItems() {
+//        this.items.forEach(Item::dismissUnitType); // SYNCHRONIZING THE OTHER SIDE OF RELATIONSHIP
+//        this.items.clear();
+//    }
+
+    @PreRemove
+    private void removeUnitTypeFromItem(){
+        this.user.removeUnitType( this );
+        this.user = null;
+        for (Item item :items){
+            item.setUnitType( null );
+        }
     }
 
     private String createdBy;

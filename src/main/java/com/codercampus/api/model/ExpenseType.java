@@ -67,8 +67,8 @@ public class ExpenseType {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return id != null && Objects.equals(id, item.id);
+        ExpenseType expenseType = (ExpenseType) o;
+        return id != null && Objects.equals(id, expenseType.id);
     }
 
     @Override

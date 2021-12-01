@@ -84,16 +84,18 @@ public class ItemService {
             itemCategory.addItem(item);
             item.setItemCategory(itemCategory);
 
+            expense.addItem(item);
+            item.getExpenses().add(expense);
+
             UserDetailsImpl userDetails = this.userService.getUserDetails();
             item.setCreatedBy(userDetails.getUsername());
             item.setUpdatedBy(userDetails.getUsername());
-            expense.addItem(item);
-            item.getExpenses().add(expense);
-            Expense savedExpense = this.expenseService.save(expense);
-//            Item savedItem = this.save(item);
+
+//            Expense savedExpense = this.expenseService.save(expense);
+            Item savedItem = this.save(item);
 //            expense.addItem(savedItem);
             //TODO add appropriate return
-            return Optional.of(item);
+            return Optional.of(savedItem);
 
         }
         return Optional.empty();

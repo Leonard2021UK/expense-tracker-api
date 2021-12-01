@@ -2,11 +2,13 @@ package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.Item;
 import com.codercampus.api.model.UnitType;
+import com.codercampus.api.repository.resource.ItemRepo;
 import com.codercampus.api.repository.resource.UnitTypeRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +17,7 @@ public class UnitTypeService {
 
     private final UserService userService;
     private final UnitTypeRepo unitTypeRepo;
+    private final ItemRepo itemRepo;
 
 
     /**
@@ -22,9 +25,10 @@ public class UnitTypeService {
      * @param userService
      * @param unitTypeRepo
      */
-    public UnitTypeService(UserService userService, UnitTypeRepo unitTypeRepo) {
+    public UnitTypeService(UserService userService, UnitTypeRepo unitTypeRepo, ItemRepo itemRepo) {
         this.userService = userService;
         this.unitTypeRepo = unitTypeRepo;
+        this.itemRepo = itemRepo;
     }
 
     /**
@@ -95,11 +99,16 @@ public class UnitTypeService {
         if(unitTypeOpt.isPresent()){
 
             UnitType unitType = unitTypeOpt.get();
-
-            for(Item item : unitType.getItems()){
-                unitType.removeItem(item);
+//            unitType.setUser(null);
+//            this.unitTypeRepo.save()
+            if(unitType.getItems().isEmpty()){
             }
-            this.unitTypeRepo.delete(unitType);
+
+
+            this.unitTypeRepo.deleteById(unitType.getId());
+            return Optional.of(unitType);
+            //TODO appropriate Error message
+//            return Optional.empty();
         }
         return unitTypeOpt;
     }

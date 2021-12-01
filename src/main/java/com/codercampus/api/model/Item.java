@@ -25,21 +25,25 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
     private String createdBy;
     private String updatedBy;
 
-    String name;
+    private String name;
 
     @ManyToOne
-    User user;
+    private User user;
 
     @ManyToOne
-    UnitType unitType;
+    private UnitType unitType;
 
+//    public void dismissUnitType() {
+//        this.unitType.removeItem(this); //SYNCHRONIZING THE OTHER SIDE OF RELATIONSHIP
+//        this.unitType = null;
+//    }
     @ManyToOne
-    ItemCategory itemCategory;
+    private ItemCategory itemCategory;
 
     @ManyToMany(mappedBy = "items")
     @ToString.Exclude
