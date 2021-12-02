@@ -28,12 +28,14 @@ public class UnitType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
-    String name;
+    private String name;
 
     @ManyToOne
-    User user;
+    private User user;
+
+    private boolean isArchived = false;
 
     @OneToMany(mappedBy = "unitType",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH},fetch = FetchType.LAZY)
     @ToString.Exclude
@@ -60,7 +62,7 @@ public class UnitType {
         this.user.removeUnitType( this );
         this.user = null;
         for (Item item :items){
-            item.setUnitType( null );
+            this.removeItem( item );
         }
     }
 

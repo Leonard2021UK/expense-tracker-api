@@ -94,18 +94,16 @@ public class UnitTypeService {
      */
     public Optional<UnitType> deleteById(Long id){
 
+
+
         Optional<UnitType> unitTypeOpt = this.unitTypeRepo.findById(id);
 
         if(unitTypeOpt.isPresent()){
 
             UnitType unitType = unitTypeOpt.get();
-//            unitType.setUser(null);
-//            this.unitTypeRepo.save()
-            if(unitType.getItems().isEmpty()){
-            }
 
+            unitType.setArchived(true);
 
-            this.unitTypeRepo.deleteById(unitType.getId());
             return Optional.of(unitType);
             //TODO appropriate Error message
 //            return Optional.empty();

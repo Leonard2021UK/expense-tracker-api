@@ -156,15 +156,17 @@ public class UnitTypeController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> archiveById(@PathVariable("id") Long id) {
 
         Optional<UnitType> unitType = this.unitTypeService.deleteById(id);
+
         if(unitType.isPresent()){
 
             //TODO successful feedback
             return new ResponseEntity<>(unitTypeMapper.toResponseDto(unitType.get()), HttpStatus.OK);
 
         }
+
         return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
 
     }
