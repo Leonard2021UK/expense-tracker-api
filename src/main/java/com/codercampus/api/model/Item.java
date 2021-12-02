@@ -32,16 +32,14 @@ public class Item {
 
     private String name;
 
+    private boolean isArchived = false;
+
     @ManyToOne
     private User user;
 
     @ManyToOne
     private UnitType unitType;
 
-//    public void dismissUnitType() {
-//        this.unitType.removeItem(this); //SYNCHRONIZING THE OTHER SIDE OF RELATIONSHIP
-//        this.unitType = null;
-//    }
     @ManyToOne
     private ItemCategory itemCategory;
 
@@ -49,6 +47,18 @@ public class Item {
     @ToString.Exclude
     @JsonIgnore
     private Set<Expense> expenses = new HashSet<>();
+
+    @PreRemove
+    private void dismantleItem(){
+
+        this.user.removeItem( this );
+        this.itemCategory.removeItem( this );
+        this.unitType.removeItem( this );
+
+        for (Expense expense : this.expenses){
+            expense.removeItem(this);
+        }
+    }
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -66,7 +76,7 @@ public class Item {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Item item = (Item) o;
         return  Objects.equals(name, item.name) &&
-                Objects.equals(itemCategory.name, item.itemCategory.name);
+                Objects.equals(itemCategory.getName(), item.itemCategory.getName());
     }
 
     @Override

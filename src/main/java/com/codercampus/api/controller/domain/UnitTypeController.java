@@ -65,7 +65,7 @@ public class UnitTypeController {
     @GetMapping
     public ResponseEntity<List<UnitTypeResponseDto>>getAll() {
 
-        List<UnitType> unitTypeCollection = this.unitTypeService.findAll();
+        List<UnitType> unitTypeCollection = this.unitTypeService.findAllNoneArchived();
         return new ResponseEntity<>(unitTypeCollection
                 .stream()
                 .map(unitTypeMapper::toResponseDto)
@@ -156,9 +156,9 @@ public class UnitTypeController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> archiveById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> archiveOrDeleteById(@PathVariable("id") Long id) {
 
-        Optional<UnitType> unitType = this.unitTypeService.deleteById(id);
+        Optional<UnitType> unitType = this.unitTypeService.archiveOrDeleteById(id);
 
         if(unitType.isPresent()){
 

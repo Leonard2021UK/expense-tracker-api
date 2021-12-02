@@ -37,7 +37,15 @@ public class UnitType {
 
     private boolean isArchived = false;
 
-    @OneToMany(mappedBy = "unitType",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.DETACH},fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "unitType",
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.DETACH
+            },
+            fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
     Set<Item> items = new HashSet<>();
@@ -51,11 +59,6 @@ public class UnitType {
         items.remove( item );
         item.setUnitType( null );
     }
-
-//    public void dismissItems() {
-//        this.items.forEach(Item::dismissUnitType); // SYNCHRONIZING THE OTHER SIDE OF RELATIONSHIP
-//        this.items.clear();
-//    }
 
     @PreRemove
     private void removeUnitTypeFromItem(){

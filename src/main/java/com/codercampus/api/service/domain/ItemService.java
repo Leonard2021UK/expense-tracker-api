@@ -47,6 +47,8 @@ public class ItemService {
      * @return
      */
     public Item save(Item item){
+        User currentUser = this.userService.getUserDetails().getUser();
+        item.setUser(currentUser);
         return this.itemRepo.save(item);
     }
 
@@ -77,6 +79,7 @@ public class ItemService {
             UnitType unitType = unitTypeOpt.get();
             ItemCategory itemCategory = itemCategoryOpt.get();
             Expense expense = expenseOpt.get();
+            User currentUser = this.userService.getUserDetails().getUser();
 
             unitType.addItem(item);
             item.setUnitType(unitType);
@@ -87,9 +90,9 @@ public class ItemService {
             expense.addItem(item);
             item.getExpenses().add(expense);
 
-            UserDetailsImpl userDetails = this.userService.getUserDetails();
-            item.setCreatedBy(userDetails.getUsername());
-            item.setUpdatedBy(userDetails.getUsername());
+            item.setUser(currentUser);
+            item.setCreatedBy(currentUser.getUsername());
+            item.setUpdatedBy(currentUser.getUsername());
 
 //            Expense savedExpense = this.expenseService.save(expense);
             Item savedItem = this.save(item);
@@ -124,8 +127,10 @@ public class ItemService {
      *
      * @return
      */
-    public List<Item> findAll(){
-        return this.itemRepo.findAll();
+    public List<Item> findAllNoneArchived(){
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+
+        return this.itemRepo.findAllNoneArchived(currentUserId);
     }
 
     /**
@@ -133,12 +138,14 @@ public class ItemService {
      * @param id
      * @return
      */
-    public Optional<Item> deleteById(Long id){
+    public Optional<Item> archiveOrDeleteById(Long id){
 
         Optional<Item> itemOpt = this.itemRepo.findById(id);
 
         if(itemOpt.isPresent()){
+            Long currentUserId = this.userService.getUserDetails().getUser().getId();
             Item item = itemOpt.get();
+
             for (Expense expense : item.getExpenses()){
                 expense.removeItem(item);
             }

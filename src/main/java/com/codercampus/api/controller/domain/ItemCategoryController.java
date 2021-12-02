@@ -51,7 +51,7 @@ public class ItemCategoryController {
     @GetMapping
     public ResponseEntity<List<ItemCategoryResponseDto>> getAll() {
 
-        List<ItemCategory> itemCategoryCollection = this.itemCategoryService.findAll();
+        List<ItemCategory> itemCategoryCollection = this.itemCategoryService.findAllNoneArchived();
         return new ResponseEntity<>(itemCategoryCollection
                 .stream()
                 .map(itemCategoryMapper::toResponseDto)
@@ -126,7 +126,7 @@ public class ItemCategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
 
-        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.deleteById(id);
+        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.archiveOrDeleteById(id);
         if(itemCategoryOpt.isPresent()){
             //TODO successful feedback
             return new ResponseEntity<>(itemCategoryMapper.toResponseDto(itemCategoryOpt.get()), HttpStatus.OK);

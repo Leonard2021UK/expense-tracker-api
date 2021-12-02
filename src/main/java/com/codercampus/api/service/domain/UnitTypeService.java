@@ -2,6 +2,7 @@ package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.Item;
 import com.codercampus.api.model.UnitType;
+import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.ItemRepo;
 import com.codercampus.api.repository.resource.UnitTypeRepo;
 import com.codercampus.api.security.UserDetailsImpl;
@@ -37,6 +38,8 @@ public class UnitTypeService {
      * @return
      */
     public UnitType save(UnitType unitType){
+        User currentUser = this.userService.getUserDetails().getUser();
+        unitType.setUser(currentUser);
         return this.unitTypeRepo.save(unitType);
     }
 
@@ -54,6 +57,7 @@ public class UnitTypeService {
 
             unitType.setCreatedBy(userDetails.getUsername());
             unitType.setUpdatedBy(userDetails.getUsername());
+            unitType.setUser(userDetails.getUser());
 
             userDetails.getUser().addUnitType(unitType);
             return Optional.of(this.unitTypeRepo.save(unitType));
@@ -72,19 +76,22 @@ public class UnitTypeService {
 
     /**
      *
-     * @param id
+     * @param unitTypeId
      * @return
      */
-    public Optional<UnitType> findById(Long id){
-        return this.unitTypeRepo.findById(id);
+    public Optional<UnitType> findById(Long unitTypeId){
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+
+        return this.unitTypeRepo.findById(unitTypeId,currentUserId);
     }
 
     /**
      *
      * @return
      */
-    public List<UnitType> findAll(){
-        return this.unitTypeRepo.findAll();
+    public List<UnitType> findAllNoneArchived(){
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        return this.unitTypeRepo.findAllNoneArchived(currentUserId);
     }
 
     /**
@@ -92,15 +99,22 @@ public class UnitTypeService {
      * @param id
      * @return
      */
-    public Optional<UnitType> deleteById(Long id){
-
-
+    @Transactional
+    public Optional<UnitType> archiveOrDeleteById(Long id){
 
         Optional<UnitType> unitTypeOpt = this.unitTypeRepo.findById(id);
 
         if(unitTypeOpt.isPresent()){
 
+            Long currentUserId = this.userService.getUserDetails().getUser().getId();
             UnitType unitType = unitTypeOpt.get();
+
+            // if there are no references (not used by any item) remove from the database
+            // otherwise only marked as archived
+            if(unitType.getItems().isEmpty()){
+                this.unitTypeRepo.deleteById(unitType.getId(),currentUserId);
+                return Optional.of(unitType);
+            }
 
             unitType.setArchived(true);
 

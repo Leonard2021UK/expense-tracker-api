@@ -1,6 +1,7 @@
 package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.ItemCategory;
+import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.ItemCategoryRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
@@ -32,6 +33,8 @@ public class ItemCategoryService {
      * @return
      */
     public ItemCategory save(ItemCategory itemCategory){
+        User currentUser = this.userService.getUserDetails().getUser();
+        itemCategory.setUser(currentUser);
         return this.itemCategoryRepo.save(itemCategory);
     }
 
@@ -49,6 +52,7 @@ public class ItemCategoryService {
 
             itemCategory.setCreatedBy(userDetails.getUsername());
             itemCategory.setUpdatedBy(userDetails.getUsername());
+            itemCategory.setUser(userDetails.getUser());
 
             userDetails.getUser().addItemCategory(itemCategory);
             return Optional.of(this.itemCategoryRepo.save(itemCategory));
@@ -67,19 +71,22 @@ public class ItemCategoryService {
 
     /**
      *
-     * @param id
+     * @param itemCategoryId
      * @return
      */
-    public Optional<ItemCategory> findById(Long id){
-        return this.itemCategoryRepo.findById(id);
+    public Optional<ItemCategory> findById(Long itemCategoryId){
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        return this.itemCategoryRepo.findById(itemCategoryId,currentUserId);
     }
 
     /**
      *
      * @return
      */
-    public List<ItemCategory> findAll(){
-        return this.itemCategoryRepo.findAll();
+    public List<ItemCategory> findAllNoneArchived(){
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+
+        return this.itemCategoryRepo.findAllNoneArchived(currentUserId);
     }
 
     /**
@@ -87,15 +94,25 @@ public class ItemCategoryService {
      * @param id
      * @return
      */
-    public Optional<ItemCategory> deleteById(Long id){
+    public Optional<ItemCategory> archiveOrDeleteById(Long id){
         Optional<ItemCategory> itemCategoryOpt = this.itemCategoryRepo.findById(id);
 
         if(itemCategoryOpt.isPresent()){
+
+            Long currentUserId = this.userService.getUserDetails().getUser().getId();
+
             ItemCategory itemCategory = itemCategoryOpt.get();
 
-            itemCategory.getUser().getItemCategories().remove(itemCategory);
+            if(itemCategory.getItems().isEmpty()){
+                this.itemCategoryRepo.deleteById(itemCategory.getId(),currentUserId);
+                return Optional.of(itemCategory);
+            }
 
-            return Optional.of(this.save(itemCategory));
+            itemCategory.setArchived(true);
+
+            return Optional.of(itemCategory);
+            //TODO appropriate Error message
+//            return Optional.empty();
         }
         return Optional.empty();
     }

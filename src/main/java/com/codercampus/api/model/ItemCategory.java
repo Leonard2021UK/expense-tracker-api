@@ -27,14 +27,24 @@ import java.util.Set;
 public class ItemCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private Long id;
 
-    String name;
+    private String name;
 
     @ManyToOne
-    User user;
+    private User user;
 
-    @OneToMany(mappedBy = "itemCategory",cascade = CascadeType.ALL, orphanRemoval = true)
+    private boolean isArchived = false;
+
+    @OneToMany(
+            mappedBy = "itemCategory",
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.DETACH
+            },
+            fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
     Set<Item> items = new HashSet<>();
@@ -44,10 +54,19 @@ public class ItemCategory {
         item.setItemCategory( this );
     }
 
-    public void removeItemCategory(Item item) {
+    public void removeItem(Item item) {
         items.remove( item );
         item.setItemCategory( null );
     }
+    @PreRemove
+    private void removeItemCategoryFromItem(){
+        this.user.removeItemCategory( this );
+        this.user = null;
+        for (Item item :items){
+            this.removeItem( item );
+        }
+    }
+
 
     private String createdBy;
     private String updatedBy;
