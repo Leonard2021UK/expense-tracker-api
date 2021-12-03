@@ -63,7 +63,7 @@ public class UnitType {
     @PreRemove
     private void removeUnitTypeFromItem(){
         this.user.removeUnitType( this );
-        this.user = null;
+//        this.user = null;
         for (Item item :items){
             this.removeItem( item );
         }

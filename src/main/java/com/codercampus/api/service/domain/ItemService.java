@@ -7,6 +7,7 @@ import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,6 +139,7 @@ public class ItemService {
      * @param id
      * @return
      */
+    @Transactional
     public Optional<Item> archiveOrDeleteById(Long id){
 
         Optional<Item> itemOpt = this.itemRepo.findById(id);
@@ -146,10 +148,8 @@ public class ItemService {
             Long currentUserId = this.userService.getUserDetails().getUser().getId();
             Item item = itemOpt.get();
 
-            for (Expense expense : item.getExpenses()){
-                expense.removeItem(item);
-            }
-            return Optional.of(this.itemRepo.save(item));
+            this.itemRepo.deleteById(item.getId(),currentUserId);
+            return Optional.of(item);
         }
         return Optional.empty();
     }
