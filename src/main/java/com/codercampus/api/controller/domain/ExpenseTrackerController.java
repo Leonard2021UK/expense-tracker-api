@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @Validated
 public class ExpenseTrackerController {
 
-    private final UserService userService;
     private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseTrackerService expenseTrackerService;
     private final MainCategoryService mainCategoryService;
@@ -37,13 +36,11 @@ public class ExpenseTrackerController {
 
 
     public ExpenseTrackerController(
-            UserService userService,
             ExpenseTrackerService expenseTrackerService,
             ExpenseTrackerMapper expenseTrackerMapper,
             MainCategoryService mainCategoryService,
             GlobalErrorHandlerService globalErrorHandler,
             ObjectMapper objectMapper) {
-        this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
         this.expenseTrackerMapper = expenseTrackerMapper;
         this.mainCategoryService = mainCategoryService;

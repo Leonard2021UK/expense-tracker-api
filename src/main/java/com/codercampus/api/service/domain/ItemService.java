@@ -19,27 +19,19 @@ public class ItemService {
     private final ItemRepo itemRepo;
     private final UnitTypeService unitTypeService;
     private final ItemCategoryService itemCategoryService;
-    private final ExpenseAddressService expenseAddressService;
-    private final ExpensePaymentTypeService expensePaymentTypeService;
-    private final ExpenseTypeService expenseTypeService;
+
     public ItemService(
             UnitTypeService unitTypeService,
             ItemCategoryService itemCategoryService,
             UserService userService,
             ExpenseService expenseService,
-            ItemRepo itemRepo,
-            ExpenseAddressService expenseAddressService,
-            ExpenseTypeService expenseTypeService,
-            ExpensePaymentTypeService expensePaymentTypeService
+            ItemRepo itemRepo
     ) {
         this.userService = userService;
         this.itemCategoryService = itemCategoryService;
         this.unitTypeService = unitTypeService;
         this.expenseService = expenseService;
         this.itemRepo = itemRepo;
-        this.expenseAddressService = expenseAddressService;
-        this.expensePaymentTypeService = expensePaymentTypeService;
-        this.expenseTypeService = expenseTypeService;
     }
 
     /**

@@ -55,6 +55,7 @@ public class ExpenseTrackerService {
 
             expenseTracker.setCreatedBy(userDetails.getUsername());
             expenseTracker.setUpdatedBy(userDetails.getUsername());
+            expenseTracker.setUser(userDetails.getUser());
 
             mainCategory.addExpenseTracker(expenseTracker);
             userDetails.getUser().addExpenseTracker(expenseTracker);
@@ -81,7 +82,8 @@ public class ExpenseTrackerService {
      * @return
      */
     public Optional<ExpenseTracker> findById(Long id){
-        return this.expenseTrackerRepo.findById(id);
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        return this.expenseTrackerRepo.findById(id,currentUserId);
     }
 
     /**
@@ -89,7 +91,8 @@ public class ExpenseTrackerService {
      * @return
      */
     public List<ExpenseTracker> findAll(){
-        return this.expenseTrackerRepo.findAll();
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        return this.expenseTrackerRepo.findAll(currentUserId);
     }
 
     /**
@@ -103,8 +106,10 @@ public class ExpenseTrackerService {
 
         if(expenseTrackerOpt.isPresent()){
             ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+
             expenseTracker.getMainCategory().removeExpenseTracker(expenseTracker);
             expenseTracker.getUser().removeExpenseTracker(expenseTracker);
+
             return Optional.of(this.expenseTrackerRepo.save(expenseTracker));
         }
         return Optional.empty();

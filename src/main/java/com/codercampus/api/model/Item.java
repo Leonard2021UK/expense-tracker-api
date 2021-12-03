@@ -73,14 +73,16 @@ public class Item {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Item item = (Item) o;
-        return  Objects.equals(name, item.name) &&
-                Objects.equals(itemCategory.getName(), item.itemCategory.getName());
+        if (!(o instanceof Item)) return false;
+//        if (o == null || getClass() != o.getClass()) return false;
+
+        Item that = (Item) o;
+
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return 31;
     }
 }

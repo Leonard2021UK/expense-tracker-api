@@ -27,35 +27,22 @@ import java.util.stream.Collectors;
 @Validated
 public class UnitTypeController {
 
-    private final UserService userService;
     private final UnitTypeMapper unitTypeMapper;
-    private final ExpenseTrackerMapper expenseTrackerMapper;
     private final UnitTypeService unitTypeService;
-    private final ExpenseTrackerService expenseTrackerService;
     private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
-    private final ExpenseService expenseService;
 
     public UnitTypeController(
-            UserService userService,
             UnitTypeService unitTypeService,
             UnitTypeMapper unitTypeMapper,
-            ExpenseTrackerService expenseTrackerService,
             GlobalErrorHandlerService globalErrorHandlerService,
-            ObjectMapper objectMapper,
-            ExpenseTrackerMapper expenseTrackerMapperMapper,
-            ExpenseService expenseService
+            ObjectMapper objectMapper
 
     ) {
-        this.userService = userService;
         this.unitTypeService = unitTypeService;
         this.unitTypeMapper = unitTypeMapper;
         this.errorHandler = globalErrorHandlerService;
         this.objectMapper = objectMapper;
-        this.expenseTrackerService = expenseTrackerService;
-        this.expenseTrackerMapper = expenseTrackerMapperMapper;
-        this.expenseService = expenseService;
-
     }
 
     /**
