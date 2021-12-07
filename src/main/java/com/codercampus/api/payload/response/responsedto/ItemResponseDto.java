@@ -1,6 +1,7 @@
 package com.codercampus.api.payload.response.responsedto;
 
 import com.codercampus.api.model.Expense;
+import com.codercampus.api.model.UnitType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -20,7 +21,7 @@ public class ItemResponseDto {
     private Set<Long> expenseIds;
 
     private Long itemCategoryId;
-    private Long unitTypeId;
+    private UnitTypeResponseDto unitType;
 
     private String createdBy;
     private String updatedBy;

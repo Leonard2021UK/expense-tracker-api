@@ -16,7 +16,7 @@ import java.util.Set;
 public interface UnitTypeMapper {
     UnitTypeMapper INSTANCE = Mappers.getMapper(UnitTypeMapper.class);
 
-    @Mapping(source = "items", target = "itemIds")
+//    @Mapping(source = "items", target = "itemIds")
     UnitTypeResponseDto toResponseDto(UnitType unitType);
 
     default Long toItemId(Item item){
