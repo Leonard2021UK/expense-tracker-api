@@ -28,34 +28,22 @@ import java.util.stream.Collectors;
 @Validated
 public class ExpenseTypeController {
 
-    private final UserService userService;
     private final ExpenseTypeMapper expenseTypeMapper;
-    private final ExpenseTrackerMapper expenseTrackerMapper;
     private final ExpenseTypeService expenseTypeService;
-    private final ExpenseTrackerService expenseTrackerService;
     private final GlobalErrorHandlerService errorHandler;
     private final ObjectMapper objectMapper;
-    private final ExpenseService expenseService;
 
     public ExpenseTypeController(
-            UserService userService,
             ExpenseTypeService expenseTypeService,
             ExpenseTypeMapper expenseTypeMapper,
-            ExpenseTrackerService expenseTrackerService,
             GlobalErrorHandlerService globalErrorHandlerService,
-            ObjectMapper objectMapper,
-            ExpenseTrackerMapper expenseTrackerMapperMapper,
-            ExpenseService expenseService
+            ObjectMapper objectMapper
 
     ) {
-        this.userService = userService;
         this.expenseTypeService = expenseTypeService;
         this.expenseTypeMapper = expenseTypeMapper;
         this.errorHandler = globalErrorHandlerService;
         this.objectMapper = objectMapper;
-        this.expenseTrackerService = expenseTrackerService;
-        this.expenseTrackerMapper = expenseTrackerMapperMapper;
-        this.expenseService = expenseService;
 
     }
 
