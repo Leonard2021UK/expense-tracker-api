@@ -18,9 +18,9 @@ public interface ExpenseMapper {
     ExpenseMapper INSTANCE = Mappers.getMapper(ExpenseMapper.class);
 
     @Mapping(source = "expenseTracker.id", target = "expenseTrackerId")
-    @Mapping(source = "expenseType.id", target = "expenseTypeId")
-    @Mapping(source = "expenseAddress.id", target = "expenseAddressId")
-    @Mapping(source = "expensePaymentType.id", target = "expensePaymentTypeId")
+    @Mapping(source = "expenseType", target = "expenseType")
+    @Mapping(source = "expenseAddress", target = "expenseAddress")
+    @Mapping(source = "expensePaymentType", target = "expensePaymentType")
     ExpenseResponseDto toResponseDto(Expense expense);
 
     Set<ExpenseResponseDto> expensesToResponseDto(Set<Expense> expenses);

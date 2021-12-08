@@ -28,7 +28,7 @@ public class ExpenseAddressResponseDto {
 
     private String city;
 
-    private Set<ExpenseResponseDto> expenses;
+//    private Set<ExpenseResponseDto> expenses;
     private String createdBy;
     private String updatedBy;
 

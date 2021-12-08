@@ -31,6 +31,7 @@ public class Item {
     private String updatedBy;
 
     private String name;
+    private Long amount;
 
     private boolean isArchived = false;
 

@@ -18,9 +18,9 @@ public class ExpenseResponseDto {
 
     private Long id;
     private Long expenseTrackerId;
-    private Long expenseTypeId;
-    private Long expenseAddressId;
-    private Long expensePaymentTypeId;
+    private ExpenseTypeResponseDto expenseType;
+    private ExpenseAddressResponseDto expenseAddress;
+    private ExpensePaymentTypeResponseDto expensePaymentType;
     private Set<ItemResponseDto> items;
 
     private String name;

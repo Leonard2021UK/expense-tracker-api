@@ -16,7 +16,7 @@ public class ExpensePaymentTypeResponseDto {
 
     private Long id;
     private String name;
-    private Set<ExpenseResponseDto> expenses;
+//    private Set<ExpenseResponseDto> expenses;
 
     private String createdBy;
     private String updatedBy;

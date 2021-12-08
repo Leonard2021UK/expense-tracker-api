@@ -18,7 +18,7 @@ public interface ItemMapper {
     ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
 
     @Mapping(source = "unitType", target = "unitType")
-    @Mapping(source = "itemCategory.id", target = "itemCategoryId")
+    @Mapping(source = "itemCategory", target = "itemCategory")
     @Mapping(source = "expenses", target = "expenseIds")
     ItemResponseDto toResponseDto(Item expense);
 
