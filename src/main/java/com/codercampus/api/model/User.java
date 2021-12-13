@@ -70,20 +70,20 @@ public class User {
         this.password = password;
     }
 
-    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    @JsonIgnore
-    Set<MainCategory> mainCategories = new HashSet<>();
-
-    public void addMainCategory(MainCategory mainCategory) {
-        mainCategories.add( mainCategory );
-        mainCategory.setUser( this );
-    }
-
-    public void removeMainCategory(MainCategory mainCategory) {
-        mainCategories.remove( mainCategory );
-        mainCategory.setUser( null );
-    }
+//    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+//    @ToString.Exclude
+//    @JsonIgnore
+//    Set<MainCategory> mainCategories = new HashSet<>();
+//
+//    public void addMainCategory(MainCategory mainCategory) {
+//        mainCategories.add( mainCategory );
+//        mainCategory.setUser( this );
+//    }
+//
+//    public void removeMainCategory(MainCategory mainCategory) {
+//        mainCategories.remove( mainCategory );
+//        mainCategory.setUser( null );
+//    }
 
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude

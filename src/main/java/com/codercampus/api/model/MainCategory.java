@@ -40,10 +40,15 @@ public class MainCategory {
     @NotNull
     String name;
 
-    @ManyToOne
-    User user;
+//    @ManyToOne
+//    User user;
 
-    @OneToMany(mappedBy = "mainCategory",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "mainCategory",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @ToString.Exclude
     @JsonIgnore
     Set<ExpenseTracker> expenseTrackers = new HashSet<>();

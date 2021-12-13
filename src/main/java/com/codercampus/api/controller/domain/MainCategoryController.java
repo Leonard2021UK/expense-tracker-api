@@ -1,6 +1,7 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceAlreadyExistException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
@@ -87,7 +88,7 @@ public class MainCategoryController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody MainCategory mainCategoryRequest) {
+    public ResponseEntity<?> create(@Valid @RequestBody MainCategory mainCategoryRequest) throws ResourceAlreadyExistException {
 
         Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.createIfNotExists(mainCategoryRequest);
 

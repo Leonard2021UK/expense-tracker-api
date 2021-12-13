@@ -1,6 +1,6 @@
 package com.codercampus.api.exception;
 
-public class ResourceNotFoundException extends CustomException{
+public class ResourceNotFoundException extends Exception{
 
     private ResourceNotFoundException(String message) {
         super(message);

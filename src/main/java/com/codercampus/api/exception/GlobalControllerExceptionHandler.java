@@ -46,7 +46,8 @@ public class GlobalControllerExceptionHandler {
             EmptyResultDataAccessException.class,
             NoSuchElementException.class,
             ResourceNotFoundException.class,
-            ResourceNotUpdatedException.class
+            ResourceNotUpdatedException.class,
+            ResourceAlreadyExistException.class
     })
     public final ResponseEntity<ErrorResponse<?>> handleException(Exception ex, WebRequest request) {
 
@@ -89,6 +90,12 @@ public class GlobalControllerExceptionHandler {
             ResourceNotUpdatedException resourceNUE = (ResourceNotUpdatedException) ex;
 
             return handleResourceNotUpdated(resourceNUE, headers, status, request);
+
+        }else if (ex instanceof ResourceAlreadyExistException) {
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            ResourceAlreadyExistException resourceAEE = (ResourceAlreadyExistException) ex;
+
+            return handleResourceAlreadyExists(resourceAEE, headers, status, request);
 
         }
         else {
@@ -233,7 +240,28 @@ public class GlobalControllerExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
+    /**
+     * Customize the response for NumberFormatException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorResponse<?>>handleResourceAlreadyExists(ResourceAlreadyExistException ex,
+                                                                          HttpHeaders headers, HttpStatus status,
+                                                                          WebRequest request) {
+        System.out.println(request);
+        Error error = new Error(ex.getMessage());
+        error.setType(EErrorType.RESOURCE_ALREADY_EXISTS);
+        error.setDetail("The name already saved in the database.Choose another!");
+        List<Error> errors = Collections.singletonList(error);
 
+        ErrorResponse<?> errorResponse = new ErrorResponse<>(errors);
+
+        errorResponse.setMessage(ex.getMessage());
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);
+    }
 
 
 

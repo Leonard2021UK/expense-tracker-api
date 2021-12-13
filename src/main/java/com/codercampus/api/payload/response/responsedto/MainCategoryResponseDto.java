@@ -19,7 +19,7 @@ public class MainCategoryResponseDto {
     Long id;
     String name;
 
-    private Set<ExpenseTrackerResponseDto> expenseTrackers;
+//    private Set<ExpenseTrackerResponseDto> expenseTrackers;
 
     private String createdBy;
     private String updatedBy;

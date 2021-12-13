@@ -1,5 +1,6 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceAlreadyExistException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.MainCategoryRepo;
@@ -41,9 +42,9 @@ public class MainCategoryService {
      * @param mainCategory
      * @return
      */
-    public Optional<MainCategory> createIfNotExists(MainCategory mainCategory){
+    public Optional<MainCategory> createIfNotExists(MainCategory mainCategory) throws ResourceAlreadyExistException {
         if(this.mainCategoryRepo.existsByName(mainCategory.getName())){
-            return Optional.empty();
+            throw ResourceAlreadyExistException.create(mainCategory.getName());
         }else{
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
@@ -51,7 +52,7 @@ public class MainCategoryService {
             mainCategory.setCreatedBy(userDetails.getUsername());
             mainCategory.setUpdatedBy(userDetails.getUsername());
 
-            userDetails.getUser().addMainCategory(mainCategory);
+//            userDetails.getUser().addMainCategory(mainCategory);
             return Optional.of(this.mainCategoryRepo.save(mainCategory));
         }
 
@@ -94,7 +95,7 @@ public class MainCategoryService {
         if(mainCategoryOpt.isPresent()){
             MainCategory mainCategory = mainCategoryOpt.get();
 
-            mainCategory.getUser().getMainCategories().remove(mainCategory);
+//            mainCategory.getUser().getMainCategories().remove(mainCategory);
 
             return Optional.of(this.save(mainCategory));
         }
@@ -109,7 +110,7 @@ public class MainCategoryService {
     public MainCategory update(MainCategory mainCategory){
 
         UserDetailsImpl userDetails = this.userService.getUserDetails();
-        mainCategory.setUser(userDetails.getUser());
+//        mainCategory.setUser(userDetails.getUser());
         mainCategory.setUpdatedBy(userDetails.getUsername());
 
         return this.save(mainCategory);

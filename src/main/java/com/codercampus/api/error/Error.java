@@ -8,6 +8,7 @@ public class Error {
     private final UUID errorUniqueID;
     protected String message;
     protected EErrorType type;
+    protected String detail;
     protected Object body;
 
 
@@ -18,6 +19,14 @@ public class Error {
     public Error(String message) {
         this.errorUniqueID = UUID.randomUUID();
         this.message = message;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
     public String getMessage() {

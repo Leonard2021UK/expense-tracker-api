@@ -12,7 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.persistence.EntityNotFoundException;
 import java.util.Set;
 
-@Mapper(componentModel = "spring",uses = {ExpenseTrackerMapper.class})
+@Mapper(componentModel = "spring")
+//@Mapper(componentModel = "spring",uses = {ExpenseTrackerMapper.class})
 //@Mapper(componentModel = "spring",uses = {UserMapper.class})
 public interface MainCategoryMapper {
 
@@ -21,7 +22,7 @@ public interface MainCategoryMapper {
 
     MainCategoryMapper INSTANCE = Mappers.getMapper(MainCategoryMapper.class);
 
-    @Mapping(source = "expenseTrackers", target = "expenseTrackers")
+//    @Mapping(source = "expenseTrackers", target = "expenseTrackers")
     MainCategoryResponseDto toResponseDto(MainCategory mainCategory);
 
 

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -18,8 +19,8 @@ public class ItemResponseDto {
     String name;
 
     private Set<Long> expenseIds;
-    private Long amount;
-
+    private BigDecimal amount;
+    private BigDecimal unitPrice;
     private ItemCategory itemCategory;
     private UnitTypeResponseDto unitType;
 
