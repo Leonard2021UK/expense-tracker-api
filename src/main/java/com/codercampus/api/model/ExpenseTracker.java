@@ -37,12 +37,12 @@ public class ExpenseTracker {
     @NotNull
     private MainCategory mainCategory;
 
-    @ManyToOne
-    private User user;
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+//    @ManyToOne
+//    private User user;
+//
+//    public void setUser(User user) {
+//        this.user = user;
+//    }
 
     @OneToMany(mappedBy = "expenseTracker", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Expense> expenses = new HashSet<>();

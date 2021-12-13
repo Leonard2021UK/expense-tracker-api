@@ -55,10 +55,10 @@ public class ExpenseTrackerService {
 
             expenseTracker.setCreatedBy(userDetails.getUsername());
             expenseTracker.setUpdatedBy(userDetails.getUsername());
-            expenseTracker.setUser(userDetails.getUser());
+//            expenseTracker.setUser(userDetails.getUser());
 
             mainCategory.addExpenseTracker(expenseTracker);
-            userDetails.getUser().addExpenseTracker(expenseTracker);
+//            userDetails.getUser().addExpenseTracker(expenseTracker);
 
             return Optional.of(this.save(expenseTracker));
 
@@ -108,7 +108,7 @@ public class ExpenseTrackerService {
             ExpenseTracker expenseTracker = expenseTrackerOpt.get();
 
             expenseTracker.getMainCategory().removeExpenseTracker(expenseTracker);
-            expenseTracker.getUser().removeExpenseTracker(expenseTracker);
+//            expenseTracker.getUser().removeExpenseTracker(expenseTracker);
 
             return Optional.of(this.expenseTrackerRepo.save(expenseTracker));
         }
@@ -124,7 +124,7 @@ public class ExpenseTrackerService {
     public ExpenseTracker updatedExpenseTracker(ExpenseTracker expenseTracker, MainCategory mainCategory){
 
         UserDetailsImpl userDetails = this.userService.getUserDetails();
-        expenseTracker.setUser(userDetails.getUser());
+//        expenseTracker.setUser(userDetails.getUser());
         expenseTracker.setMainCategory(mainCategory);
         expenseTracker.setUpdatedBy(userDetails.getUsername());
 
