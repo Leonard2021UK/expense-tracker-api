@@ -11,9 +11,9 @@ import java.util.Optional;
 public interface ExpenseTrackerRepo extends JpaRepository<ExpenseTracker,Long> {
     boolean existsByName(String name);
 
-    @Query(value = "SELECT Et FROM ExpenseTracker Et WHERE Et.id = :expenseTrackerId AND Et.user.id = :userId")
-    Optional<ExpenseTracker> findById(Long expenseTrackerId, Long userId);
+    @Query(value = "SELECT Et FROM ExpenseTracker Et WHERE Et.id = :expenseTrackerId")
+    Optional<ExpenseTracker> findById(Long expenseTrackerId);
 
-    @Query(value = "SELECT Et FROM ExpenseTracker Et WHERE Et.user.id = :userId")
-    List<ExpenseTracker> findAll(Long userId);
+    @Query(value = "SELECT Et FROM ExpenseTracker Et")
+    List<ExpenseTracker> findAll();
 }

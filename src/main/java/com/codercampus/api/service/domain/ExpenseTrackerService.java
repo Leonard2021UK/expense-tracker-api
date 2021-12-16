@@ -82,8 +82,7 @@ public class ExpenseTrackerService {
      * @return
      */
     public Optional<ExpenseTracker> findById(Long id){
-        Long currentUserId = this.userService.getUserDetails().getUser().getId();
-        return this.expenseTrackerRepo.findById(id,currentUserId);
+        return this.expenseTrackerRepo.findById(id);
     }
 
     /**
@@ -91,8 +90,7 @@ public class ExpenseTrackerService {
      * @return
      */
     public List<ExpenseTracker> findAll(){
-        Long currentUserId = this.userService.getUserDetails().getUser().getId();
-        return this.expenseTrackerRepo.findAll(currentUserId);
+        return this.expenseTrackerRepo.findAll();
     }
 
     /**

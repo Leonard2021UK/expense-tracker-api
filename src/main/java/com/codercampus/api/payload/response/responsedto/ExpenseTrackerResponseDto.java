@@ -1,6 +1,7 @@
 package com.codercampus.api.payload.response.responsedto;
 
 import com.codercampus.api.model.Expense;
+import com.codercampus.api.model.MainCategory;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -16,7 +17,7 @@ import java.util.Set;
 public class ExpenseTrackerResponseDto {
 
     private Long id;
-    private Long mainCategoryId;
+    private MainCategory mainCategory;
     private String name;
 
     private String createdBy;
@@ -32,4 +33,6 @@ public class ExpenseTrackerResponseDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
+
+
 }

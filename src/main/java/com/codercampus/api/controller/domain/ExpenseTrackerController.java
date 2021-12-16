@@ -19,6 +19,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,8 +60,9 @@ public class ExpenseTrackerController {
         List<ExpenseTracker> expenseTrackerCollection = this.expenseTrackerService.findAll();
         return new ResponseEntity<>(expenseTrackerCollection
                 .stream()
+                .sorted(Comparator.comparing(ExpenseTracker::getCreatedAt).reversed())
                 .map(expenseTrackerMapper::toResponseDto)
-                .collect(Collectors.toList()), HttpStatus.OK);
+                .collect(Collectors.toList()),HttpStatus.OK);
     }
 
     /**
