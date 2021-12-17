@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,8 +96,9 @@ public class MainCategoryController {
         // if mainCategory is not present a record with the same name already exists
         // hence no new record was created
         if(mainCategoryOpt.isPresent()){
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.CREATED);
+            return new ResponseEntity<>(Collections.singletonList(mainCategoryMapper.toResponseDto(mainCategoryOpt.get())), HttpStatus.CREATED);
         }
+        //TODO fix error vs exception
         return this.errorHandler.handleResourceAlreadyExistError(mainCategoryRequest.getName(),mainCategoryRequest);
 
     }

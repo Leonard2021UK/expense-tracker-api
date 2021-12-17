@@ -59,7 +59,7 @@ public class GlobalErrorHandlerService {
      * Handles error response when the requested resource already exists.
      * @return a {@code ResponseEntity} instance
      */
-    public ResponseEntity<ErrorResponse<?>> handleResourceAlreadyExistError(String resourceName,Object body) {
+    public ResponseEntity<List<?>> handleResourceAlreadyExistError(String resourceName,Object body) {
         HttpHeaders headers = new HttpHeaders();
         HttpStatus status = HttpStatus.BAD_REQUEST;
         Error error = new Error("Resource with name: " + resourceName + " already exists!");
@@ -73,7 +73,7 @@ public class GlobalErrorHandlerService {
 
         errorResponse.setMessage("Resource already exists!");
 
-        return new ResponseEntity<>(errorResponse, headers, status);
+        return new ResponseEntity<>(Collections.singletonList(errorResponse), headers, status);
     }
 
     /**
