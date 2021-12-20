@@ -1,6 +1,7 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceAlreadyExistException;
 import com.codercampus.api.model.*;
 import com.codercampus.api.payload.mapper.ExpenseMapper;
 import com.codercampus.api.payload.mapper.ExpenseTrackerMapper;
@@ -18,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,19 +70,20 @@ public class ItemController {
         this.itemMapper = itemMapper;
     }
 
-    /**
-     *
-     * @return
-     */
-    @GetMapping
-    public ResponseEntity<List<ItemResponseDto>>getAll() {
+//    /**
+//     *
+//     * @return
+//     */
+//    @GetMapping
+//    public ResponseEntity<List<ItemResponseDto>>getAll() {
+//
+////        List<Item> itemCollection = this.itemService.findAllNoneArchived();
+//        return new ResponseEntity<>(itemCollection
+//                .stream()
+//                .map(itemMapper::toResponseDto)
+//                .collect(Collectors.toList()), HttpStatus.OK);
+//    }
 
-        List<Item> itemCollection = this.itemService.findAllNoneArchived();
-        return new ResponseEntity<>(itemCollection
-                .stream()
-                .map(itemMapper::toResponseDto)
-                .collect(Collectors.toList()), HttpStatus.OK);
-    }
 
     /**
      *

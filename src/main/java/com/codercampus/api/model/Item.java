@@ -40,11 +40,11 @@ public class Item {
     @ManyToOne
     private User user;
 
-    @ManyToOne
-    private UnitType unitType;
-
-    @ManyToOne
-    private ItemCategory itemCategory;
+//    @ManyToOne
+//    private UnitType unitType;
+//
+//    @ManyToOne
+//    private ItemCategory itemCategory;
 
     @OneToMany(
             mappedBy = "item",

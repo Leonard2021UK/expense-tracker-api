@@ -151,22 +151,22 @@ public class ExpenseController {
 
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
-
-        Optional<Expense> expenseOpt = this.expenseService.deleteById(id);
-        if(expenseOpt.isPresent()){
-            //TODO successful feedback
-            return new ResponseEntity<>(expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.OK);
-
-        }
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
-
-    }
+//    /**
+//     *
+//     * @param id
+//     * @return
+//     */
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+//
+//        Optional<Expense> expenseOpt = this.expenseService.deleteById(id);
+//        if(expenseOpt.isPresent()){
+//            //TODO successful feedback
+//            return new ResponseEntity<>(expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.OK);
+//
+//        }
+//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+//
+//    }
 
 }

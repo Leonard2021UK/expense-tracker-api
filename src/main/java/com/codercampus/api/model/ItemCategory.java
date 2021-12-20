@@ -49,24 +49,24 @@ public class ItemCategory {
     @JsonIgnore
     Set<ExpenseItem> items = new HashSet<>();
 
-    public void addItem(ExpenseItem item) {
-        items.add( item );
-        item.setItemCategory( this );
+    public void addExpenseItem(ExpenseItem expenseItem) {
+        items.add( expenseItem );
+        expenseItem.setItemCategory( this );
     }
 
-    public void removeItem(ExpenseItem item) {
-        items.remove( item );
-        item.setItemCategory( null );
+    public void removeExpenseItem(ExpenseItem expenseItem) {
+        items.remove( expenseItem );
+        expenseItem.setItemCategory( null );
     }
+
     @PreRemove
     private void removeItemCategoryFromItem(){
         this.user.removeItemCategory( this );
         this.user = null;
-        for (ExpenseItem item :items){
-            this.removeItem( item );
+        for (ExpenseItem expenseItem :items){
+            this.removeExpenseItem( expenseItem );
         }
     }
-
 
     private String createdBy;
     private String updatedBy;

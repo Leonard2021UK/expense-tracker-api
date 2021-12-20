@@ -116,15 +116,15 @@ public class ItemService {
         return this.itemRepo.findById(id);
     }
 
-    /**
-     *
-     * @return
-     */
-    public List<Item> findAllNoneArchived(){
-        Long currentUserId = this.userService.getUserDetails().getUser().getId();
-
-        return this.itemRepo.findAllNoneArchived(currentUserId);
-    }
+//    /**
+//     *
+//     * @return
+//     */
+//    public List<Item> findAllNoneArchived(){
+//        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+//
+//        return this.itemRepo.findAllNoneArchived(currentUserId);
+//    }
 
     /**
      *
@@ -146,18 +146,18 @@ public class ItemService {
         return Optional.empty();
     }
 
-    /**
-     *
-     * @param item
-     * @param itemCategory
-     * @param unitType
-     * @return
-     */
-    public Item update(Item item, ItemCategory itemCategory, UnitType unitType ){
-
-        item.setItemCategory(itemCategory);
-        item.setUnitType(unitType);
-
-        return this.save(item);
-    }
+//    /**
+//     *
+//     * @param item
+//     * @param itemCategory
+//     * @param unitType
+//     * @return
+//     */
+//    public Item update(Item item, ItemCategory itemCategory, UnitType unitType ){
+//
+//        item.setItemCategory(itemCategory);
+//        item.setUnitType(unitType);
+//
+//        return this.save(item);
+//    }
 }

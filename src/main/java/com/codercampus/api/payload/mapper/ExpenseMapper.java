@@ -1,6 +1,7 @@
 package com.codercampus.api.payload.mapper;
 
 import com.codercampus.api.model.*;
+import com.codercampus.api.model.compositeId.ExpenseItemId;
 import com.codercampus.api.payload.response.responsedto.ExpenseResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -12,7 +13,7 @@ import java.util.Set;
         ExpenseTracker.class,
         ExpenseType.class,
         ExpenseAddress.class,
-        ExpensePaymentType.class
+        ExpensePaymentType.class,
 })
 public interface ExpenseMapper {
     ExpenseMapper INSTANCE = Mappers.getMapper(ExpenseMapper.class);
@@ -24,5 +25,10 @@ public interface ExpenseMapper {
     ExpenseResponseDto toResponseDto(Expense expense);
 
     Set<ExpenseResponseDto> expensesToResponseDto(Set<Expense> expenses);
+
+    default Long toExpenseId(ExpenseItemId expenseItemId){
+        return expenseItemId.getExpenseId();
+    }
+
 }
 

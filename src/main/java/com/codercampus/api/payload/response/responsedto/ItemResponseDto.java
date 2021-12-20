@@ -19,7 +19,7 @@ public class ItemResponseDto {
     Long id;
     String name;
 
-    private Set<ExpenseItem> expenseItems;
+    private Set<ExpenseItemResponseDto> expenseItems;
 //    private BigDecimal amount;
 //    private BigDecimal unitPrice;
 //    private ItemCategory itemCategory;

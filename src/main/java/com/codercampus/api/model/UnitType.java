@@ -50,22 +50,22 @@ public class UnitType {
     @JsonIgnore
     Set<ExpenseItem> items = new HashSet<>();
 
-    public void addItem(ExpenseItem item) {
-        items.add( item );
-        item.setUnitType( this );
+    public void addExpenseItem(ExpenseItem expenseItem) {
+        items.add( expenseItem );
+        expenseItem.setUnitType( this );
     }
 
-    public void removeItem(ExpenseItem item) {
-        items.remove( item );
-        item.setUnitType( null );
+    public void removeExpenseItem(ExpenseItem expenseItem) {
+        items.remove( expenseItem );
+        expenseItem.setUnitType( null );
     }
 
     @PreRemove
-    private void removeUnitTypeFromItem(){
+    private void removeUnitTypeFromExpenseItem(){
         this.user.removeUnitType( this );
 //        this.user = null;
-        for (ExpenseItem item :items){
-            this.removeItem( item );
+        for (ExpenseItem expenseItem :items){
+            this.removeExpenseItem( expenseItem );
         }
     }
 
