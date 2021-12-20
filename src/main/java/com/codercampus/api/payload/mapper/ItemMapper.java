@@ -10,8 +10,8 @@ import org.mapstruct.factory.Mappers;
 import java.util.Set;
 
 @Mapper(componentModel = "spring",uses = {
-        UnitTypeMapper.class,
-        ItemCategoryMapper.class,
+//        UnitTypeMapper.class,
+//        ItemCategoryMapper.class,
         Expense.class,
 })
 public interface ItemMapper {
@@ -19,8 +19,8 @@ public interface ItemMapper {
 
     @Mapping(source = "unitType", target = "unitType")
     @Mapping(source = "itemCategory", target = "itemCategory")
-    @Mapping(source = "expenses", target = "expenseIds")
-    ItemResponseDto toResponseDto(Item expense);
+    @Mapping(source = "expenses", target = "expenseItems")
+    ItemResponseDto toResponseDto(Item item);
 
     Set<ItemResponseDto> expensesToResponseDto(Set<Item> items);
 

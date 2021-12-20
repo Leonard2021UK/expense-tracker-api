@@ -74,14 +74,14 @@ public class ItemService {
             Expense expense = expenseOpt.get();
             User currentUser = this.userService.getUserDetails().getUser();
 
-            unitType.addItem(item);
-            item.setUnitType(unitType);
+//            unitType.addItem(item);
+//            item.setUnitType(unitType);
 
-            itemCategory.addItem(item);
-            item.setItemCategory(itemCategory);
+//            itemCategory.addItem(item);
+//            item.setItemCategory(itemCategory);
 
-            expense.addItem(item);
-            item.getExpenses().add(expense);
+//            expense.addItem(item);
+//            item.getExpenses().add(expense);
 
             item.setUser(currentUser);
             item.setCreatedBy(currentUser.getUsername());

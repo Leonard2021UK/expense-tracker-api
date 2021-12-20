@@ -48,14 +48,14 @@ public class UnitType {
             fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
-    Set<Item> items = new HashSet<>();
+    Set<ExpenseItem> items = new HashSet<>();
 
-    public void addItem(Item item) {
+    public void addItem(ExpenseItem item) {
         items.add( item );
         item.setUnitType( this );
     }
 
-    public void removeItem(Item item) {
+    public void removeItem(ExpenseItem item) {
         items.remove( item );
         item.setUnitType( null );
     }
@@ -64,7 +64,7 @@ public class UnitType {
     private void removeUnitTypeFromItem(){
         this.user.removeUnitType( this );
 //        this.user = null;
-        for (Item item :items){
+        for (ExpenseItem item :items){
             this.removeItem( item );
         }
     }

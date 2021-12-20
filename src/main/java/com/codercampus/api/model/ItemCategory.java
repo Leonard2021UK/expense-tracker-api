@@ -47,14 +47,14 @@ public class ItemCategory {
             fetch = FetchType.LAZY)
     @ToString.Exclude
     @JsonIgnore
-    Set<Item> items = new HashSet<>();
+    Set<ExpenseItem> items = new HashSet<>();
 
-    public void addItem(Item item) {
+    public void addItem(ExpenseItem item) {
         items.add( item );
         item.setItemCategory( this );
     }
 
-    public void removeItem(Item item) {
+    public void removeItem(ExpenseItem item) {
         items.remove( item );
         item.setItemCategory( null );
     }
@@ -62,7 +62,7 @@ public class ItemCategory {
     private void removeItemCategoryFromItem(){
         this.user.removeItemCategory( this );
         this.user = null;
-        for (Item item :items){
+        for (ExpenseItem item :items){
             this.removeItem( item );
         }
     }

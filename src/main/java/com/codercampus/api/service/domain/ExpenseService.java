@@ -123,25 +123,25 @@ public class ExpenseService {
         return this.expenseRepo.findAll();
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public Optional<Expense> deleteById(Long id){
-
-        Optional<Expense> expenseOpt = this.expenseRepo.findById(id);
-
-        if(expenseOpt.isPresent()){
-            Expense expense = expenseOpt.get();
-            expense.getExpenseTracker().removeExpense(expense);
-            for(Item item : expense.getItems()){
-                item.getExpenses().remove(expense);
-            }
-            return Optional.of(this.expenseRepo.save(expense));
-        }
-        return Optional.empty();
-    }
+//    /**
+//     *
+//     * @param id
+//     * @return
+//     */
+//    public Optional<Expense> deleteById(Long id){
+//
+//        Optional<Expense> expenseOpt = this.expenseRepo.findById(id);
+//
+//        if(expenseOpt.isPresent()){
+//            Expense expense = expenseOpt.get();
+//            expense.getExpenseTracker().removeExpense(expense);
+//            for(Item item : expense.getItems()){
+//                item.getExpenses().remove(expense);
+//            }
+//            return Optional.of(this.expenseRepo.save(expense));
+//        }
+//        return Optional.empty();
+//    }
 
     /**
      *

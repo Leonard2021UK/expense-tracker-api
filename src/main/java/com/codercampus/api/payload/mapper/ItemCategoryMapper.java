@@ -18,7 +18,7 @@ public interface ItemCategoryMapper {
 
     ItemCategoryMapper INSTANCE = Mappers.getMapper(ItemCategoryMapper.class);
 
-    @Mapping(source = "items", target = "itemIds")
+//    @Mapping(source = "items", target = "itemIds")
     ItemCategoryResponseDto toResponseDto(ItemCategory mainCategory);
 
     default Long toItemId(Item item){

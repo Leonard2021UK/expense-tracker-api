@@ -9,20 +9,19 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
 @Setter
-public class ItemResponseDto {
+public class ExpenseItemResponseDto {
     Long id;
     String name;
 
     private Set<ExpenseItem> expenseItems;
 //    private BigDecimal amount;
 //    private BigDecimal unitPrice;
-//    private ItemCategory itemCategory;
+    private ItemCategory itemCategory;
     private UnitTypeResponseDto unitType;
 
     private String createdBy;

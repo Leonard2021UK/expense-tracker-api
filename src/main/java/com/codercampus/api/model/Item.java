@@ -32,10 +32,10 @@ public class Item {
     private String updatedBy;
 
     private String name;
-    private BigDecimal amount;
-    private BigDecimal unitPrice;
-
-    private boolean isArchived = false;
+//    private BigDecimal amount;
+//    private BigDecimal unitPrice;
+//
+//    private boolean isArchived = false;
 
     @ManyToOne
     private User user;
@@ -46,22 +46,31 @@ public class Item {
     @ManyToOne
     private ItemCategory itemCategory;
 
-    @ManyToMany(mappedBy = "items")
+    @OneToMany(
+            mappedBy = "item",
+            orphanRemoval = true
+    )
     @ToString.Exclude
     @JsonIgnore
-    private Set<Expense> expenses = new HashSet<>();
+    @EqualsAndHashCode.Exclude
+    private Set<ExpenseItem> expenses = new HashSet<>();
 
-    @PreRemove
-    private void dismantleItem(){
+//    @ManyToMany(mappedBy = "items")
+//    @ToString.Exclude
+//    @JsonIgnore
+//    private Set<Expense> expenses = new HashSet<>();
 
-        this.user.removeItem( this );
-        this.itemCategory.removeItem( this );
-        this.unitType.removeItem( this );
-
-        for (Expense expense : this.expenses){
-            expense.removeItem(this);
-        }
-    }
+//    @PreRemove
+//    private void dismantleItem(){
+//
+//        this.user.removeItem( this );
+////        this.itemCategory.removeItem( this );
+////        this.unitType.removeItem( this );
+//
+//        for (Expense expense : this.expenses){
+//            expense.removeItem(this);
+//        }
+//    }
 
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
