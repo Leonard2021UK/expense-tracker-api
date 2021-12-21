@@ -47,31 +47,31 @@ public class ItemService {
 
     /**
      *
-     * @param item
-     * @param unitTypeId
-     * @param itemCategoryId
+//     * @param item
+//     * @param unitTypeId
+//     * @param itemCategoryId
      * @return
      */
-    public Optional<Item> createIfNotExists(
-            Item item,
-            Long unitTypeId,
-            Long itemCategoryId,
-            Long expenseId
-    ){
-
+    public Optional<Item> createIfNotExists(Item item){
+//        public Optional<Item> createIfNotExists(
+//                Item item,
+//                Long unitTypeId,
+//                Long itemCategoryId,
+//                Long expenseId
+//    ){
         if(this.itemRepo.existsByName(item.getName())){
             return Optional.empty();
         }
 
-        Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
-        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.findById(itemCategoryId);
-        Optional<Expense> expenseOpt = this.expenseService.findById(expenseId);
+//        Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
+//        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.findById(itemCategoryId);
+//        Optional<Expense> expenseOpt = this.expenseService.findById(expenseId);
 
-        if(unitTypeOpt.isPresent() && itemCategoryOpt.isPresent() && expenseOpt.isPresent()) {
+//        if(unitTypeOpt.isPresent() && itemCategoryOpt.isPresent() && expenseOpt.isPresent()) {
 
-            UnitType unitType = unitTypeOpt.get();
-            ItemCategory itemCategory = itemCategoryOpt.get();
-            Expense expense = expenseOpt.get();
+//            UnitType unitType = unitTypeOpt.get();
+//            ItemCategory itemCategory = itemCategoryOpt.get();
+//            Expense expense = expenseOpt.get();
             User currentUser = this.userService.getUserDetails().getUser();
 
 //            unitType.addItem(item);
@@ -93,8 +93,8 @@ public class ItemService {
             //TODO add appropriate return
             return Optional.of(savedItem);
 
-        }
-        return Optional.empty();
+//        }
+//        return Optional.empty();
 
     }
 
@@ -116,15 +116,15 @@ public class ItemService {
         return this.itemRepo.findById(id);
     }
 
-//    /**
-//     *
-//     * @return
-//     */
-//    public List<Item> findAllNoneArchived(){
-//        Long currentUserId = this.userService.getUserDetails().getUser().getId();
-//
-//        return this.itemRepo.findAllNoneArchived(currentUserId);
-//    }
+    /**
+     *
+     * @return
+     */
+    public List<Item> findAllNoneArchived(){
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+
+        return this.itemRepo.findAllNoneArchived(currentUserId);
+    }
 
     /**
      *
@@ -146,18 +146,12 @@ public class ItemService {
         return Optional.empty();
     }
 
-//    /**
-//     *
-//     * @param item
-//     * @param itemCategory
-//     * @param unitType
-//     * @return
-//     */
-//    public Item update(Item item, ItemCategory itemCategory, UnitType unitType ){
-//
-//        item.setItemCategory(itemCategory);
-//        item.setUnitType(unitType);
-//
-//        return this.save(item);
-//    }
+    /**
+     *
+     * @param item
+     * @return
+     */
+    public Item update(Item item){
+        return this.save(item);
+    }
 }

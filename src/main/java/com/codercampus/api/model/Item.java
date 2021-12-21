@@ -35,7 +35,7 @@ public class Item {
 //    private BigDecimal amount;
 //    private BigDecimal unitPrice;
 //
-//    private boolean isArchived = false;
+    private boolean isArchived = false;
 
     @ManyToOne
     private User user;

@@ -70,19 +70,19 @@ public class ItemController {
         this.itemMapper = itemMapper;
     }
 
-//    /**
-//     *
-//     * @return
-//     */
-//    @GetMapping
-//    public ResponseEntity<List<ItemResponseDto>>getAll() {
-//
-////        List<Item> itemCollection = this.itemService.findAllNoneArchived();
-//        return new ResponseEntity<>(itemCollection
-//                .stream()
-//                .map(itemMapper::toResponseDto)
-//                .collect(Collectors.toList()), HttpStatus.OK);
-//    }
+    /**
+     *
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<List<ItemResponseDto>>getAll() {
+
+        List<Item> itemCollection = this.itemService.findAllNoneArchived();
+        return new ResponseEntity<>(itemCollection
+                .stream()
+                .map(itemMapper::toResponseDto)
+                .collect(Collectors.toList()), HttpStatus.OK);
+    }
 
 
     /**
@@ -115,11 +115,12 @@ public class ItemController {
 
         Item item = this.objectMapper.treeToValue(request,Item.class);
 
-        Long unitTypeId = request.get("unitTypeId").asLong();
-        Long itemCategoryId = request.get("itemCategoryId").asLong();
-        Long expenseId = request.get("expenseId").asLong();
+//        Long unitTypeId = request.get("unitTypeId").asLong();
+//        Long itemCategoryId = request.get("itemCategoryId").asLong();
+//        Long expenseId = request.get("expenseId").asLong();
+//        Optional<Item> itemOpt = this.itemService.createIfNotExists(item,unitTypeId,itemCategoryId,expenseId);
 
-        Optional<Item> itemOpt = this.itemService.createIfNotExists(item,unitTypeId,itemCategoryId,expenseId);
+        Optional<Item> itemOpt = this.itemService.createIfNotExists(item);
 
         if(itemOpt.isPresent()){
             return new ResponseEntity<>(this.itemMapper.toResponseDto(itemOpt.get()), HttpStatus.CREATED);
@@ -137,26 +138,23 @@ public class ItemController {
     @PatchMapping
     public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
-        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(request.get("expenseTypeId").asLong());
-        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(request.get("expensePaymentTypeId").asLong());
+
+        Item item = this.objectMapper.treeToValue(request,Item.class);
+//        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
+//        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
+//        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(request.get("expenseTypeId").asLong());
+//        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(request.get("expensePaymentTypeId").asLong());
         //TODO refactor into service
-        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
+//        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
-        if (expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent() && expenseTypeOpt.isPresent() && expensePaymentTypeOpt.isPresent()){
-            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
-            ExpenseAddress expenseAddress = expenseAddressOpt.get();
-            ExpenseType expenseType = expenseTypeOpt.get();
-            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
-//            if(this.expenseService.isExists(expense.getName())){
-//                return this.errorHandler.handleResourceAlreadyExistError(expense.getName(),expense);
-//            }
-            Expense updatedExpense = this.expenseService.update(expense,expenseTracker,expenseAddress,expenseType,expensePaymentType);
-
-            return new ResponseEntity<>(this.expenseMapper.toResponseDto(updatedExpense), HttpStatus.OK);
+        // if the new main category name exist then return a corresponding error
+        if(this.itemService.isExists(item.getName())){
+            return this.errorHandler.handleResourceAlreadyExistError(item.getName(),item);
         }
-        return this.errorHandler.handleResourceNotUpdatedError(expense.getName(),expense);
+
+        Item updatedItem = this.itemService.update(item);
+
+        return new ResponseEntity<>(this.itemMapper.toResponseDto(updatedItem), HttpStatus.OK);
 
     }
 

@@ -23,7 +23,7 @@ public class ItemResponseDto {
 //    private BigDecimal amount;
 //    private BigDecimal unitPrice;
 //    private ItemCategory itemCategory;
-    private UnitTypeResponseDto unitType;
+//    private UnitTypeResponseDto unitType;
 
     private String createdBy;
     private String updatedBy;

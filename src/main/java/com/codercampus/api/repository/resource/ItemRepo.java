@@ -14,8 +14,8 @@ public interface ItemRepo extends JpaRepository<Item,Long> {
     boolean existsByName(String name);
 
 
-//    @Query(value = "SELECT It FROM Item It WHERE It.isArchived = false AND It.user.id = :userId")
-//    List<Item> findAllNoneArchived(Long userId);
+    @Query(value = "SELECT It FROM Item It WHERE It.isArchived = false AND It.user.id = :userId")
+    List<Item> findAllNoneArchived(Long userId);
 
     @Modifying
     @Query(value = "DELETE FROM Item It WHERE It.id = :itemId AND It.user.id = :userId")
