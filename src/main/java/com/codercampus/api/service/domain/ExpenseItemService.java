@@ -27,4 +27,8 @@ public class ExpenseItemService {
         return this.expenseItemRepo.saveAll(expenseItemList);
     }
 
+    public ExpenseItem save(ExpenseItem expenseItem){
+        return this.expenseItemRepo.save(expenseItem);
+    }
+
 }

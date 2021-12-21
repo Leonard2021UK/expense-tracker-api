@@ -1,15 +1,18 @@
 package com.codercampus.api.controller.domain;
 
 
-import com.codercampus.api.model.Expense;
-import com.codercampus.api.model.ExpenseItem;
-import com.codercampus.api.model.ExpenseTracker;
-import com.codercampus.api.service.domain.ExpenseItemService;
-import com.codercampus.api.service.domain.ExpenseService;
+import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceNotCreatedException;
+import com.codercampus.api.model.*;
+import com.codercampus.api.model.compositeId.ExpenseItemId;
+import com.codercampus.api.security.UserDetailsImpl;
+import com.codercampus.api.service.UserService;
+import com.codercampus.api.service.domain.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,16 +32,33 @@ public class ExpenseItemController {
     private final ObjectMapper objectMapper;
     private final ExpenseItemService expenseItemService;
     private final ExpenseService expenseService;
+    private final ItemService itemService;
+    private final ItemCategoryService itemCategoryService;
+    private final UnitTypeService unitTypeService;
+    private final UserService userService;
+    private final GlobalErrorHandlerService errorHandler;
 
-    public ExpenseItemController(ObjectMapper objectMapper, ExpenseItemService expenseItemService, ExpenseService expenseService) {
+
+    public ExpenseItemController(
+            ObjectMapper objectMapper,
+            ExpenseItemService expenseItemService,
+            ExpenseService expenseService,
+            ItemService itemService,
+            ItemCategoryService itemCategoryService,
+            UnitTypeService unitTypeService,
+            UserService userService,
+            GlobalErrorHandlerService globalErrorHandlerService
+    ) {
         this.objectMapper = objectMapper;
         this.expenseItemService = expenseItemService;
         this.expenseService = expenseService;
+        this.itemService = itemService;
+        this.itemCategoryService = itemCategoryService;
+        this.unitTypeService = unitTypeService;
+        this.userService = userService;
+        this.errorHandler = globalErrorHandlerService;
+
     }
-
-
-
-
 
     /**
      *
@@ -48,31 +68,66 @@ public class ExpenseItemController {
      */
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody JsonNode expenseItemRequest) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody JsonNode expenseItemRequest) throws JsonProcessingException, ResourceNotCreatedException {
 
-        ExpenseItem[] expenseItems = this.objectMapper.treeToValue(expenseItemRequest.get("items"), ExpenseItem[].class);
+//        ExpenseItem[] expenseItems = this.objectMapper.treeToValue(expenseItemRequest, ExpenseItem[].class);
+
+        JsonNode expenseItems = expenseItemRequest.get("items");
         Long expenseId = expenseItemRequest.get("expenseId").asLong();
-//        Long mainCategoryId = expenseItemRequest.get("mainCategoryId").asLong();
-        Optional<Expense> expenseOptional = this.expenseService.findById(expenseId);
-        if(expenseOptional.isPresent()){
-            List<ExpenseItem> expenseItemList = new ArrayList<>();
-            Arrays.stream(expenseItems).forEach(expenseItem->{
 
+        Optional<Expense> expenseOptional = this.expenseService.findById(expenseId);
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+
+        if(expenseOptional.isPresent()){
+
+            Expense expense = expenseOptional.get();
+
+            List<ExpenseItem> expenseItemList = new ArrayList<>();
+
+
+            expenseItems.forEach(expenseItem->{
+
+                Long itemCategoryId = expenseItem.get("itemCategoryId").asLong();
+                Long itemId = expenseItem.get("itemId").asLong();
+                Long unitTypeId = expenseItem.get("unitTypeId").asLong();
+
+                Optional<Item> itemOpt = this.itemService.findById(itemId);
+                Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.findById(itemCategoryId);
+                Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
+
+                if(itemOpt.isPresent() && itemCategoryOpt.isPresent() && unitTypeOpt.isPresent()){
+                    ExpenseItem expenseItemEntity = new ExpenseItem();
+                    ExpenseItemId expenseItemId = new ExpenseItemId(expenseId,itemId);
+
+                    expenseItemEntity.setId(expenseItemId);
+                    expenseItemEntity.setItem(itemOpt.get());
+                    expenseItemEntity.setExpense(expense);
+
+                    expenseItemEntity.setItemCategory(itemCategoryOpt.get());
+                    expenseItemEntity.setUnitType(unitTypeOpt.get());
+                    expenseItemEntity.setAmount(expenseItem.get("amount").decimalValue());
+                    expenseItemEntity.setUnitPrice(expenseItem.get("unitPrice").decimalValue());
+
+                    expenseItemEntity.setCreatedBy(userDetails.getUsername());
+                    expenseItemEntity.setUpdatedBy(userDetails.getUsername());
+
+                    expenseItemList.add(expenseItemEntity);
+                }
             });
+
+            this.expenseItemService.saveAll(expenseItemList);
+            return new ResponseEntity<>(expenseItemList,HttpStatus.OK);
         }
 
-
-
-        this.expenseItemService.saveAll(Arrays.asList(expenseTracker));
 //        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseItemService.createIfNotExists(expenseTracker,mainCategoryId);
 //
 //        if(expenseTrackerOpt.isPresent()){
 //            return new ResponseEntity<>(Collections.singletonList(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get())), HttpStatus.CREATED);
 //
 //        }
-//
-//        return this.errorHandler.handleResourceAlreadyExistError(expenseItemRequest.get("name").asText(),expenseTracker);
-        return new ResponseEntity<>("hey",HttpStatus.OK);
+        return this.errorHandler.handleResourceNotCreatedError("Expense");
+
+//        throw ResourceNotCreatedException.createWith("Expense could not be found!");
     }
 
 }

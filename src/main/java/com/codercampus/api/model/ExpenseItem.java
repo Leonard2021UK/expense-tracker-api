@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity(name = "expenseItem")
-@NoArgsConstructor(access= AccessLevel.PROTECTED)
+@NoArgsConstructor(access= AccessLevel.PUBLIC)
 public class ExpenseItem {
 
     @EmbeddedId
