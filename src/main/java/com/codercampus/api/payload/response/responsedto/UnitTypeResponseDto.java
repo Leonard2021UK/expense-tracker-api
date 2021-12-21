@@ -16,7 +16,7 @@ public class UnitTypeResponseDto {
     Long id;
     String name;
 
-//    private Set<Long> itemIds;
+    private Set<Long> itemIds;
 
     private String createdBy;
     private String updatedBy;

@@ -36,10 +36,10 @@ public class ExpenseItem {
     @ToString.Exclude
     private Item item;
 
-    public ExpenseItem(Expense expense, Item item){
+    public ExpenseItem(Expense expense, Item item, Long rowId){
         this.expense = expense;
         this.item = item;
-        this.id = new ExpenseItemId(expense.getId(),item.getId());
+        this.id = new ExpenseItemId(expense.getId(),item.getId(), rowId);
     }
     @ManyToOne
     private UnitType unitType;

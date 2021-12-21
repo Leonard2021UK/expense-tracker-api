@@ -90,16 +90,15 @@ public class ExpenseItemController {
                 Long itemCategoryId = expenseItem.get("itemCategoryId").asLong();
                 Long itemId = expenseItem.get("itemId").asLong();
                 Long unitTypeId = expenseItem.get("unitTypeId").asLong();
+                Long rowId = expenseItem.get("rowId").asLong();
 
                 Optional<Item> itemOpt = this.itemService.findById(itemId);
                 Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.findById(itemCategoryId);
                 Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
 
                 if(itemOpt.isPresent() && itemCategoryOpt.isPresent() && unitTypeOpt.isPresent()){
-                    ExpenseItem expenseItemEntity = new ExpenseItem();
-                    ExpenseItemId expenseItemId = new ExpenseItemId(expenseId,itemId);
+                    ExpenseItem expenseItemEntity = new ExpenseItem(expense,itemOpt.get(),rowId);
 
-                    expenseItemEntity.setId(expenseItemId);
                     expenseItemEntity.setItem(itemOpt.get());
                     expenseItemEntity.setExpense(expense);
 

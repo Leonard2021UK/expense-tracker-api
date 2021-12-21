@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -13,12 +16,14 @@ import java.util.Objects;
 @NoArgsConstructor(access= AccessLevel.PROTECTED)
 public class ExpenseItemId implements Serializable {
 
+    private Long rowId;
     private Long expenseId;
     private Long itemId;
 
-    public ExpenseItemId(Long expenseId, Long itemId) {
-        expenseId = expenseId;
-        itemId = itemId;
+    public ExpenseItemId(Long expenseId, Long itemId, Long rowId) {
+        this.expenseId = expenseId;
+        this.itemId = itemId;
+        this.rowId = rowId;
     }
 
     @Override
