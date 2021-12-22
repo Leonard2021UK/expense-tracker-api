@@ -14,6 +14,7 @@ import java.util.Set;
         ExpenseType.class,
         ExpenseAddress.class,
         ExpensePaymentType.class,
+        ExpenseItem.class
 })
 public interface ExpenseMapper {
     ExpenseMapper INSTANCE = Mappers.getMapper(ExpenseMapper.class);
@@ -22,6 +23,7 @@ public interface ExpenseMapper {
     @Mapping(source = "expenseType", target = "expenseType")
     @Mapping(source = "expenseAddress", target = "expenseAddress")
     @Mapping(source = "expensePaymentType", target = "expensePaymentType")
+//    @Mapping(source = "expenseItems", target = "expenseItems")
     ExpenseResponseDto toResponseDto(Expense expense);
 
     Set<ExpenseResponseDto> expensesToResponseDto(Set<Expense> expenses);

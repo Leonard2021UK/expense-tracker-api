@@ -54,16 +54,16 @@ public class Item {
     @ToString.Exclude
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Set<ExpenseItem> expenses = new HashSet<>();
+    private Set<ExpenseItem> expenseItems = new HashSet<>();
 
     public void addExpense(ExpenseItem expenseItem) {
 
-        this.expenses.add(expenseItem);
+        this.expenseItems.add(expenseItem);
         expenseItem.setItem(this);
     }
 
     public void removeExpense(Expense expense) {
-        for (Iterator<ExpenseItem> iterator = expenses.iterator();
+        for (Iterator<ExpenseItem> iterator = expenseItems.iterator();
              iterator.hasNext(); ) {
 
             ExpenseItem expenseItem = iterator.next();
@@ -71,7 +71,7 @@ public class Item {
 
             if (expenseItem.getItem().equals(this) && expenseItem.getExpense().equals(expense)) {
                 iterator.remove();
-                expenseItem.getExpense().getItems().remove(expenseItem);
+                expenseItem.getExpense().getExpenseItems().remove(expenseItem);
                 expenseItem.setItem(null);
                 expenseItem.setExpense(null);
             }else{

@@ -21,7 +21,7 @@ public class ExpenseResponseDto {
     private ExpenseTypeResponseDto expenseType;
     private ExpenseAddressResponseDto expenseAddress;
     private ExpensePaymentTypeResponseDto expensePaymentType;
-    private Set<ItemResponseDto> items;
+    private Set<ExpenseItemResponseDto> expenseItems;
 
     private String name;
     private String email;

@@ -62,16 +62,16 @@ public class Expense {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private Set<ExpenseItem> items = new HashSet<>();
+    private Set<ExpenseItem> expenseItems = new HashSet<>();
 
     public void addItem(ExpenseItem expenseItem) {
 
-        this.items.add(expenseItem);
+        this.expenseItems.add(expenseItem);
         expenseItem.setExpense(this);
     }
 
     public void removeItem(Item item) {
-        for (Iterator<ExpenseItem> iterator = items.iterator();
+        for (Iterator<ExpenseItem> iterator = expenseItems.iterator();
              iterator.hasNext(); ) {
 
             ExpenseItem expenseItem = iterator.next();
@@ -79,7 +79,7 @@ public class Expense {
 
             if (expenseItem.getExpense().equals(this) && expenseItem.getItem().equals(item)) {
                 iterator.remove();
-                expenseItem.getItem().getExpenses().remove(expenseItem);
+                expenseItem.getItem().getExpenseItems().remove(expenseItem);
                 expenseItem.setItem(null);
                 expenseItem.setExpense(null);
             }else{

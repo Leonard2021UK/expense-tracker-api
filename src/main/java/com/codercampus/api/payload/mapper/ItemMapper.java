@@ -20,7 +20,7 @@ public interface ItemMapper {
 
 //    @Mapping(source = "unitType", target = "unitType")
 //    @Mapping(source = "itemCategory", target = "itemCategory")
-    @Mapping(source = "expenses", target = "expenseItems")
+//    @Mapping(source = "expenseItems", target = "expenseItems")
     ItemResponseDto toResponseDto(Item item);
 
     Set<ItemResponseDto> expensesToResponseDto(Set<Item> items);
