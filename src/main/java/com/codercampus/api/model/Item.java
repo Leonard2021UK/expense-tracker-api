@@ -13,6 +13,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -55,6 +56,29 @@ public class Item {
     @EqualsAndHashCode.Exclude
     private Set<ExpenseItem> expenses = new HashSet<>();
 
+    public void addExpense(ExpenseItem expenseItem) {
+
+        this.expenses.add(expenseItem);
+        expenseItem.setItem(this);
+    }
+
+    public void removeExpense(Expense expense) {
+        for (Iterator<ExpenseItem> iterator = expenses.iterator();
+             iterator.hasNext(); ) {
+
+            ExpenseItem expenseItem = iterator.next();
+
+
+            if (expenseItem.getItem().equals(this) && expenseItem.getExpense().equals(expense)) {
+                iterator.remove();
+                expenseItem.getExpense().getItems().remove(expenseItem);
+                expenseItem.setItem(null);
+                expenseItem.setExpense(null);
+            }else{
+                System.out.println("dddd");
+            }
+        }
+    }
 //    @ManyToMany(mappedBy = "items")
 //    @ToString.Exclude
 //    @JsonIgnore

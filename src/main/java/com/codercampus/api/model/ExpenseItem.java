@@ -49,6 +49,7 @@ public class ExpenseItem {
 
     private BigDecimal amount;
     private BigDecimal unitPrice;
+    private BigDecimal price;
 
     private boolean isArchived = false;
 

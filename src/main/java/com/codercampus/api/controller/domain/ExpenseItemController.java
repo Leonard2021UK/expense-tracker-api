@@ -97,18 +97,24 @@ public class ExpenseItemController {
                 Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
 
                 if(itemOpt.isPresent() && itemCategoryOpt.isPresent() && unitTypeOpt.isPresent()){
+
                     ExpenseItem expenseItemEntity = new ExpenseItem(expense,itemOpt.get(),rowId);
 
-                    expenseItemEntity.setItem(itemOpt.get());
-                    expenseItemEntity.setExpense(expense);
+//                    expenseItemEntity.setItem(itemOpt.get());
+//                    expenseItemEntity.setExpense(expense);
 
                     expenseItemEntity.setItemCategory(itemCategoryOpt.get());
                     expenseItemEntity.setUnitType(unitTypeOpt.get());
                     expenseItemEntity.setAmount(expenseItem.get("amount").decimalValue());
                     expenseItemEntity.setUnitPrice(expenseItem.get("unitPrice").decimalValue());
 
+                    expenseItemEntity.setPrice(expenseItem.get("price").decimalValue());
+
                     expenseItemEntity.setCreatedBy(userDetails.getUsername());
                     expenseItemEntity.setUpdatedBy(userDetails.getUsername());
+
+//                    expense.addItem(expenseItemEntity);
+//                    itemOpt.get().addExpense(expenseItemEntity);
 
                     expenseItemList.add(expenseItemEntity);
                 }

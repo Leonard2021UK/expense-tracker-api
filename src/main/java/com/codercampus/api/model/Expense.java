@@ -64,14 +64,10 @@ public class Expense {
     )
     private Set<ExpenseItem> items = new HashSet<>();
 
-    public void addItem(Item item, ExpenseItem expenseItem) {
+    public void addItem(ExpenseItem expenseItem) {
 
-        // TODO this clear is necessary?
-        this.items.clear();
         this.items.add(expenseItem);
-
-        item.getExpenses().clear();
-        item.getExpenses().add(expenseItem);
+        expenseItem.setExpense(this);
     }
 
     public void removeItem(Item item) {
