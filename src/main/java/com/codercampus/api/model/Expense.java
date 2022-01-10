@@ -2,6 +2,7 @@ package com.codercampus.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.*;
@@ -28,15 +29,20 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String name;
+    @JsonProperty("expenseName")
+    private String expenseName;
 
-    private String extraInfo;
+    @JsonProperty("expenseComment")
+    private String expenseComment;
 
-    private String phoneNumber;
+    @JsonProperty("expensePhone")
+    private String expensePhone;
 
-    private String email;
+    @JsonProperty("expenseEmail")
+    private String expenseEmail;
 
-    private String mobileNumber;
+    @JsonProperty("expenseMobile")
+    private String expenseMobile;
 
     private String createdBy;
 
@@ -45,15 +51,19 @@ public class Expense {
     @ManyToOne
     @ToString.Exclude
     @JsonIgnore
+    @JsonProperty("expenseTracker")
     private ExpenseTracker expenseTracker;
 
     @ManyToOne
+    @JsonProperty("expensePaymentType")
     private ExpensePaymentType expensePaymentType;
 
     @ManyToOne
+    @JsonProperty("expenseAddress")
     private ExpenseAddress expenseAddress;
 
     @ManyToOne
+    @JsonProperty("expenseType")
     private ExpenseType expenseType;
 
     @EqualsAndHashCode.Exclude

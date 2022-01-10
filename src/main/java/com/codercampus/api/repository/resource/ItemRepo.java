@@ -1,6 +1,7 @@
 package com.codercampus.api.repository.resource;
 
 import com.codercampus.api.model.Expense;
+import com.codercampus.api.model.ExpenseItem;
 import com.codercampus.api.model.Item;
 import com.codercampus.api.model.ItemCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,7 @@ public interface ItemRepo extends JpaRepository<Item,Long> {
     @Modifying
     @Query(value = "DELETE FROM Item It WHERE It.id = :itemId AND It.user.id = :userId")
     void deleteById(@Param("itemId") Long itemId, @Param("userId") Long userId);
+
+    @Override
+    <S extends Item> List<S> saveAll(Iterable<S> entities);
 }

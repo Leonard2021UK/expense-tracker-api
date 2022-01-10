@@ -23,11 +23,11 @@ public class ExpenseResponseDto {
     private ExpensePaymentTypeResponseDto expensePaymentType;
     private Set<ExpenseItemResponseDto> expenseItems;
 
-    private String name;
-    private String email;
-    private String extraInfo;
-    private String mobileNumber;
-    private String phoneNumber;
+    private String expenseName;
+    private String expenseEmail;
+    private String expenseComment;
+    private String expenseMobile;
+    private String expensePhone;
 
 
     private String createdBy;

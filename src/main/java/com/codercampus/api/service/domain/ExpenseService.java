@@ -1,13 +1,24 @@
 package com.codercampus.api.service.domain;
 
 import com.codercampus.api.model.*;
+import com.codercampus.api.model.compositeId.ExpenseItemId;
 import com.codercampus.api.repository.resource.ExpenseRepo;
+import com.codercampus.api.repository.resource.ItemRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ExpenseService {
@@ -15,16 +26,22 @@ public class ExpenseService {
     private final UserService userService;
     private final ExpenseTrackerService expenseTrackerService;
     private final ExpenseRepo expenseRepo;
+    private final ItemRepo itemRepo;
     private final ExpenseAddressService expenseAddressService;
     private final ExpensePaymentTypeService expensePaymentTypeService;
     private final ExpenseTypeService expenseTypeService;
+    private final ExpenseItemService expenseItemService;
+    private final ObjectMapper objectMapper;
     public ExpenseService(
             UserService userService,
             ExpenseTrackerService expenseTrackerService,
             ExpenseRepo expenseRepo,
             ExpenseAddressService expenseAddressService,
             ExpenseTypeService expenseTypeService,
-            ExpensePaymentTypeService expensePaymentTypeService
+            ExpensePaymentTypeService expensePaymentTypeService,
+            ItemRepo itemRepo,
+            ObjectMapper objectMapper,
+            ExpenseItemService expenseItemService
     ) {
         this.userService = userService;
         this.expenseTrackerService = expenseTrackerService;
@@ -32,6 +49,9 @@ public class ExpenseService {
         this.expenseAddressService = expenseAddressService;
         this.expensePaymentTypeService = expensePaymentTypeService;
         this.expenseTypeService = expenseTypeService;
+        this.itemRepo = itemRepo;
+        this.objectMapper = objectMapper;
+        this.expenseItemService = expenseItemService;
     }
 
     /**
@@ -46,56 +66,82 @@ public class ExpenseService {
     /**
      *
      * @param expense
-     * @param expenseTrackerId
      * @return
      */
+    @Transactional
     public Optional<Expense> createIfNotExists(
             Expense expense,
-            Long expenseTrackerId,
-            Long expenseAddressId,
-            Long expenseTypeId,
-            Long expensePaymentTypeId
+            ExpenseTracker expenseTracker,
+            JsonNode expenseItemNode
     ){
 
-        if(this.expenseRepo.existsByName(expense.getName())){
+        if(this.expenseRepo.existsByExpenseName(expense.getExpenseName())){
             return Optional.empty();
         }
 
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseTrackerId);
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(expenseAddressId);
-        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(expenseTypeId);
-        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(expensePaymentTypeId);
+//        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseTrackerId);
+//        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(expenseAddressId);
+//        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(expenseTypeId);
+//        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(expensePaymentTypeId);
+        Expense savedExpense = this.expenseRepo.save(expense);
 
-        if(expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent() && expenseTypeOpt.isPresent() && expensePaymentTypeOpt.isPresent()) {
+        List<ExpenseItem> expenseItemList = new ArrayList<>();
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
 
-            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
-            ExpenseAddress expenseAddress = expenseAddressOpt.get();
-            ExpenseType expenseType = expenseTypeOpt.get();
-            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
+        expenseItemNode.forEach((expenseItem) ->{
+            Long rowId = expenseItem.get("rowId").asLong();
+            try {
+                Item itemEntity = this.objectMapper.treeToValue(expenseItem.get("item"),Item.class);
+                ExpenseItem expenseItemEntity = this.objectMapper.treeToValue(expenseItem,ExpenseItem.class);
+                ExpenseItemId expenseItemId = new ExpenseItemId(savedExpense.getId(),itemEntity.getId(),rowId);
+                expenseItemEntity.setId(expenseItemId);
+                expenseItemEntity.setExpense(savedExpense);
+                expenseItemEntity.setItem(itemEntity);
+                expenseItemEntity.setCreatedBy(userDetails.getUsername());
+                expenseItemEntity.setUpdatedBy(userDetails.getUsername());
+                expenseItemList.add(expenseItemEntity);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
 
-            UserDetailsImpl userDetails = this.userService.getUserDetails();
+            }
+        });
 
-            expenseTracker.addExpense(expense);
-            expense.setExpenseTracker(expenseTracker);
 
-            expenseAddress.addExpense(expense);
-            expense.setExpenseAddress(expenseAddress);
 
-            expenseType.addExpense(expense);
-            expense.setExpenseType(expenseType);
+//        expenseItems.forEach((expenseItem) ->{
+//            Item item = expenseItem.getItem();
+//            Long rowId = expenseItem.getId();
+//                ExpenseItem expenseItemEntity = new ExpenseItem(expense,expenseItem.getItem(),item.);
+//            });
+//        if(expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent() && expenseTypeOpt.isPresent() && expensePaymentTypeOpt.isPresent()) {
 
-            expensePaymentType.addExpense(expense);
-            expense.setExpensePaymentType(expensePaymentType);
+//            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+//            ExpenseAddress expenseAddress = expenseAddressOpt.get();
+//            ExpenseType expenseType = expenseTypeOpt.get();
+//            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
 
-            expense.setCreatedBy(userDetails.getUsername());
-            expense.setUpdatedBy(userDetails.getUsername());
 
-            return Optional.of(this.save(expense));
+            expenseTracker.addExpense(savedExpense);
+            savedExpense.setExpenseTracker(expenseTracker);
 
+//            expenseAddress.addExpense(expense);
+//            expense.setExpenseAddress(expenseAddress);
+//
+//            expenseType.addExpense(expense);
+//            expense.setExpenseType(expenseType);
+//
+//            expensePaymentType.addExpense(expense);
+//            expense.setExpensePaymentType(expensePaymentType);
+
+            savedExpense.setCreatedBy(userDetails.getUsername());
+            savedExpense.setUpdatedBy(userDetails.getUsername());
+        this.expenseItemService.saveAll(expenseItemList);
+
+        return Optional.of(savedExpense);
         }
-        return Optional.empty();
+//        return Optional.of
 
-    }
+//    }
 
     /**
      *
@@ -103,7 +149,7 @@ public class ExpenseService {
      * @return
      */
     public boolean isExists(String name){
-        return this.expenseRepo.existsByName(name);
+        return this.expenseRepo.existsByExpenseName(name);
     }
 
     /**

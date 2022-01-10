@@ -70,59 +70,60 @@ public class ExpenseItemController {
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody JsonNode expenseItemRequest) throws JsonProcessingException, ResourceNotCreatedException {
 
-//        ExpenseItem[] expenseItems = this.objectMapper.treeToValue(expenseItemRequest, ExpenseItem[].class);
+        System.out.println(expenseItemRequest.get("expenseForm").asText());
+//        Expense[] expenseItems = this.objectMapper.treeToValue(expenseItemRequest.get("expenseForm"), Expense[].class);
 
-        JsonNode expenseItems = expenseItemRequest.get("items");
-        Long expenseId = expenseItemRequest.get("expenseId").asLong();
-
-        Optional<Expense> expenseOptional = this.expenseService.findById(expenseId);
-        UserDetailsImpl userDetails = this.userService.getUserDetails();
-
-        if(expenseOptional.isPresent()){
-
-            Expense expense = expenseOptional.get();
-
-            List<ExpenseItem> expenseItemList = new ArrayList<>();
-
-
-            expenseItems.forEach(expenseItem->{
-
-                Long itemCategoryId = expenseItem.get("itemCategoryId").asLong();
-                Long itemId = expenseItem.get("itemId").asLong();
-                Long unitTypeId = expenseItem.get("unitTypeId").asLong();
-                Long rowId = expenseItem.get("rowId").asLong();
-
-                Optional<Item> itemOpt = this.itemService.findById(itemId);
-                Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.findById(itemCategoryId);
-                Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
-
-                if(itemOpt.isPresent() && itemCategoryOpt.isPresent() && unitTypeOpt.isPresent()){
-
-                    ExpenseItem expenseItemEntity = new ExpenseItem(expense,itemOpt.get(),rowId);
-
-//                    expenseItemEntity.setItem(itemOpt.get());
-//                    expenseItemEntity.setExpense(expense);
-
-                    expenseItemEntity.setItemCategory(itemCategoryOpt.get());
-                    expenseItemEntity.setUnitType(unitTypeOpt.get());
-                    expenseItemEntity.setAmount(expenseItem.get("amount").decimalValue());
-                    expenseItemEntity.setUnitPrice(expenseItem.get("unitPrice").decimalValue());
-
-                    expenseItemEntity.setPrice(expenseItem.get("price").decimalValue());
-
-                    expenseItemEntity.setCreatedBy(userDetails.getUsername());
-                    expenseItemEntity.setUpdatedBy(userDetails.getUsername());
-
-//                    expense.addItem(expenseItemEntity);
-//                    itemOpt.get().addExpense(expenseItemEntity);
-
-                    expenseItemList.add(expenseItemEntity);
-                }
-            });
-
-            this.expenseItemService.saveAll(expenseItemList);
-            return new ResponseEntity<>(expenseItemList,HttpStatus.OK);
-        }
+//        JsonNode expenseItems = expenseItemRequest.get("items");
+//        Long expenseId = expenseItemRequest.get("expenseId").asLong();
+//
+//        Optional<Expense> expenseOptional = this.expenseService.findById(expenseId);
+//        UserDetailsImpl userDetails = this.userService.getUserDetails();
+//
+//        if(expenseOptional.isPresent()){
+//
+//            Expense expense = expenseOptional.get();
+//
+//            List<ExpenseItem> expenseItemList = new ArrayList<>();
+//
+//
+//            expenseItems.forEach(expenseItem->{
+//
+//                Long itemCategoryId = expenseItem.get("itemCategoryId").asLong();
+//                Long itemId = expenseItem.get("itemId").asLong();
+//                Long unitTypeId = expenseItem.get("unitTypeId").asLong();
+//                Long rowId = expenseItem.get("rowId").asLong();
+//
+//                Optional<Item> itemOpt = this.itemService.findById(itemId);
+//                Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.findById(itemCategoryId);
+//                Optional<UnitType> unitTypeOpt = this.unitTypeService.findById(unitTypeId);
+//
+//                if(itemOpt.isPresent() && itemCategoryOpt.isPresent() && unitTypeOpt.isPresent()){
+//
+//                    ExpenseItem expenseItemEntity = new ExpenseItem(expense,itemOpt.get(),rowId);
+//
+////                    expenseItemEntity.setItem(itemOpt.get());
+////                    expenseItemEntity.setExpense(expense);
+//
+//                    expenseItemEntity.setItemCategory(itemCategoryOpt.get());
+//                    expenseItemEntity.setUnitType(unitTypeOpt.get());
+//                    expenseItemEntity.setAmount(expenseItem.get("amount").decimalValue());
+//                    expenseItemEntity.setUnitPrice(expenseItem.get("unitPrice").decimalValue());
+//
+//                    expenseItemEntity.setPrice(expenseItem.get("price").decimalValue());
+//
+//                    expenseItemEntity.setCreatedBy(userDetails.getUsername());
+//                    expenseItemEntity.setUpdatedBy(userDetails.getUsername());
+//
+////                    expense.addItem(expenseItemEntity);
+////                    itemOpt.get().addExpense(expenseItemEntity);
+//
+//                    expenseItemList.add(expenseItemEntity);
+//                }
+//            });
+//
+//            this.expenseItemService.saveAll(expenseItemList);
+            return new ResponseEntity<>("expenseItems",HttpStatus.OK);
+//        }
 
 //        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseItemService.createIfNotExists(expenseTracker,mainCategoryId);
 //
@@ -130,7 +131,7 @@ public class ExpenseItemController {
 //            return new ResponseEntity<>(Collections.singletonList(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get())), HttpStatus.CREATED);
 //
 //        }
-        return this.errorHandler.handleResourceNotCreatedError("Expense");
+//        return this.errorHandler.handleResourceNotCreatedError("Expense");
 
 //        throw ResourceNotCreatedException.createWith("Expense could not be found!");
     }
