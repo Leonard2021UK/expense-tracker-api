@@ -70,7 +70,8 @@ public class ExpenseService {
      */
     @Transactional
     public Optional<Expense> createIfNotExists(
-            Expense expense
+            Expense expense,
+            JsonNode expenseItemRowsNode
     ){
 
         if(this.expenseRepo.existsByExpenseName(expense.getExpenseName())){
@@ -87,18 +88,38 @@ public class ExpenseService {
         UserDetailsImpl userDetails = this.userService.getUserDetails();
 
         // save expense items if there are any
-        if (expense.getExpenseItems().size() > 0){
-            expense.getExpenseItems().forEach((expenseItem) ->{
-                Long rowId = expenseItem.getId().getRowId();
-                Item itemEntity = expenseItem.getItem();
+        if (expenseItemRowsNode.size() > 0){
+            expenseItemRowsNode.forEach((expenseItemRow) ->{
+                try {
+                    Long rowId = expenseItemRow.get("rowId").asLong();
+
+//                    ExpenseItem expenseItem = this.objectMapper.treeToValue(expenseItemRow,ExpenseItem.class);
+                    Item itemEntity = this.objectMapper.treeToValue(expenseItemRow.get("item"),Item.class);
+                    ExpenseItem expenseItem = new ExpenseItem(savedExpense,itemEntity,rowId);
+
+//                    expenseItem.setId(expenseItemId);
+//                    expenseItem.setExpense(savedExpense);
+//                    expenseItem.setItem(itemEntity);
+
+                    expenseItem.setCreatedBy(userDetails.getUsername());
+                    expenseItem.setUpdatedBy(userDetails.getUsername());
+                    expenseItemList.add(expenseItem);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+//                try {
 //                    ExpenseItem expenseItemEntity = this.objectMapper.treeToValue(expenseItem,ExpenseItem.class);
-                ExpenseItemId expenseItemId = new ExpenseItemId(savedExpense.getId(),itemEntity.getId(),rowId);
-                expenseItem.setId(expenseItemId);
-                expenseItem.setExpense(savedExpense);
-                expenseItem.setItem(itemEntity);
-                expenseItem.setCreatedBy(userDetails.getUsername());
-                expenseItem.setUpdatedBy(userDetails.getUsername());
-                expenseItemList.add(expenseItem);
+//                    ExpenseItemId expenseItemId = new ExpenseItemId(savedExpense.getId(),expenseItemEntity.getId(),rowId);
+//                    expenseItem.setId(expenseItemId);
+//                    expenseItem.setExpense(savedExpense);
+//                    expenseItem.setItem(itemEntity);
+//                    expenseItem.setCreatedBy(userDetails.getUsername());
+//                    expenseItem.setUpdatedBy(userDetails.getUsername());
+//                    expenseItemList.add(expenseItem);
+//                } catch (JsonProcessingException e) {
+//                    e.printStackTrace();
+//                }
+
             });
         }
 
@@ -118,8 +139,8 @@ public class ExpenseService {
 //            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
 
 
-            expense.getExpenseTracker().addExpense(savedExpense);
-            savedExpense.setExpenseTracker(expense.getExpenseTracker());
+//            expense.getExpenseTracker().addExpense(savedExpense);
+//            savedExpense.setExpenseTracker(expense.getExpenseTracker());
 
 //            expenseAddress.addExpense(expense);
 //            expense.setExpenseAddress(expenseAddress);
@@ -132,6 +153,7 @@ public class ExpenseService {
 
             savedExpense.setCreatedBy(userDetails.getUsername());
             savedExpense.setUpdatedBy(userDetails.getUsername());
+
         this.expenseItemService.saveAll(expenseItemList);
 
         return Optional.of(savedExpense);
