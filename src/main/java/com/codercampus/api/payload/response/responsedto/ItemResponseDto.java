@@ -20,9 +20,6 @@ public class ItemResponseDto {
     String name;
 
 
-
-
-
 //    private Set<ExpenseItemResponseDto> expenseItems;
 //    private BigDecimal amount;
 //    private BigDecimal unitPrice;

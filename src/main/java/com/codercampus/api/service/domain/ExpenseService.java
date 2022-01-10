@@ -70,9 +70,7 @@ public class ExpenseService {
      */
     @Transactional
     public Optional<Expense> createIfNotExists(
-            Expense expense,
-            ExpenseTracker expenseTracker,
-            JsonNode expenseItemNode
+            Expense expense
     ){
 
         if(this.expenseRepo.existsByExpenseName(expense.getExpenseName())){
@@ -88,23 +86,22 @@ public class ExpenseService {
         List<ExpenseItem> expenseItemList = new ArrayList<>();
         UserDetailsImpl userDetails = this.userService.getUserDetails();
 
-        expenseItemNode.forEach((expenseItem) ->{
-            Long rowId = expenseItem.get("rowId").asLong();
-            try {
-                Item itemEntity = this.objectMapper.treeToValue(expenseItem.get("item"),Item.class);
-                ExpenseItem expenseItemEntity = this.objectMapper.treeToValue(expenseItem,ExpenseItem.class);
+        // save expense items if there are any
+        if (expense.getExpenseItems().size() > 0){
+            expense.getExpenseItems().forEach((expenseItem) ->{
+                Long rowId = expenseItem.getId().getRowId();
+                Item itemEntity = expenseItem.getItem();
+//                    ExpenseItem expenseItemEntity = this.objectMapper.treeToValue(expenseItem,ExpenseItem.class);
                 ExpenseItemId expenseItemId = new ExpenseItemId(savedExpense.getId(),itemEntity.getId(),rowId);
-                expenseItemEntity.setId(expenseItemId);
-                expenseItemEntity.setExpense(savedExpense);
-                expenseItemEntity.setItem(itemEntity);
-                expenseItemEntity.setCreatedBy(userDetails.getUsername());
-                expenseItemEntity.setUpdatedBy(userDetails.getUsername());
-                expenseItemList.add(expenseItemEntity);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                expenseItem.setId(expenseItemId);
+                expenseItem.setExpense(savedExpense);
+                expenseItem.setItem(itemEntity);
+                expenseItem.setCreatedBy(userDetails.getUsername());
+                expenseItem.setUpdatedBy(userDetails.getUsername());
+                expenseItemList.add(expenseItem);
+            });
+        }
 
-            }
-        });
 
 
 
@@ -121,8 +118,8 @@ public class ExpenseService {
 //            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
 
 
-            expenseTracker.addExpense(savedExpense);
-            savedExpense.setExpenseTracker(expenseTracker);
+            expense.getExpenseTracker().addExpense(savedExpense);
+            savedExpense.setExpenseTracker(expense.getExpenseTracker());
 
 //            expenseAddress.addExpense(expense);
 //            expense.setExpenseAddress(expenseAddress);

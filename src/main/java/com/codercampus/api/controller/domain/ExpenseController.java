@@ -109,15 +109,15 @@ public class ExpenseController {
         System.out.println(request.get("expenseForm").asText());
         Expense expense = this.objectMapper.treeToValue(request.get("expenseForm"),Expense.class);
 //        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
-        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
+//        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
 
 //        List<ExpenseItem> itemsCollection = Arrays.asList(this.objectMapper.treeToValue(request.get("items"),ExpenseItem[].class));
-       JsonNode expenseItemNode = request.get("items");
+//       JsonNode expenseItemNode = request.get("items");
 //        Long expenseTrackerId = request.get("expenseTrackerId").asLong();
 //        Long expenseAddressId = request.get("expenseAddressId").asLong();
 //        Long expenseTypeId = request.get("expenseTypeId").asLong();
 //        Long expensePaymentTypeId = request.get("expensePaymentTypeId").asLong();
-        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTracker,expenseItemNode);
+        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense);
 //
 //        if(expenseOpt.isPresent()){
             return new ResponseEntity<>(expenseOpt.get(), HttpStatus.CREATED);
