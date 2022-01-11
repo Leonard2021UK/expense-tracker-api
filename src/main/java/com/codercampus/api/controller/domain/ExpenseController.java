@@ -110,13 +110,13 @@ public class ExpenseController {
 //        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
 //        List<ExpenseItem> expenseItemsList = Arrays.asList(this.objectMapper.treeToValue(request.get("items"),ExpenseItem[].class));
-        expense.setExpenseTracker(expenseTracker);
+//        expense.setExpenseTracker(expenseTracker);
         JsonNode expenseItemRowsNode = request.get("items");
 //        Long expenseTrackerId = request.get("expenseTrackerId").asLong();
 //        Long expenseAddressId = request.get("expenseAddressId").asLong();
 //        Long expenseTypeId = request.get("expenseTypeId").asLong();
 //        Long expensePaymentTypeId = request.get("expensePaymentTypeId").asLong();
-        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseItemRowsNode);
+        Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTracker,expenseItemRowsNode);
 //
 //        if(expenseOpt.isPresent()){
             return new ResponseEntity<>(expenseOpt.get(), HttpStatus.CREATED);

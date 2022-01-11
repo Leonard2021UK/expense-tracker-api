@@ -37,8 +37,8 @@ public class ExpenseTracker {
     @NotNull
     private MainCategory mainCategory;
 
-//    @ManyToOne
-//    private User user;
+    @ManyToOne
+    private User user;
 //
 //    public void setUser(User user) {
 //        this.user = user;

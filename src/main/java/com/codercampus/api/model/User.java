@@ -49,20 +49,20 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
 
-//    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
-//    @ToString.Exclude
-//    @JsonIgnore
-//    private Set<ExpenseTracker> expenseTrackers = new HashSet<>();
-//
-//    public void addExpenseTracker(ExpenseTracker expenseTracker){
-//        expenseTrackers.add(expenseTracker);
-//        expenseTracker.setUser(this);
-//    }
-//
-//    public void removeExpenseTracker(ExpenseTracker expenseTracker){
-//        expenseTrackers.remove(expenseTracker);
-//        expenseTracker.setUser(null);
-//    }
+    @OneToMany(fetch = FetchType.EAGER,mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @JsonIgnore
+    private Set<ExpenseTracker> expenseTrackers = new HashSet<>();
+
+    public void addExpenseTracker(ExpenseTracker expenseTracker){
+        expenseTrackers.add(expenseTracker);
+        expenseTracker.setUser(this);
+    }
+
+    public void removeExpenseTracker(ExpenseTracker expenseTracker){
+        expenseTrackers.remove(expenseTracker);
+        expenseTracker.setUser(null);
+    }
 
     public User(String username, String email, String password) {
         this.username = username;

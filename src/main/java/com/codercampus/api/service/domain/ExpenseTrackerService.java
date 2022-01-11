@@ -39,31 +39,31 @@ public class ExpenseTrackerService {
      * @param mainCategoryId
      * @return
      */
-    public Optional<ExpenseTracker> createIfNotExists(ExpenseTracker expenseTracker,Long mainCategoryId){
+    public Optional<ExpenseTracker> createIfNotExists(ExpenseTracker expenseTracker){
 
         if(this.expenseTrackerRepo.existsByName(expenseTracker.getName())){
             return Optional.empty();
         }
 
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(mainCategoryId);
+//        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.findById(mainCategoryId);
 
-        if(mainCategoryOpt.isPresent()) {
+//        if(mainCategoryOpt.isPresent()) {
 
-            MainCategory mainCategory = mainCategoryOpt.get();
+//            MainCategory mainCategory = mainCategoryOpt.get();
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
 
             expenseTracker.setCreatedBy(userDetails.getUsername());
             expenseTracker.setUpdatedBy(userDetails.getUsername());
-//            expenseTracker.setUser(userDetails.getUser());
+            expenseTracker.setUser(userDetails.getUser());
 
-            mainCategory.addExpenseTracker(expenseTracker);
+//            mainCategory.addExpenseTracker(expenseTracker);
 //            userDetails.getUser().addExpenseTracker(expenseTracker);
 
             return Optional.of(this.save(expenseTracker));
 
-        }
-        return Optional.empty();
+//        }
+//        return Optional.empty();
 
     }
 

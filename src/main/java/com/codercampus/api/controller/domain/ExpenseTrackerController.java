@@ -95,10 +95,11 @@ public class ExpenseTrackerController {
     public ResponseEntity<?> create(@Valid @RequestBody JsonNode expenseTrackerRequest) throws JsonProcessingException {
 
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(expenseTrackerRequest,ExpenseTracker.class);
+//        MainCategory mainCategory = this.objectMapper.treeToValue(expenseTrackerRequest,ExpenseTracker.class);
 
-        Long mainCategoryId = expenseTrackerRequest.get("mainCategoryId").asLong();
+//        Long mainCategoryId = expenseTrackerRequest.get("mainCategory").get("id").asLong();
 
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.createIfNotExists(expenseTracker,mainCategoryId);
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.createIfNotExists(expenseTracker);
 
         if(expenseTrackerOpt.isPresent()){
             return new ResponseEntity<>(Collections.singletonList(this.expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get())), HttpStatus.CREATED);
