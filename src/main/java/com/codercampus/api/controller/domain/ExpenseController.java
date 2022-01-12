@@ -170,7 +170,7 @@ public class ExpenseController {
             }
             Expense updatedExpense = this.expenseService.update(expense,expenseTracker);
 
-            return new ResponseEntity<>(this.expenseMapper.toResponseDto(expense), HttpStatus.OK);
+            return new ResponseEntity<>(this.expenseMapper.toResponseDto(updatedExpense), HttpStatus.OK);
         }
         return this.errorHandler.handleResourceNotUpdatedError(expense.getExpenseName(),expense);
 
