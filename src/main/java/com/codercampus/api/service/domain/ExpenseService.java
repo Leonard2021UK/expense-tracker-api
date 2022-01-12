@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -101,6 +102,12 @@ public class ExpenseService {
 //                    expenseItem.setId(expenseItemId);
 //                    expenseItem.setExpense(savedExpense);
 //                    expenseItem.setItem(itemEntity);
+                    expenseItem.setAmount(new BigDecimal(expenseItemRow.get("amount").asLong()));
+                    expenseItem.setUnitPrice(new BigDecimal(expenseItemRow.get("unitPrice").asLong()));
+                    expenseItem.setPrice(new BigDecimal(expenseItemRow.get("price").asLong()));
+                    expenseItem.setItemCategory(this.objectMapper.treeToValue(expenseItemRow.get("itemCategory"),ItemCategory.class));
+                    expenseItem.setUnitType(this.objectMapper.treeToValue(expenseItemRow.get("unitType"),UnitType.class));
+
 
                     expenseItem.setCreatedBy(userDetails.getUsername());
                     expenseItem.setUpdatedBy(userDetails.getUsername());
@@ -218,12 +225,12 @@ public class ExpenseService {
      * @param expensePaymentType
      * @return
      */
-    public Expense update(Expense expense, ExpenseTracker expenseTracker, ExpenseAddress expenseAddress,ExpenseType expenseType, ExpensePaymentType expensePaymentType ){
+    public Expense update(Expense expense, ExpenseTracker expenseTracker ){
 
         expense.setExpenseTracker(expenseTracker);
-        expense.setExpenseAddress(expenseAddress);
-        expense.setExpenseType(expenseType);
-        expense.setExpensePaymentType(expensePaymentType);
+//        expense.setExpenseAddress(expenseAddress);
+//        expense.setExpenseType(expenseType);
+//        expense.setExpensePaymentType(expensePaymentType);
 
         return this.save(expense);
     }

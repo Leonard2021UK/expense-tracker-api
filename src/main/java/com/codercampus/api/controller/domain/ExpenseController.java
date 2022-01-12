@@ -17,7 +17,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.Validator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +42,7 @@ public class ExpenseController {
     private final ExpenseAddressService expenseAddressService;
     private final ExpenseTypeService expenseTypeService;
     private final ExpensePaymentTypeService expensePaymentTypeService;
+    private final Validator validator;
 
     public ExpenseController(
             UserService userService,
@@ -50,7 +54,8 @@ public class ExpenseController {
             ExpenseTrackerMapper expenseTrackerMapperMapper,
             ExpenseAddressService expenseAddressService,
             ExpenseTypeService expenseTypeService,
-            ExpensePaymentTypeService expensePaymentTypeService
+            ExpensePaymentTypeService expensePaymentTypeService,
+            Validator validator
             ) {
         this.userService = userService;
         this.expenseService = expenseService;
@@ -62,6 +67,7 @@ public class ExpenseController {
         this.expenseAddressService = expenseAddressService;
         this.expenseTypeService = expenseTypeService;
         this.expensePaymentTypeService = expensePaymentTypeService;
+        this.validator = validator;
     }
 
     /**
@@ -104,9 +110,14 @@ public class ExpenseController {
      */
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> create( @Valid @RequestBody JsonNode request) throws JsonProcessingException {
 
         Expense expense = this.objectMapper.treeToValue(request.get("expenseForm"),Expense.class);
+
+        Set<ConstraintViolation<Expense>> violations = validator.validate(expense);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 //        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
 //        List<ExpenseItem> expenseItemsList = Arrays.asList(this.objectMapper.treeToValue(request.get("items"),ExpenseItem[].class));
@@ -142,22 +153,22 @@ public class ExpenseController {
 //        ExpenseAddress expenseAddress = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseAddress"),ExpenseAddress.class);
 //        Item[] items = this.objectMapper.treeToValue(request.get("items"),Item[].class);
 
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(request.get("expenseTrackerId").asLong());
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
-        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(request.get("expenseTypeId").asLong());
-        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(request.get("expensePaymentTypeId").asLong());
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseForm.get("expenseTrackerId").asLong());
+//        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
+//        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(request.get("expenseTypeId").asLong());
+//        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(request.get("expensePaymentTypeId").asLong());
         //TODO refactor into service
 //        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
-        if (expenseTrackerOpt.isPresent() && expenseAddressOpt.isPresent() && expenseTypeOpt.isPresent() && expensePaymentTypeOpt.isPresent()){
-//            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+        if (expenseTrackerOpt.isPresent()){
+            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
 //            ExpenseAddress expenseAddress = expenseAddressOpt.get();
 //            ExpenseType expenseType = expenseTypeOpt.get();
 //            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
-//            if(this.expenseService.isExists(expense.getName())){
-//                return this.errorHandler.handleResourceAlreadyExistError(expense.getName(),expense);
-//            }
-//            Expense updatedExpense = this.expenseService.update(expense,expenseTracker,expenseAddress,expenseType,expensePaymentType);
+            if(this.expenseService.isExists(expense.getExpenseName())){
+                return this.errorHandler.handleResourceAlreadyExistError(expense.getExpenseName(),expense);
+            }
+            Expense updatedExpense = this.expenseService.update(expense,expenseTracker);
 
             return new ResponseEntity<>(this.expenseMapper.toResponseDto(expense), HttpStatus.OK);
         }

@@ -11,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,6 +31,7 @@ public class Expense {
     private Long id;
 
     @JsonProperty("expenseName")
+    @Size(min = 3, max = 50)
     private String expenseName;
 
     @JsonProperty("expenseComment")
