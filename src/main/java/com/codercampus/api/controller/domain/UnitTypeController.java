@@ -80,15 +80,15 @@ public class UnitTypeController {
 
     /**
      *
-     * @param request
+     * @param unitTypeRequest
      * @return
      * @throws JsonProcessingException
      */
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody UnitType unitTypeRequest) throws JsonProcessingException {
 
-        UnitType unitType = this.objectMapper.treeToValue(request,UnitType.class);
+//        UnitType unitType = this.objectMapper.treeToValue(request,UnitType.class);
 //
 //        Long expenseId = request.get("expenseId").asLong();
 
@@ -96,7 +96,7 @@ public class UnitTypeController {
 
 //        if(expenseOpt.isPresent()){
 //            Expense expense = expenseOpt.get();
-        Optional<UnitType> unitTypeOpt = this.unitTypeService.createIfNotExists(unitType);
+        Optional<UnitType> unitTypeOpt = this.unitTypeService.createIfNotExists(unitTypeRequest);
 
         if(unitTypeOpt.isPresent()){
             return new ResponseEntity<>(this.unitTypeMapper.toResponseDto(unitTypeOpt.get()), HttpStatus.CREATED);
@@ -104,7 +104,7 @@ public class UnitTypeController {
         }
 
         //TODO appropriate error
-        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),unitType);
+        return this.errorHandler.handleResourceAlreadyExistError(unitTypeRequest.getName(),unitTypeRequest);
     }
 
     /**

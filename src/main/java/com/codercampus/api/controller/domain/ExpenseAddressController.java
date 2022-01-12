@@ -96,15 +96,15 @@ public class ExpenseAddressController {
 
     /**
      *
-     * @param request
+     * @param expenseAddressRequest
      * @return
      * @throws JsonProcessingException
      */
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody ExpenseAddress expenseAddressRequest) throws JsonProcessingException {
 
-        ExpenseAddress expenseAddress = this.objectMapper.treeToValue(request,ExpenseAddress.class);
+//        ExpenseAddress expenseAddress = this.objectMapper.treeToValue(request,ExpenseAddress.class);
 //
 //        Long expenseId = request.get("expenseId").asLong();
 
@@ -112,7 +112,7 @@ public class ExpenseAddressController {
 
 //        if(expenseOpt.isPresent()){
 //            Expense expense = expenseOpt.get();
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.createIfNotExists(expenseAddress);
+        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.createIfNotExists(expenseAddressRequest);
 
         if(expenseAddressOpt.isPresent()){
             return new ResponseEntity<>(this.expenseAddressMapper.toResponseDto(expenseAddressOpt.get()), HttpStatus.CREATED);
@@ -120,7 +120,7 @@ public class ExpenseAddressController {
         }
 
         //TODO appropriate error
-        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expenseAddress);
+        return this.errorHandler.handleResourceAlreadyExistError(expenseAddressRequest.getName(),expenseAddressRequest);
     }
 
     /**

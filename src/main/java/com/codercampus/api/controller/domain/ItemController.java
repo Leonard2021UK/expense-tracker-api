@@ -105,28 +105,28 @@ public class ItemController {
 
     /**
      *
-     * @param request
+     * @param itemRequest
      * @return
      * @throws JsonProcessingException
      */
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody  Item itemRequest) throws JsonProcessingException {
 
-        Item item = this.objectMapper.treeToValue(request,Item.class);
+//        Item item = this.objectMapper.treeToValue(itemRequest,Item.class);
 
 //        Long unitTypeId = request.get("unitTypeId").asLong();
 //        Long itemCategoryId = request.get("itemCategoryId").asLong();
 //        Long expenseId = request.get("expenseId").asLong();
 //        Optional<Item> itemOpt = this.itemService.createIfNotExists(item,unitTypeId,itemCategoryId,expenseId);
 
-        Optional<Item> itemOpt = this.itemService.createIfNotExists(item);
+        Optional<Item> itemOpt = this.itemService.createIfNotExists(itemRequest);
 
         if(itemOpt.isPresent()){
             return new ResponseEntity<>(this.itemMapper.toResponseDto(itemOpt.get()), HttpStatus.CREATED);
 
         }
-        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),item);
+        return this.errorHandler.handleResourceAlreadyExistError(itemRequest.getName(),itemRequest);
     }
 
     /**

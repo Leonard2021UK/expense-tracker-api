@@ -13,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -31,6 +32,7 @@ public class ExpenseAddress {
     Long id;
 
     @Column(unique = true)
+    @Size(min = 3, max = 50)
     private String name;
 
     @ManyToOne

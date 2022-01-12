@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public class Item {
     private String createdBy;
     private String updatedBy;
 
+    @Size(min = 3, max = 50)
     private String name;
 //    private BigDecimal amount;
 //    private BigDecimal unitPrice;

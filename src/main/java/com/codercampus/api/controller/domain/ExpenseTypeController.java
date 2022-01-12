@@ -82,15 +82,15 @@ public class ExpenseTypeController {
 
     /**
      *
-     * @param request
+     * @param expenseTypeRequest
      * @return
      * @throws JsonProcessingException
      */
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> create(@Valid @RequestBody ExpenseType expenseTypeRequest) throws JsonProcessingException {
 
-        ExpenseType expenseType = this.objectMapper.treeToValue(request,ExpenseType.class);
+//        ExpenseType expenseType = this.objectMapper.treeToValue(request,ExpenseType.class);
 //
 //        Long expenseId = request.get("expenseId").asLong();
 
@@ -98,7 +98,7 @@ public class ExpenseTypeController {
 
 //        if(expenseOpt.isPresent()){
 //            Expense expense = expenseOpt.get();
-        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.createIfNotExists(expenseType);
+        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.createIfNotExists(expenseTypeRequest);
 
         if(expenseTypeOpt.isPresent()){
             return new ResponseEntity<>(this.expenseTypeMapper.toResponseDto(expenseTypeOpt.get()), HttpStatus.CREATED);
@@ -106,7 +106,7 @@ public class ExpenseTypeController {
         }
 
         //TODO appropriate error
-        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expenseType);
+        return this.errorHandler.handleResourceAlreadyExistError(expenseTypeRequest.getName(),expenseTypeRequest);
     }
 
     /**
