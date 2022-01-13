@@ -17,7 +17,7 @@ import java.util.Set;
 public class ExpenseResponseDto {
 
     private Long id;
-    private Long expenseTrackerId;
+//    private Long expenseTrackerId;
     private ExpenseTypeResponseDto expenseType;
     private ExpenseAddressResponseDto expenseAddress;
     private ExpensePaymentTypeResponseDto expensePaymentType;
