@@ -79,43 +79,43 @@ public class ExpenseService {
         if(this.expenseRepo.existsByExpenseName(expense.getExpenseName())){
             return Optional.empty();
         }
-
+        List<ExpenseItem> expenseItemRows = List.copyOf(expense.getExpenseItems());
+        expense.getExpenseItems().clear();
 //        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseTrackerId);
 //        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(expenseAddressId);
 //        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(expenseTypeId);
 //        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(expensePaymentTypeId);
         Expense savedExpense = this.expenseRepo.save(expense);
         savedExpense.setExpenseTracker(expenseTracker);
-        List<ExpenseItem> expenseItemList = new ArrayList<>();
+//        List<ExpenseItem> expenseItemList= new ArrayList<>();
         UserDetailsImpl userDetails = this.userService.getUserDetails();
 
         // save expense items if there are any
-        if (expenseItemRowsNode.size() > 0){
-            expenseItemRowsNode.forEach((expenseItemRow) ->{
-                try {
-                    Long rowId = expenseItemRow.get("rowId").asLong();
+        if (expenseItemRows.size() > 0){
+            expenseItemRows.forEach((expenseItemRow) ->{
+                //                    Long rowId = expenseItemRow.get("rowId").asLong();
 
 //                    ExpenseItem expenseItem = this.objectMapper.treeToValue(expenseItemRow,ExpenseItem.class);
-                    Item itemEntity = this.objectMapper.treeToValue(expenseItemRow.get("item"),Item.class);
-                    ExpenseItem expenseItem = new ExpenseItem(savedExpense,itemEntity,rowId);
+//                    Item itemEntity = this.objectMapper.treeToValue(expenseItemRow.get("item"),Item.class);
+//                    Item itemEntity = expenseItemRow.getItem();
 
+//                    ExpenseItem expenseItem = new ExpenseItem(savedExpense,expenseItemRow.getItem(),expenseItemRow.getId().getRowId());
+                expenseItemRow.setId(new ExpenseItemId(savedExpense.getId(),expenseItemRow.getItem().getId(),expenseItemRow.getId().getRowId()));
+                expenseItemRow.setExpense(savedExpense);
 //                    expenseItem.setId(expenseItemId);
 //                    expenseItem.setExpense(savedExpense);
 //                    expenseItem.setItem(itemEntity);
-                    expenseItem.setAmount(new BigDecimal(expenseItemRow.get("amount").asLong()));
-                    expenseItem.setUnitPrice(new BigDecimal(expenseItemRow.get("unitPrice").asLong()));
-                    expenseItem.setPrice(new BigDecimal(expenseItemRow.get("price").asLong()));
-                    expenseItem.setItemCategory(this.objectMapper.treeToValue(expenseItemRow.get("itemCategory"),ItemCategory.class));
-                    expenseItem.setUnitType(this.objectMapper.treeToValue(expenseItemRow.get("unitType"),UnitType.class));
+//                    expenseItemRow.setAmount(new BigDecimal(expenseItemRow.get("amount").asLong()));
+//                    expenseItemRow.setUnitPrice(new BigDecimal(expenseItemRow.get("unitPrice").asLong()));
+//                    expenseItemRow.setPrice(new BigDecimal(expenseItemRow.get("price").asLong()));
+//                    expenseItemRow.setItemCategory(this.objectMapper.treeToValue(expenseItemRow.get("itemCategory"),ItemCategory.class));
+//                    expenseItemRow.setUnitType(this.objectMapper.treeToValue(expenseItemRow.get("unitType"),UnitType.class));
 
 
-                    expenseItem.setCreatedBy(userDetails.getUsername());
-                    expenseItem.setUpdatedBy(userDetails.getUsername());
-                    expenseItemList.add(expenseItem);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-//                try {
+                expenseItemRow.setCreatedBy(userDetails.getUsername());
+                expenseItemRow.setUpdatedBy(userDetails.getUsername());
+//                    expenseItemList.add(expenseItem);
+                //                try {
 //                    ExpenseItem expenseItemEntity = this.objectMapper.treeToValue(expenseItem,ExpenseItem.class);
 //                    ExpenseItemId expenseItemId = new ExpenseItemId(savedExpense.getId(),expenseItemEntity.getId(),rowId);
 //                    expenseItem.setId(expenseItemId);
@@ -162,7 +162,7 @@ public class ExpenseService {
             savedExpense.setCreatedBy(userDetails.getUsername());
             savedExpense.setUpdatedBy(userDetails.getUsername());
 
-        this.expenseItemService.saveAll(expenseItemList);
+        this.expenseItemService.saveAll(expenseItemRows);
 
         return Optional.of(savedExpense);
         }

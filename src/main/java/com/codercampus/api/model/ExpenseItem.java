@@ -26,13 +26,13 @@ public class ExpenseItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("expenseId")
-    @JsonIgnore
+//    @JsonIgnore
     @ToString.Exclude
     private Expense expense;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("itemId")
-    @JsonIgnore
+//    @JsonIgnore
     @ToString.Exclude
     private Item item;
 
