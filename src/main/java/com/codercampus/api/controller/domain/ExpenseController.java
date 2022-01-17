@@ -144,37 +144,36 @@ public class ExpenseController {
      */
     @PatchMapping
     public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
-        JsonNode expenseForm = request.get("expenseForm");
-        Expense expense = this.objectMapper.treeToValue(expenseForm,Expense.class);
+        Expense expense = this.objectMapper.treeToValue(request.get("expenseForm"),Expense.class);
 
-//        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
+        ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
 //        ExpensePaymentType expensePaymentType = this.objectMapper.treeToValue(request.get("expenseForm").get("expensePaymentType"),ExpensePaymentType.class);
 //        ExpenseType expenseType = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseType"),ExpenseType.class);
 //        ExpenseAddress expenseAddress = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseAddress"),ExpenseAddress.class);
 //        Item[] items = this.objectMapper.treeToValue(request.get("items"),Item[].class);
 
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseForm.get("expenseTrackerId").asLong());
+//        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseForm.get("expenseTrackerId").asLong());
 //        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.findById(request.get("expenseAddressId").asLong());
 //        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeService.findById(request.get("expenseTypeId").asLong());
 //        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.findById(request.get("expensePaymentTypeId").asLong());
         //TODO refactor into service
 //        Expense expense = this.objectMapper.treeToValue(request,Expense.class);
 
-        if (expenseTrackerOpt.isPresent()){
-            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+//        if (expenseTrackerOpt.isPresent()){
+//            ExpenseTracker expenseTracker = expenseTrackerOpt.get();
 //            ExpenseAddress expenseAddress = expenseAddressOpt.get();
 //            ExpenseType expenseType = expenseTypeOpt.get();
 //            ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
-            if(this.expenseService.isExists(expense.getExpenseName())){
-                return this.errorHandler.handleResourceAlreadyExistError(expense.getExpenseName(),expense);
-            }
+//            if(this.expenseService.isExists(expense.getExpenseName())){
+//                return this.errorHandler.handleResourceAlreadyExistError(expense.getExpenseName(),expense);
+//            }
             Expense updatedExpense = this.expenseService.update(expense,expenseTracker);
 
             return new ResponseEntity<>(this.expenseMapper.toResponseDto(updatedExpense), HttpStatus.OK);
         }
-        return this.errorHandler.handleResourceNotUpdatedError(expense.getExpenseName(),expense);
+//        return this.errorHandler.handleResourceNotUpdatedError(expense.getExpenseName(),expense);
 
-    }
+//    }
 
 //    /**
 //     *
