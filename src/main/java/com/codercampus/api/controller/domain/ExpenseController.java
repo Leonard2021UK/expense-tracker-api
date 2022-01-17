@@ -129,11 +129,11 @@ public class ExpenseController {
 //        Long expensePaymentTypeId = request.get("expensePaymentTypeId").asLong();
         Optional<Expense> expenseOpt = this.expenseService.createIfNotExists(expense,expenseTracker,expenseItemRowsNode);
 //
-//        if(expenseOpt.isPresent()){
+        if(expenseOpt.isPresent()){
             return new ResponseEntity<>(expenseOpt.get(), HttpStatus.CREATED);
 //
-//        }
-//        return this.errorHandler.handleResourceAlreadyExistError(request.get("name").asText(),expense);
+        }
+        return this.errorHandler.handleResourceAlreadyExistError(request.get("expenseForm").get("expenseName").asText(),expense);
     }
 
     /**
