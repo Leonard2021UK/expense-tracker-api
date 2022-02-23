@@ -79,6 +79,7 @@ public class ExpenseService {
         if(this.expenseRepo.existsByExpenseName(expense.getExpenseName())){
             return Optional.empty();
         }
+        //set to list
         List<ExpenseItem> expenseItemRows = List.copyOf(expense.getExpenseItems());
         expense.getExpenseItems().clear();
 //        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(expenseTrackerId);
@@ -225,13 +226,35 @@ public class ExpenseService {
      * @param expensePaymentType
      * @return
      */
-    public Expense update(Expense expense, ExpenseTracker expenseTracker ){
+    public Expense update(Expense sourceExpense, ExpenseTracker expenseTracker ){
 
-        expense.setExpenseTracker(expenseTracker);
+        sourceExpense.setExpenseTracker(expenseTracker);
+        Expense targetExpense = this.expenseRepo.getExpenseById(sourceExpense.getId());
+
+        targetExpense.setExpenseName(sourceExpense.getExpenseName());
+        targetExpense.setExpenseEmail(sourceExpense.getExpenseEmail());
+        targetExpense.setExpensePhone(sourceExpense.getExpensePhone());
+        targetExpense.setExpenseMobile(sourceExpense.getExpenseMobile());
+
+        targetExpense.setExpenseType(sourceExpense.getExpenseType());
+        targetExpense.setExpenseAddress(sourceExpense.getExpenseAddress());
+        targetExpense.setExpensePaymentType(sourceExpense.getExpensePaymentType());
+        targetExpense.setExpenseComment(sourceExpense.getExpenseComment());
+        targetExpense.getExpenseItems().clear();
+//        targetExpense.setExpenseItems(sourceExpense.getExpenseItems());
+        sourceExpense.getExpenseItems().forEach(sourceExpenseItem -> {
+            sourceExpenseItem.setExpense(targetExpense);
+        // if the ExpenseItem is new
+            if(sourceExpenseItem.getId().getExpenseId() == null && sourceExpenseItem.getId().getItemId() == null){
+                sourceExpenseItem.getId().setExpenseId(sourceExpense.getId());
+                sourceExpenseItem.getId().setItemId(sourceExpenseItem.getItem().getId());
+            }
+            targetExpense.getExpenseItems().add(sourceExpenseItem);
+        });
 //        expense.setExpenseAddress(expenseAddress);
 //        expense.setExpenseType(expenseType);
 //        expense.setExpensePaymentType(expensePaymentType);
 
-        return this.save(expense);
+        return this.save(targetExpense);
     }
 }

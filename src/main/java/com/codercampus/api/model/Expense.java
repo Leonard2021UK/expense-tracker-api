@@ -76,15 +76,14 @@ public class Expense {
     )
     private Set<ExpenseItem> expenseItems = new HashSet<>();
 
-    public void addItem(ExpenseItem expenseItem) {
-
+    public void addItem( Item item, Long rowId) {
+        ExpenseItem expenseItem = new ExpenseItem(this,item,rowId);
         this.expenseItems.add(expenseItem);
         expenseItem.setExpense(this);
     }
 
     public void removeItem(Item item) {
-        for (Iterator<ExpenseItem> iterator = expenseItems.iterator();
-             iterator.hasNext(); ) {
+        for (Iterator<ExpenseItem> iterator = expenseItems.iterator(); iterator.hasNext(); ) {
 
             ExpenseItem expenseItem = iterator.next();
 

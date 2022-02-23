@@ -143,7 +143,7 @@ public class ExpenseController {
      * @throws JsonProcessingException
      */
     @PatchMapping
-    public ResponseEntity<?> update(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> patch(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
         Expense expense = this.objectMapper.treeToValue(request.get("expenseForm"),Expense.class);
 
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);

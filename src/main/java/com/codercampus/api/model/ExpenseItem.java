@@ -24,7 +24,7 @@ public class ExpenseItem {
     @EmbeddedId
     private ExpenseItemId id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("expenseId")
 //    @JsonIgnore
     @ToString.Exclude

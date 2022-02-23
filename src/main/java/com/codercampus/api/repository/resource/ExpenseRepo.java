@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExpenseRepo extends JpaRepository<Expense,Long> {
     boolean existsByExpenseName(String name);
+
+    Expense getExpenseById(Long id);
 }
