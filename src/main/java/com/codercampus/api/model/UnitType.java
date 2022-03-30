@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "unit_type")
 @Table(	name = "unit_type")
 @Getter
 @Setter

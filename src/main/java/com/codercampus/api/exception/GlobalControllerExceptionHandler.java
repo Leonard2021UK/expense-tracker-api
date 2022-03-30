@@ -47,7 +47,8 @@ public class GlobalControllerExceptionHandler {
             NoSuchElementException.class,
             ResourceNotFoundException.class,
             ResourceNotUpdatedException.class,
-            ResourceAlreadyExistException.class
+            ResourceAlreadyExistException.class,
+            ResourceHasReferenceException.class
     })
     public final ResponseEntity<ErrorResponse<?>> handleException(Exception ex, WebRequest request) {
 
@@ -97,6 +98,11 @@ public class GlobalControllerExceptionHandler {
 
             return handleResourceAlreadyExists(resourceAEE, headers, status, request);
 
+        }else if(ex instanceof ResourceHasReferenceException){
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            ResourceHasReferenceException resourceHRE = (ResourceHasReferenceException) ex;
+
+            return handleResourceHasReference(resourceHRE, headers, status, request);
         }
         else {
             if (LOGGER.isWarnEnabled()) {
@@ -130,6 +136,27 @@ public class GlobalControllerExceptionHandler {
             customViolation.setType(EErrorType.INVALID_DATA);
             errorResponse.getErrors().add(customViolation);        }
 
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);
+    }
+
+    /**
+     * Customize the response for NumberFormatException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorResponse<?>>handleResourceHasReference(ResourceHasReferenceException ex,
+                                                                     HttpHeaders headers, HttpStatus status,
+                                                                     WebRequest request) {
+        Error error = new Error(ex.getMessage());
+        error.setType(EErrorType.RESOURCE_HAS_REFERENCE);
+        List<Error> errors = Collections.singletonList(error);
+
+        ErrorResponse<?> errorResponse = new ErrorResponse<>(errors);
+
+        errorResponse.setMessage(ex.getMessage());
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 

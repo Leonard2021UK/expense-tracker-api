@@ -1,6 +1,8 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.ItemCategory;
 import com.codercampus.api.payload.mapper.ItemCategoryMapper;
 import com.codercampus.api.payload.response.responsedto.ItemCategoryResponseDto;
@@ -49,9 +51,9 @@ public class ItemCategoryController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<ItemCategoryResponseDto>> getAll() {
+    public ResponseEntity<List<ItemCategoryResponseDto>> findAll() {
 
-        List<ItemCategory> itemCategoryCollection = this.itemCategoryService.findAllNoneArchived();
+        List<ItemCategory> itemCategoryCollection = this.itemCategoryService.findAll();
         return new ResponseEntity<>(itemCategoryCollection
                 .stream()
                 .map(itemCategoryMapper::toResponseDto)
@@ -124,15 +126,17 @@ public class ItemCategoryController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
 
-        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryService.archiveOrDeleteById(id);
-        if(itemCategoryOpt.isPresent()){
-            //TODO successful feedback
-            return new ResponseEntity<>(itemCategoryMapper.toResponseDto(itemCategoryOpt.get()), HttpStatus.OK);
+            ItemCategory itemCategory = this.itemCategoryService.deleteById(id);
+//            if(itemCategoryOpt.isPresent()){
+                //TODO successful feedback
+                return new ResponseEntity<>(itemCategoryMapper.toResponseDto(itemCategory), HttpStatus.OK);
 
-        }
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+//            }
+//            return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+
+
     }
 
 

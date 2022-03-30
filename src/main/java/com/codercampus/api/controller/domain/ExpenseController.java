@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
+import javax.transaction.Transactional;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -143,7 +144,7 @@ public class ExpenseController {
      * @throws JsonProcessingException
      */
     @PatchMapping
-    public ResponseEntity<?> patch(@Valid @RequestBody JsonNode request) throws JsonProcessingException {
+    public ResponseEntity<?> patch(@Valid @RequestBody JsonNode request) throws JsonProcessingException, ResourceNotFoundException {
         Expense expense = this.objectMapper.treeToValue(request.get("expenseForm"),Expense.class);
 
         ExpenseTracker expenseTracker = this.objectMapper.treeToValue(request.get("expenseForm").get("expenseTracker"),ExpenseTracker.class);
@@ -175,22 +176,19 @@ public class ExpenseController {
 
 //    }
 
-//    /**
-//     *
-//     * @param id
-//     * @return
-//     */
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
-//
-//        Optional<Expense> expenseOpt = this.expenseService.deleteById(id);
-//        if(expenseOpt.isPresent()){
-//            //TODO successful feedback
-//            return new ResponseEntity<>(expenseMapper.toResponseDto(expenseOpt.get()), HttpStatus.OK);
-//
-//        }
-//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
-//
-//    }
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) throws ResourceNotFoundException {
+
+        Expense expense = this.expenseService.deleteById(id);
+            //TODO successful feedback
+            return new ResponseEntity<>(expenseMapper.toResponseDto(expense), HttpStatus.OK);
+
+    }
 
 }

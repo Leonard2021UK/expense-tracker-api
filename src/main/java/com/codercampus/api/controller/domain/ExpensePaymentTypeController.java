@@ -1,6 +1,7 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceHasReferenceException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.ExpensePaymentType;
 import com.codercampus.api.payload.mapper.ExpensePaymentTypeMapper;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -160,16 +162,17 @@ public class ExpensePaymentTypeController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+    @Transactional
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
 
-        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeService.deleteById(id);
-        if(expensePaymentTypeOpt.isPresent()){
+        ExpensePaymentType expensePaymentType = this.expensePaymentTypeService.deleteById(id);
+//        if(expensePaymentTypeOpt.isPresent()){
 
             //TODO successful feedback
-            return new ResponseEntity<>(expensePaymentTypeMapper.toResponseDto(expensePaymentTypeOpt.get()), HttpStatus.OK);
+            return new ResponseEntity<>(expensePaymentTypeMapper.toResponseDto(expensePaymentType), HttpStatus.OK);
 
-        }
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+//        }
+//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
 
     }
 

@@ -1,13 +1,18 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.ExpenseTrackerRepo;
 import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
+import javax.resource.ResourceException;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +41,6 @@ public class ExpenseTrackerService {
     /**
      *
      * @param expenseTracker
-     * @param mainCategoryId
      * @return
      */
     public Optional<ExpenseTracker> createIfNotExists(ExpenseTracker expenseTracker){
@@ -90,7 +94,8 @@ public class ExpenseTrackerService {
      * @return
      */
     public List<ExpenseTracker> findAll(){
-        return this.expenseTrackerRepo.findAll();
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expenseTrackerRepo.findAllByUserId(userDetails.getUser().getId());
     }
 
     /**
@@ -98,19 +103,26 @@ public class ExpenseTrackerService {
      * @param id
      * @return
      */
-    public Optional<ExpenseTracker> deleteById(Long id){
-
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerRepo.findById(id);
-
+    @Transactional
+    @Modifying
+    public ExpenseTracker deleteById(Long id) throws ResourceException, ResourceHasReferenceException, ResourceNotFoundException {
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerRepo.findByIdAndUserId(id,currentUserId);
+//
         if(expenseTrackerOpt.isPresent()){
+
             ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+            if(expenseTracker.getExpenses().isEmpty()){
+                expenseTracker.getMainCategory().removeExpenseTracker(expenseTracker);
+                expenseTracker.getUser().removeExpenseTracker(expenseTracker);
+                this.expenseTrackerRepo.deleteExpenseTrById(id,currentUserId);
+                return expenseTracker;
+            }else{
+                throw ResourceHasReferenceException.createWith("Expense tracker");
 
-            expenseTracker.getMainCategory().removeExpenseTracker(expenseTracker);
-//            expenseTracker.getUser().removeExpenseTracker(expenseTracker);
-
-            return Optional.of(this.expenseTrackerRepo.save(expenseTracker));
+            }
         }
-        return Optional.empty();
+        throw ResourceNotFoundException.createWith("Expense tracker could not be found!");
     }
 
     /**
@@ -129,3 +141,37 @@ public class ExpenseTrackerService {
         return this.save(expenseTracker);
     }
 }
+
+//    Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.findById(id);
+//
+//
+//        if (expenseTrackerOpt.isPresent()){
+//                ExpenseTracker expenseTracker = expenseTrackerOpt.get();
+//                Set<Expense> expenses = expenseTracker.getExpenses();
+//        if(expenses.isEmpty()){
+//        try {
+//        Optional<ExpenseTracker> deletedExpenseTrackerOpt = this.expenseTrackerService.deleteById(id);
+//        if(deletedExpenseTrackerOpt.isPresent()){
+//        return new ResponseEntity<>(deletedExpenseTrackerOpt.get(), HttpStatus.OK);
+//        }
+//        return this.errorHandler.handleResourceNotDeletedError(id.toString(), null);
+//
+//        } catch (ResourceException e) {
+//        return this.errorHandler.handleResourceNotDeletedError(id.toString(), null);
+//        }
+//        }else{
+//        return this.errorHandler.handleResourceNotEmptyError(id.toString(), null);
+//        }
+//
+//        }else {
+//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+//        }
+//
+////
+////        if(expenseTrackerOpt.isPresent()){
+////            //TODO successful feedback
+////            return new ResponseEntity<>(expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.OK);
+////
+////        }
+////        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+

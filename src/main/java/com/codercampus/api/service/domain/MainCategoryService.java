@@ -1,6 +1,9 @@
 package com.codercampus.api.service.domain;
 
 import com.codercampus.api.exception.ResourceAlreadyExistException;
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
+import com.codercampus.api.model.ExpenseAddress;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.MainCategoryRepo;
@@ -48,7 +51,7 @@ public class MainCategoryService {
         }else{
 
             UserDetailsImpl userDetails = this.userService.getUserDetails();
-
+            userDetails.getUser().addMainCategory(mainCategory);
             mainCategory.setCreatedBy(userDetails.getUsername());
             mainCategory.setUpdatedBy(userDetails.getUsername());
 
@@ -67,21 +70,18 @@ public class MainCategoryService {
         return this.mainCategoryRepo.existsByName(name);
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     */
-    public Optional<MainCategory> findById(Long id){
-        return this.mainCategoryRepo.findById(id);
-    }
 
+    public Optional<MainCategory> findById(Long id){
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.mainCategoryRepo.findByIdAndUserId(id,userDetails.getUser().getId());
+    }
     /**
      *
      * @return
      */
     public List<MainCategory> findAll(){
-        return this.mainCategoryRepo.findAll();
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.mainCategoryRepo.findAllByUserId(userDetails.getUser().getId());
     }
 
     /**
@@ -89,17 +89,29 @@ public class MainCategoryService {
      * @param id
      * @return
      */
-    public Optional<MainCategory> deleteById(Long id){
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryRepo.findById(id);
+    public MainCategory deleteById(Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        Optional<MainCategory> mainCategoryOpt = this.mainCategoryRepo.findByIdAndUserId(id,currentUserId);
 
         if(mainCategoryOpt.isPresent()){
             MainCategory mainCategory = mainCategoryOpt.get();
 
+            if(mainCategory.getExpenseTrackers().isEmpty()){
+//                for(Expense expense : expenseAddress.getExpenses()){
+//                    expenseAddress.removeExpense(expense);
+//                }
+                this.mainCategoryRepo.deleteByIdAndUserId(id,currentUserId);
+
+                return mainCategory;
+            }else{
+                throw ResourceHasReferenceException.createWith("Main category");
+
+            }
 //            mainCategory.getUser().getMainCategories().remove(mainCategory);
 
-            return Optional.of(this.save(mainCategory));
         }
-        return Optional.empty();
+        throw ResourceNotFoundException.createWith("Main category could not be found!");
+
     }
 
     /**

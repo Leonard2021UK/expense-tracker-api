@@ -2,6 +2,7 @@ package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
 import com.codercampus.api.exception.ResourceAlreadyExistException;
+import com.codercampus.api.exception.ResourceHasReferenceException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
@@ -131,15 +133,17 @@ public class MainCategoryController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+    @Transactional
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
 
-        Optional<MainCategory> mainCategoryOpt = this.mainCategoryService.deleteById(id);
-        if(mainCategoryOpt.isPresent()){
+        MainCategory mainCategory = this.mainCategoryService.deleteById(id);
+
+//        if(mainCategoryOpt.isPresent()){
             //TODO successful feedback
-            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategoryOpt.get()), HttpStatus.OK);
+            return new ResponseEntity<>(mainCategoryMapper.toResponseDto(mainCategory), HttpStatus.OK);
 
-        }
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+//        }
+//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
     }
 
 

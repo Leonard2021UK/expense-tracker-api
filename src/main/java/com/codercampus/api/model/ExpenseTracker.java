@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@Entity(name = "expense_tracker")
 @Table(	name = "expense_tracker")
 @Getter
 @Setter
@@ -44,7 +44,7 @@ public class ExpenseTracker {
 //        this.user = user;
 //    }
 
-    @OneToMany(mappedBy = "expenseTracker", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "expenseTracker", orphanRemoval = true)
     private Set<Expense> expenses = new HashSet<>();
 
     public void addExpense(Expense expense){
@@ -69,8 +69,6 @@ public class ExpenseTracker {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
-
-
 
     @Override
     public boolean equals(Object o) {

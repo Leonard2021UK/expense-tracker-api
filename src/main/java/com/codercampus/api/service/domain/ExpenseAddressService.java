@@ -1,5 +1,7 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseAddress;
 import com.codercampus.api.model.ExpenseTracker;
@@ -9,6 +11,7 @@ import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +53,7 @@ public class ExpenseAddressService {
         }
 
         UserDetailsImpl userDetails = this.userService.getUserDetails();
-
+        expenseAddress.setUser(userDetails.getUser());
         expenseAddress.setCreatedBy(userDetails.getUsername());
         expenseAddress.setUpdatedBy(userDetails.getUsername());
 //        expenseAddress.addExpense(expense);
@@ -72,7 +75,8 @@ public class ExpenseAddressService {
      * @return
      */
     public Optional<ExpenseAddress> findById(Long id){
-        return this.expenseAddressRepo.findById(id);
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expenseAddressRepo.findByIdAndUserId(id,userDetails.getUser().getId());
     }
 
     /**
@@ -80,7 +84,8 @@ public class ExpenseAddressService {
      * @return
      */
     public List<ExpenseAddress> findAll(){
-        return this.expenseAddressRepo.findAll();
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expenseAddressRepo.findAllByUserId(userDetails.getUser().getId());
     }
 
     /**
@@ -88,21 +93,30 @@ public class ExpenseAddressService {
      * @param id
      * @return
      */
-    public Optional<ExpenseAddress> deleteById(Long id){
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressRepo.findById(id);
+    @Transactional
+    public ExpenseAddress deleteById(Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
+
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressRepo.findByIdAndUserId(id,currentUserId);
 
         if(expenseAddressOpt.isPresent()){
+
             ExpenseAddress expenseAddress = expenseAddressOpt.get();
 
-            for(Expense expense : expenseAddress.getExpenses()){
-                expenseAddress.removeExpense(expense);
+            if(expenseAddress.getExpenses().isEmpty()){
+//                for(Expense expense : expenseAddress.getExpenses()){
+//                    expenseAddress.removeExpense(expense);
+//                }
+                this.expenseAddressRepo.deleteById(id,currentUserId);
+
+                return expenseAddress;
+            }else{
+                throw ResourceHasReferenceException.createWith("Expense address");
+
             }
 
-            this.expenseAddressRepo.deleteById(id);
-
-            return expenseAddressOpt;
         }
-        return expenseAddressOpt;
+        throw ResourceNotFoundException.createWith("Expense address could not be found!");
     }
 
     /**

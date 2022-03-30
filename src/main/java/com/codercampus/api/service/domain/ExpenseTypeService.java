@@ -1,6 +1,9 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
+import com.codercampus.api.model.ExpenseAddress;
 import com.codercampus.api.model.ExpenseType;
 import com.codercampus.api.repository.resource.ExpenseTypeRepo;
 import com.codercampus.api.security.UserDetailsImpl;
@@ -49,7 +52,7 @@ public class ExpenseTypeService {
         }
 
         UserDetailsImpl userDetails = this.userService.getUserDetails();
-
+        expenseType.setUser(userDetails.getUser());
         expenseType.setCreatedBy(userDetails.getUsername());
         expenseType.setUpdatedBy(userDetails.getUsername());
 //        expenseType.addExpense(expense);
@@ -71,15 +74,16 @@ public class ExpenseTypeService {
      * @return
      */
     public Optional<ExpenseType> findById(Long id){
-        return this.expenseTypeRepo.findById(id);
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expenseTypeRepo.findByIdAndUserId(id,userDetails.getUser().getId());
     }
-
     /**
      *
      * @return
      */
     public List<ExpenseType> findAll(){
-        return this.expenseTypeRepo.findAll();
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expenseTypeRepo.findAllByUserId(userDetails.getUser().getId());
     }
 
     /**
@@ -87,22 +91,25 @@ public class ExpenseTypeService {
      * @param id
      * @return
      */
-    public Optional<ExpenseType> deleteById(Long id){
+    public ExpenseType deleteById(Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
 
-        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeRepo.findById(id);
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        Optional<ExpenseType> expenseTypeOpt = this.expenseTypeRepo.findByIdAndUserId(id,currentUserId);
 
         if(expenseTypeOpt.isPresent()){
 
             ExpenseType expenseType = expenseTypeOpt.get();
 
-            for (Expense expense : expenseType.getExpenses()) {
-                expenseType.removeExpense(expense);
+            if (expenseType.getExpenses().isEmpty()) {
+                this.expenseTypeRepo.deleteById(id,currentUserId);
+                return expenseType;
+            }else{
+                throw ResourceHasReferenceException.createWith("Expense type");
+
             }
 
-            this.expenseTypeRepo.deleteById(id);
-
         }
-        return expenseTypeOpt;
+        throw ResourceNotFoundException.createWith("Expense type could not be found!");
     }
 
     /**

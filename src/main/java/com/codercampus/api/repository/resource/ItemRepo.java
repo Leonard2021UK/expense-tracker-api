@@ -15,11 +15,11 @@ public interface ItemRepo extends JpaRepository<Item,Long> {
     boolean existsByName(String name);
 
 
-    @Query(value = "SELECT It FROM Item It WHERE It.isArchived = false AND It.user.id = :userId")
+    @Query(value = "SELECT It FROM item It WHERE It.isArchived = false AND It.user.id = :userId")
     List<Item> findAllNoneArchived(Long userId);
 
     @Modifying
-    @Query(value = "DELETE FROM Item It WHERE It.id = :itemId AND It.user.id = :userId")
+    @Query(value = "DELETE FROM item It WHERE It.id = :itemId AND It.user.id = :userId")
     void deleteById(@Param("itemId") Long itemId, @Param("userId") Long userId);
 
     @Override

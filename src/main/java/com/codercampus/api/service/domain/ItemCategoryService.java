@@ -1,5 +1,7 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.ItemCategory;
 import com.codercampus.api.model.User;
 import com.codercampus.api.repository.resource.ItemCategoryRepo;
@@ -7,6 +9,7 @@ import com.codercampus.api.security.UserDetailsImpl;
 import com.codercampus.api.service.UserService;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,17 +49,16 @@ public class ItemCategoryService {
     public Optional<ItemCategory> createIfNotExists(ItemCategory itemCategory){
         if(this.itemCategoryRepo.existsByName(itemCategory.getName())){
             return Optional.empty();
-        }else{
-
-            UserDetailsImpl userDetails = this.userService.getUserDetails();
-
-            itemCategory.setCreatedBy(userDetails.getUsername());
-            itemCategory.setUpdatedBy(userDetails.getUsername());
-            itemCategory.setUser(userDetails.getUser());
-
-            userDetails.getUser().addItemCategory(itemCategory);
-            return Optional.of(this.itemCategoryRepo.save(itemCategory));
         }
+
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+
+        itemCategory.setCreatedBy(userDetails.getUsername());
+        itemCategory.setUpdatedBy(userDetails.getUsername());
+        itemCategory.setUser(userDetails.getUser());
+
+        userDetails.getUser().addItemCategory(itemCategory);
+        return Optional.of(this.itemCategoryRepo.save(itemCategory));
 
     }
 
@@ -76,17 +78,18 @@ public class ItemCategoryService {
      */
     public Optional<ItemCategory> findById(Long itemCategoryId){
         Long currentUserId = this.userService.getUserDetails().getUser().getId();
-        return this.itemCategoryRepo.findById(itemCategoryId,currentUserId);
+        return this.itemCategoryRepo.findByIdAndUserId(itemCategoryId,currentUserId);
     }
 
     /**
      *
+     *
      * @return
      */
-    public List<ItemCategory> findAllNoneArchived(){
+    public List<ItemCategory> findAll(){
         Long currentUserId = this.userService.getUserDetails().getUser().getId();
 
-        return this.itemCategoryRepo.findAllNoneArchived(currentUserId);
+        return this.itemCategoryRepo.findAllByUserId(currentUserId);
     }
 
     /**
@@ -94,27 +97,31 @@ public class ItemCategoryService {
      * @param id
      * @return
      */
-    public Optional<ItemCategory> archiveOrDeleteById(Long id){
-        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryRepo.findById(id);
+    @Transactional
+    public ItemCategory deleteById(Long id) throws ResourceNotFoundException, ResourceHasReferenceException {
+
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+        Optional<ItemCategory> itemCategoryOpt = this.itemCategoryRepo.findByIdAndUserId(id,currentUserId);
 
         if(itemCategoryOpt.isPresent()){
-
-            Long currentUserId = this.userService.getUserDetails().getUser().getId();
 
             ItemCategory itemCategory = itemCategoryOpt.get();
 
             if(itemCategory.getItems().isEmpty()){
+
                 this.itemCategoryRepo.deleteById(itemCategory.getId(),currentUserId);
-                return Optional.of(itemCategory);
+
+                return itemCategory;
+
+            }else{
+
+                throw ResourceHasReferenceException.createWith("Item category");
+
             }
-
-            itemCategory.setArchived(true);
-
-            return Optional.of(itemCategory);
             //TODO appropriate Error message
 //            return Optional.empty();
         }
-        return Optional.empty();
+        throw ResourceNotFoundException.createWith("Item category could not be found!");
     }
 
     /**

@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(	name = "expense_address")
+@Entity(name = "expense_address")
+@Table(name = "expense_address")
 @Getter
 @Setter
 @ToString

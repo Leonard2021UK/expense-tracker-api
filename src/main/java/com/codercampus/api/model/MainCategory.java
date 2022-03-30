@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "main_category")
 @Table(	name = "main_category")
 @Getter
 @Setter
@@ -40,8 +40,8 @@ public class MainCategory {
     @NotNull
     String name;
 
-//    @ManyToOne
-//    User user;
+    @ManyToOne
+    User user;
 
     @OneToMany(
             fetch = FetchType.LAZY,

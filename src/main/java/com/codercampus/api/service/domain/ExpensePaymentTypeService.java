@@ -1,5 +1,7 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpensePaymentType;
 import com.codercampus.api.repository.resource.ExpenseAddressRepo;
@@ -49,7 +51,7 @@ public class ExpensePaymentTypeService {
         }
 
         UserDetailsImpl userDetails = this.userService.getUserDetails();
-
+        expensePaymentType.setUser(userDetails.getUser());
         expensePaymentType.setCreatedBy(userDetails.getUsername());
         expensePaymentType.setUpdatedBy(userDetails.getUsername());
 //        expensePaymentType.addExpense(expense);
@@ -71,7 +73,9 @@ public class ExpensePaymentTypeService {
      * @return
      */
     public Optional<ExpensePaymentType> findById(Long id){
-        return this.expensePaymentTypeRepo.findById(id);
+
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expensePaymentTypeRepo.findByIdAndUserId(id,userDetails.getUser().getId());
     }
 
     /**
@@ -79,7 +83,8 @@ public class ExpensePaymentTypeService {
      * @return
      */
     public List<ExpensePaymentType> findAll(){
-        return this.expensePaymentTypeRepo.findAll();
+        UserDetailsImpl userDetails = this.userService.getUserDetails();
+        return this.expensePaymentTypeRepo.findAllByUserId(userDetails.getUser().getId());
     }
 
     /**
@@ -87,21 +92,23 @@ public class ExpensePaymentTypeService {
      * @param id
      * @return
      */
-    public Optional<ExpensePaymentType> deleteById(Long id){
-        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeRepo.findById(id);
+    public ExpensePaymentType deleteById(Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
+        Long currentUserId = this.userService.getUserDetails().getUser().getId();
+
+        Optional<ExpensePaymentType> expensePaymentTypeOpt = this.expensePaymentTypeRepo.findByIdAndUserId(id,currentUserId);
 
         if(expensePaymentTypeOpt.isPresent()){
             ExpensePaymentType expensePaymentType = expensePaymentTypeOpt.get();
 
-            for(Expense expense : expensePaymentType.getExpenses()){
-                expensePaymentType.removeExpense(expense);
+            if (expensePaymentType.getExpenses().isEmpty()) {
+                this.expensePaymentTypeRepo.deleteById(id,currentUserId);
+                return expensePaymentType;
+            }else{
+                throw ResourceHasReferenceException.createWith("Expense payment type");
+
             }
-
-            this.expensePaymentTypeRepo.deleteById(id);
-
-            return expensePaymentTypeOpt;
         }
-        return expensePaymentTypeOpt;
+        throw ResourceNotFoundException.createWith("Expense type could not be found!");
     }
 
     /**

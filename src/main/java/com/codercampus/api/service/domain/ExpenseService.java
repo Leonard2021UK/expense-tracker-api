@@ -1,5 +1,7 @@
 package com.codercampus.api.service.domain;
 
+import com.codercampus.api.exception.ResourceHasReferenceException;
+import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.*;
 import com.codercampus.api.model.compositeId.ExpenseItemId;
 import com.codercampus.api.repository.resource.ExpenseRepo;
@@ -197,64 +199,75 @@ public class ExpenseService {
         return this.expenseRepo.findAll();
     }
 
-//    /**
-//     *
-//     * @param id
-//     * @return
-//     */
-//    public Optional<Expense> deleteById(Long id){
-//
-//        Optional<Expense> expenseOpt = this.expenseRepo.findById(id);
-//
-//        if(expenseOpt.isPresent()){
-//            Expense expense = expenseOpt.get();
-//            expense.getExpenseTracker().removeExpense(expense);
-//            for(Item item : expense.getItems()){
-//                item.getExpenses().remove(expense);
-//            }
-//            return Optional.of(this.expenseRepo.save(expense));
-//        }
-//        return Optional.empty();
-//    }
+    /**
+     *
+     * @param id
+     * @return
+     */
+    public Expense deleteById(Long id) throws ResourceNotFoundException {
+
+        Optional<Expense> expenseOpt = this.expenseRepo.findById(id);
+
+        if(expenseOpt.isPresent()){
+
+            Expense expense = expenseOpt.get();
+
+            expense.getExpenseTracker().removeExpense(expense);
+
+            for(ExpenseItem expenseItem : expense.getExpenseItems()){
+                Item item = expenseItem.getItem();
+                expenseItem.getExpense().removeItem(item);
+                item.removeExpense(expense);
+                this.itemRepo.save(item);
+            }
+            this.expenseRepo.deleteById(id);
+            return expense;
+        } else{
+            throw ResourceNotFoundException.createWith("Expense could not be found!");
+        }
+    }
 
     /**
      *
-     * @param expense
      * @param expenseTracker
-     * @param expenseAddress
-     * @param expenseType
-     * @param expensePaymentType
+     * @param sourceExpense
      * @return
      */
-    public Expense update(Expense sourceExpense, ExpenseTracker expenseTracker ){
+    public Expense update(Expense sourceExpense, ExpenseTracker expenseTracker ) throws ResourceNotFoundException {
 
         sourceExpense.setExpenseTracker(expenseTracker);
-        Expense targetExpense = this.expenseRepo.getExpenseById(sourceExpense.getId());
+        Optional<Expense> targetExpenseOpt = this.expenseRepo.findById(sourceExpense.getId());
+        if(targetExpenseOpt.isPresent()){
 
-        targetExpense.setExpenseName(sourceExpense.getExpenseName());
-        targetExpense.setExpenseEmail(sourceExpense.getExpenseEmail());
-        targetExpense.setExpensePhone(sourceExpense.getExpensePhone());
-        targetExpense.setExpenseMobile(sourceExpense.getExpenseMobile());
+            Expense targetExpense = targetExpenseOpt.get();
 
-        targetExpense.setExpenseType(sourceExpense.getExpenseType());
-        targetExpense.setExpenseAddress(sourceExpense.getExpenseAddress());
-        targetExpense.setExpensePaymentType(sourceExpense.getExpensePaymentType());
-        targetExpense.setExpenseComment(sourceExpense.getExpenseComment());
-        targetExpense.getExpenseItems().clear();
+            targetExpense.setExpenseName(sourceExpense.getExpenseName());
+            targetExpense.setExpenseEmail(sourceExpense.getExpenseEmail());
+            targetExpense.setExpensePhone(sourceExpense.getExpensePhone());
+            targetExpense.setExpenseMobile(sourceExpense.getExpenseMobile());
+
+            targetExpense.setExpenseType(sourceExpense.getExpenseType());
+            targetExpense.setExpenseAddress(sourceExpense.getExpenseAddress());
+            targetExpense.setExpensePaymentType(sourceExpense.getExpensePaymentType());
+            targetExpense.setExpenseComment(sourceExpense.getExpenseComment());
+            targetExpense.getExpenseItems().clear();
 //        targetExpense.setExpenseItems(sourceExpense.getExpenseItems());
-        sourceExpense.getExpenseItems().forEach(sourceExpenseItem -> {
-            sourceExpenseItem.setExpense(targetExpense);
-        // if the ExpenseItem is new
-            if(sourceExpenseItem.getId().getExpenseId() == null && sourceExpenseItem.getId().getItemId() == null){
-                sourceExpenseItem.getId().setExpenseId(sourceExpense.getId());
-                sourceExpenseItem.getId().setItemId(sourceExpenseItem.getItem().getId());
-            }
-            targetExpense.getExpenseItems().add(sourceExpenseItem);
-        });
+            sourceExpense.getExpenseItems().forEach(sourceExpenseItem -> {
+                sourceExpenseItem.setExpense(targetExpense);
+                // if the ExpenseItem is new
+                if(sourceExpenseItem.getId().getExpenseId() == null && sourceExpenseItem.getId().getItemId() == null){
+                    sourceExpenseItem.getId().setExpenseId(sourceExpense.getId());
+                    sourceExpenseItem.getId().setItemId(sourceExpenseItem.getItem().getId());
+                }
+                targetExpense.getExpenseItems().add(sourceExpenseItem);
+            });
 //        expense.setExpenseAddress(expenseAddress);
 //        expense.setExpenseType(expenseType);
 //        expense.setExpensePaymentType(expensePaymentType);
 
-        return this.save(targetExpense);
+            return this.save(targetExpense);
+        }
+        throw ResourceNotFoundException.createWith("Expense could not be found!");
+
     }
 }

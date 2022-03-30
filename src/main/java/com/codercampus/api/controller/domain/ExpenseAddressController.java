@@ -1,6 +1,7 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceHasReferenceException;
 import com.codercampus.api.exception.ResourceNotFoundException;
 import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseAddress;
@@ -159,16 +160,16 @@ public class ExpenseAddressController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) throws ResourceHasReferenceException, ResourceNotFoundException {
 
-        Optional<ExpenseAddress> expenseAddressOpt = this.expenseAddressService.deleteById(id);
-        if(expenseAddressOpt.isPresent()){
+        ExpenseAddress expenseAddress = this.expenseAddressService.deleteById(id);
+//        if(expenseAddressOpt.isPresent()){
 
             //TODO successful feedback
-            return new ResponseEntity<>(expenseAddressMapper.toResponseDto(expenseAddressOpt.get()), HttpStatus.OK);
+            return new ResponseEntity<>(expenseAddressMapper.toResponseDto(expenseAddress), HttpStatus.OK);
 
-        }
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+//        }
+//        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
 
     }
 

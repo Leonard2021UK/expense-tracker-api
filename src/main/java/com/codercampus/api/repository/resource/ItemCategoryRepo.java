@@ -13,13 +13,14 @@ import java.util.Optional;
 public interface ItemCategoryRepo extends JpaRepository<ItemCategory,Long> {
     boolean existsByName(String name);
 
-    @Query(value = "SELECT Ic FROM ItemCategory Ic WHERE Ic.isArchived = false AND Ic.user.id = :userId")
-    List<ItemCategory> findAllNoneArchived(Long userId);
+//    @Query(value = "SELECT Ic FROM item_category Ic WHERE Ic.user.id = :userId")
+    List<ItemCategory> findAllByUserId(Long userId);
 
-    @Query(value = "SELECT Ic FROM ItemCategory Ic WHERE Ic.isArchived = false AND Ic.id = :itemCategoryId AND Ic.user.id = :userId")
-    Optional<ItemCategory> findById(Long itemCategoryId, Long userId);
+//    @Query(value = "SELECT Ic FROM item_category Ic WHERE Ic.id = :itemCategoryId AND Ic.user.id = :userId")
+    Optional<ItemCategory> findByIdAndUserId(Long itemCategoryId, Long userId);
 
     @Modifying
-    @Query(value = "DELETE FROM ItemCategory Ic WHERE Ic.id = :itemCategoryId AND Ic.user.id = :userId")
+    @Query(value = "DELETE FROM item_category Ic WHERE Ic.id = :itemCategoryId AND Ic.user.id = :userId")
     void deleteById(@Param("itemCategoryId") Long itemCategoryId, @Param("userId") Long userId);
+
 }

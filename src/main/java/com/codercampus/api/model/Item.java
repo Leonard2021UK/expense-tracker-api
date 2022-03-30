@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "item")
 @Table(	name = "item")
 @Getter
 @Setter

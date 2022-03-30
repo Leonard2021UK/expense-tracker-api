@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "item_category")
 @Table(	name = "item_category")
 @Getter
 @Setter
@@ -36,7 +36,7 @@ public class ItemCategory {
     @ManyToOne
     private User user;
 
-    private boolean isArchived = false;
+//    private boolean isArchived = false;
 
     @OneToMany(
             mappedBy = "itemCategory",

@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "expense_type")
 @Table(	name = "expense_type")
 @Getter
 @Setter

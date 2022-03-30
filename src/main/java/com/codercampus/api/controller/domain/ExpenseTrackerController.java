@@ -1,7 +1,9 @@
 package com.codercampus.api.controller.domain;
 
 import com.codercampus.api.error.GlobalErrorHandlerService;
+import com.codercampus.api.exception.ResourceHasReferenceException;
 import com.codercampus.api.exception.ResourceNotFoundException;
+import com.codercampus.api.model.Expense;
 import com.codercampus.api.model.ExpenseTracker;
 import com.codercampus.api.model.MainCategory;
 import com.codercampus.api.model.User;
@@ -18,12 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.resource.ResourceException;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -140,15 +141,11 @@ public class ExpenseTrackerController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
+    @Transactional
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) throws ResourceHasReferenceException, ResourceException, ResourceNotFoundException {
 
-        Optional<ExpenseTracker> expenseTrackerOpt = this.expenseTrackerService.deleteById(id);
-        if(expenseTrackerOpt.isPresent()){
-            //TODO successful feedback
-            return new ResponseEntity<>(expenseTrackerMapper.toResponseDto(expenseTrackerOpt.get()), HttpStatus.OK);
-
-        }
-        return this.errorHandler.handleResourceNotFoundError(id.toString(), null);
+        ExpenseTracker deletedExpenseTracker = this.expenseTrackerService.deleteById(id);
+        return new ResponseEntity<>(expenseTrackerMapper.toResponseDto(deletedExpenseTracker), HttpStatus.OK);
 
     }
 
