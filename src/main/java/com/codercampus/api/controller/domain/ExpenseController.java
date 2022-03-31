@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/expense")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Validated
 public class ExpenseController {
 

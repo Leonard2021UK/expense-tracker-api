@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/main-category")
 @Validated
 public class MainCategoryController {

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/item")
+@CrossOrigin(origins = "*", maxAge = 3600)
 @Validated
 public class ItemController {
 

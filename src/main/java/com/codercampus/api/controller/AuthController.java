@@ -42,6 +42,7 @@ import com.codercampus.api.security.UserDetailsImpl;
 //        allowedHeaders = {"Accept","Content-Type"},
 //        maxAge = 3600)
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/auth")
 public class AuthController {
 
