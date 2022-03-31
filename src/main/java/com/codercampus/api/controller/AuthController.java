@@ -36,7 +36,7 @@ import com.codercampus.api.security.jwt.JwtUtils;
 import com.codercampus.api.security.UserDetailsImpl;
 //
 @CrossOrigin(
-        origins = "*",
+        origins = {"https://127.0.0.1:3000", "https://localhost:3000"},
         allowCredentials = "true",
         exposedHeaders = "Set-Cookie",
         allowedHeaders = {"Accept","Content-Type"},

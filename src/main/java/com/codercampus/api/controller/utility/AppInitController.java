@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RequestMapping("/api/app-init")
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = {"https://127.0.0.1:3000", "https://localhost:3000"}, maxAge = 3600)
 @RestController
 public class AppInitController {
 
