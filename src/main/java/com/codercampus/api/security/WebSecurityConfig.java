@@ -93,21 +93,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors(c ->{
-            CorsConfigurationSource src = request -> {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of("https://127.0.0.1:3000","https://localhost:3000"));
-                configuration.setAllowCredentials(true);
-                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
-//                configuration.setExposedHeaders(List.of("Set-Cookie"));
-                return configuration;
-            };
-            c.configurationSource(src);
-        });
+//        http.cors(c ->{
+//            CorsConfigurationSource src = request -> {
+//                CorsConfiguration configuration = new CorsConfiguration();
+//                configuration.setAllowedOrigins(List.of("https://127.0.0.1:3000","https://localhost:3000"));
+//                configuration.setAllowCredentials(true);
+//                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+//                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
+////                configuration.setExposedHeaders(List.of("Set-Cookie"));
+//                return configuration;
+//            };
+//            c.configurationSource(src);
+//        });
 
 
-//        http.cors();
+        http.cors();
         http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
