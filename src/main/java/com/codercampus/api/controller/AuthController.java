@@ -74,6 +74,7 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
+    @CrossOrigin(origins = {"https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com", "https://localhost:3000"})
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
@@ -113,7 +114,7 @@ public class AuthController {
                     )
         );
     }
-
+    @CrossOrigin(origins = {"https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com", "https://localhost:3000"})
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
