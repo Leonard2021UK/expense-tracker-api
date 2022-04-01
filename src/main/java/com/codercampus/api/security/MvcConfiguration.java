@@ -25,6 +25,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        System.out.println("*************************************************************************************");
         registry.addMapping("/api/**")
                 .allowedOrigins("https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com/","https://localhost:3000")
                 .allowCredentials(true)

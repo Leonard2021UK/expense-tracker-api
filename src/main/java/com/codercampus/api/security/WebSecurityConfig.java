@@ -93,23 +93,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        System.out.println("*************************************************************************************");
-        http.cors(c ->{
-            CorsConfigurationSource src = request -> {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(List.of("https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com/","https://localhost:3000"));
-                configuration.setAllowCredentials(true);
-                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
-//                configuration.setExposedHeaders(List.of("Set-Cookie"));
-                System.out.println("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDdddd");
-                return configuration;
-
-            };
-            c.configurationSource(src);
-
-        });
-
+//        http.cors(c ->{
+//            CorsConfigurationSource src = request -> {
+//                CorsConfiguration configuration = new CorsConfiguration();
+//                configuration.setAllowedOrigins(List.of("https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com/","https://localhost:3000"));
+//                configuration.setAllowCredentials(true);
+//                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+//                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
+////                configuration.setExposedHeaders(List.of("Set-Cookie"));
+//                System.out.println("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDdddd");
+//                return configuration;
+//
+//            };
+//            c.configurationSource(src);
+//
+//        });
 
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
@@ -120,12 +118,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/signup").permitAll()
                 .anyRequest().authenticated();
 
-
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }
-
-
 
 //    @Bean
 //    public CorsConfigurationSource corsConfigurationSource() {
