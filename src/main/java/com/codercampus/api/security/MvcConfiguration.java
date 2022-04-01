@@ -27,12 +27,6 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        System.out.println("*******************XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX***************");
-        registry.addMapping("/api/**")
-                .allowedOrigins("https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com/","https://localhost:3000")
-                .allowCredentials(true)
-                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                .allowedHeaders("Set-Cookie","Authorization", "Content-Type","Accept")
-                .maxAge(3600);
+        registry.addMapping("/**");
     }
 }
