@@ -109,7 +109,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //
 //        });
 
-        http.cors().and().csrf().disable()
+        http
+                .cors();
+        http
+                .csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
@@ -121,7 +124,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-    @Bean
+   @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         System.out.println("*************************************************************************************");
