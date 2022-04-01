@@ -111,8 +111,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         });
 
 
-        http.cors();
-        http.csrf().disable()
+        http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 
