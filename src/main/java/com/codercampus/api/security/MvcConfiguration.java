@@ -6,6 +6,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.List;
 
 // sets SameSite cookie attribute to NONE
 @Configuration
+@EnableWebMvc
 public class MvcConfiguration implements WebMvcConfigurer {
     @Bean
     public TomcatContextCustomizer sameSiteCookiesConfig() {
@@ -25,7 +27,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        System.out.println("*************************************************************************************");
+        System.out.println("*******************XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX***************");
         registry.addMapping("/api/**")
                 .allowedOrigins("https://127.0.0.1:3000","https://https://expense-tracker-client-2022.herokuapp.com/","https://localhost:3000")
                 .allowCredentials(true)
