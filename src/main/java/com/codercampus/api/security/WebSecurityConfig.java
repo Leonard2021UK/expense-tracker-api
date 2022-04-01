@@ -105,6 +105,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 return configuration;
             };
             c.configurationSource(src);
+            System.out.println(src);
         });
 
 
