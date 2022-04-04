@@ -5,6 +5,7 @@ import com.codercampus.api.model.RefreshToken;
 import com.codercampus.api.repository.RefreshTokenRepository;
 import com.codercampus.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -55,6 +56,7 @@ public class RefreshTokenService {
     }
 
     // verifies refresh token expiration, if it is expired then deletes the token from the database
+    @Modifying
     public RefreshToken verifyExpiration(RefreshToken token) {
 
         // check if token has benn expired

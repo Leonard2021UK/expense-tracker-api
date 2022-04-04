@@ -48,7 +48,8 @@ public class GlobalControllerExceptionHandler {
             ResourceNotFoundException.class,
             ResourceNotUpdatedException.class,
             ResourceAlreadyExistException.class,
-            ResourceHasReferenceException.class
+            ResourceHasReferenceException.class,
+            RefreshTokenException.class
     })
     public final ResponseEntity<ErrorResponse<?>> handleException(Exception ex, WebRequest request) {
 
@@ -103,7 +104,13 @@ public class GlobalControllerExceptionHandler {
             ResourceHasReferenceException resourceHRE = (ResourceHasReferenceException) ex;
 
             return handleResourceHasReference(resourceHRE, headers, status, request);
+        }else if(ex instanceof RefreshTokenException){
+            HttpStatus status = HttpStatus.FORBIDDEN;
+            RefreshTokenException refreshTokenException = (RefreshTokenException) ex;
+
+            return handleRefreshTokenException(refreshTokenException, headers, status, request);
         }
+
         else {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Unknown exception type: " + ex.getClass().getName());
@@ -160,6 +167,26 @@ public class GlobalControllerExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
+    /**
+     * Customize the response for NumberFormatException
+     *
+     * @param ex The exception
+     * @param headers The headers to be written to the response
+     * @param status The selected response status
+     * @return a {@code ResponseEntity} instance
+     */
+    protected ResponseEntity<ErrorResponse<?>>handleRefreshTokenException(RefreshTokenException ex,
+                                                                         HttpHeaders headers, HttpStatus status,
+                                                                         WebRequest request) {
+        Error error = new Error(ex.getMessage());
+        error.setType(EErrorType.REFRESH_TOKEN_EXPIRED);
+        List<Error> errors = Collections.singletonList(error);
+
+        ErrorResponse<?> errorResponse = new ErrorResponse<>(errors);
+
+        errorResponse.setMessage(ex.getMessage());
+        return handleExceptionInternal(ex, errorResponse, headers, status, request);
+    }
     /**
      * Customize the response for MethodArgumentNotValidException
      * This method handles invalid form field data

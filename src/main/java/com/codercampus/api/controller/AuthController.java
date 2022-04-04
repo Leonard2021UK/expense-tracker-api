@@ -3,12 +3,14 @@ package com.codercampus.api.controller;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import com.codercampus.api.exception.RefreshTokenException;
@@ -58,6 +60,8 @@ public class AuthController {
 
     JwtUtils jwtUtils;
 
+    private UserDetailsImpl userDetails;
+
     public AuthController(
         AuthenticationService authenticationService,
         UserService userService,
@@ -85,15 +89,15 @@ public class AuthController {
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         // Get authenticated user
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        this.userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         // Get roles associated with the authenticated user
-        List<String> roles = userDetails.getAuthorities().stream()
+        List<String> roles = this.userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
         // generates new refresh token
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(this.userDetails.getId());
 
         final Cookie cookie = new Cookie("refreshToken", refreshToken.getToken());
         cookie.setHttpOnly(true);
@@ -107,9 +111,9 @@ public class AuthController {
                     new JwtResponse(
                         jwt,
                         refreshToken,
-                        userDetails.getId(),
-                        userDetails.getUsername(),
-                        userDetails.getEmail(),
+                        this.userDetails.getId(),
+                        this.userDetails.getUsername(),
+                        this.userDetails.getEmail(),
                         roles
                     )
         );
@@ -204,16 +208,32 @@ public class AuthController {
 //    }
 
     @PostMapping("/refresh_token")
-    public ResponseEntity<?> getRefreshToken(@CookieValue("refreshToken") String refreshToken) {
+    @Transactional
+    public ResponseEntity<?> getAuthTokenFromRefreshToken(@CookieValue("refreshToken") String refreshToken) {
 
-        return this.refreshTokenService.findByToken(refreshToken)
+        Optional<RefreshToken> refreshTokenOpt = this.refreshTokenService.findByToken(refreshToken);
+        if(refreshTokenOpt.isPresent()){
+            return refreshTokenOpt
                 .map(this.refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
+                    String newJWTtoken = jwtUtils.generateTokenFromUsername(this.userDetails);
                     return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
                 })
                 .orElseThrow(() -> new RefreshTokenException(refreshToken,
                         "Refresh token is not in database!"));
+        }
+        return ResponseEntity.notFound().build();
+
+
+//        return this.refreshTokenService.findByToken(refreshToken)
+//                .map(this.refreshTokenService::verifyExpiration)
+//                .map(RefreshToken::getUser)
+//                .map(user -> {
+//                    String newJWTtoken = jwtUtils.generateTokenFromUsername(user.getUsername());
+//                    return ResponseEntity.ok(new RefreshTokenResponse(newJWTtoken));
+//                })
+//                .orElseThrow(() -> new RefreshTokenException(refreshToken,
+//                        "Refresh token is not in database!"));
     }
 }
