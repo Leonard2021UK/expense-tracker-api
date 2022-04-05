@@ -131,11 +131,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         System.out.println("*************************************************************************************");
 
-        configuration.setAllowedOrigins(List.of("https://127.0.0.1:3000","https://expense-tracker-client-2022.herokuapp.com","https://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://127.0.0.1:3000","http://expense-tracker-client-2022.herokuapp.com","http://localhost:3000"));
                 configuration.setAllowCredentials(true);
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token","accept"));
-                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
+                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","authorization", "content-type", "x-auth-token","accept"));
+//                configuration.setAllowedHeaders(Arrays.asList("Set-Cookie","Authorization", "Content-Type","Accept"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
