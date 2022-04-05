@@ -38,7 +38,7 @@ import com.codercampus.api.security.jwt.JwtUtils;
 import com.codercampus.api.security.UserDetailsImpl;
 //
 @CrossOrigin(
-        origins = {"http://127.0.0.1:3000","http://expense-tracker-client-2022.herokuapp.com", "http://localhost:3000"},
+        origins = {"http://127.0.0.1:3000","https://expense-tracker-client-2022.herokuapp.com", "http://localhost:3000"},
         allowCredentials = "true",
         exposedHeaders = "Set-Cookie",
         allowedHeaders = {"Accept","Content-Type"},
@@ -78,7 +78,7 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
-    @CrossOrigin(origins = {"http://127.0.0.1:3000","http://expense-tracker-client-2022.herokuapp.com", "http://localhost:3000"})
+    @CrossOrigin(origins = {"http://127.0.0.1:3000","https://expense-tracker-client-2022.herokuapp.com", "http://localhost:3000"})
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
@@ -118,7 +118,7 @@ public class AuthController {
                     )
         );
     }
-    @CrossOrigin(origins = {"http://127.0.0.1:3000","http://expense-tracker-client-2022.herokuapp.com", "http://localhost:3000"})
+    @CrossOrigin(origins = {"http://127.0.0.1:3000","https://expense-tracker-client-2022.herokuapp.com", "http://localhost:3000"})
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
